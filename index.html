@@ -4,338 +4,435 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Central da Montagem</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/logos/casinha.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-/* ============ Design system ============ */
+/* =====================================================================
+   CENTRAL DA MONTAGEM · design "Metrocasa Viva" (mesma linguagem do Metro Academy e do Acompanhamento)
+   Faixa colorida com as facetas da casinha · verde = avançar/positivo · vermelho = crítico ·
+   âmbar = atenção · azul = informação e dados · cinza = neutro
+   ===================================================================== */
+@font-face{font-family:Inter;font-weight:400;font-display:swap;src:url(assets/fonts/inter-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:Inter;font-weight:500;font-display:swap;src:url(assets/fonts/inter-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:Inter;font-weight:600;font-display:swap;src:url(assets/fonts/inter-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Space Grotesk";font-weight:600;font-display:swap;src:url(assets/fonts/space-grotesk-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"Space Grotesk";font-weight:700;font-display:swap;src:url(assets/fonts/space-grotesk-latin-700-normal.woff2) format("woff2")}
 :root{
-  --bg:#f5f6f8; --sf:#ffffff; --sf2:#fafbfc; --ln:#e5e7eb; --ln2:#eef0f3;
-  --tx:#161a22; --tx2:#4b5363; --tx3:#8a91a0;
-  --br:#7a1f2b; --br2:#9b2c3a; --brs:#f7ecee;
-  --ok:#1d7a52; --okb:#e7f4ed; --wa:#a86a12; --wab:#fcf3e1; --cr:#b9382a; --crb:#fbeae8; --in:#2d64a8; --inb:#e9f0f9; --ne:#6b7280; --neb:#f0f1f3;
-  --r:10px; --r2:8px; --sh:0 1px 2px rgba(16,24,40,.05); --sh2:0 12px 32px rgba(16,24,40,.16);
-  --f:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
-}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%}
-body{font-family:var(--f);font-size:14px;line-height:1.45;color:var(--tx);background:var(--bg);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+  --mc:#EC1C24;--mc2:#D32224;--mc3:#B6211D;--mc4:#8E1915;
+  --verde:#26BC58;--verde2:#21A550;--va:#13803B;--ve:#0E6A30;
+  --azul:#106FB5;--azul2:#0D5C97;
+  --ok:#13803B;--okb:#E3F6EA;--wa:#8A5300;--wab:#FFF1D6;--wam:#E29A00;--cr:#B6211D;--crb:#FDE9E8;--in:#0D5C97;--inb:#E7F1FA;--ne:#736A6C;--neb:#F1ECED;
+  --tx:#231F20;--tx2:#5C5456;--tx3:#736A6C;--borda:#8F8688;--ln:#E7E1E2;--ln2:#F0EBEC;--bg:#F5F2F2;--sf:#fff;--sf2:#FBF9F9;
+  --br:var(--mc3);--brs:#FBEDEC;
+  --r:16px;--r2:10px;--rp:999px;
+  --sh:0 1px 0 rgba(35,31,32,.05),0 0 0 1px var(--ln);--sh2:0 10px 30px -12px rgba(80,12,10,.28);--sh3:0 30px 80px -20px rgba(40,6,6,.45);
+  --fg:"Space Grotesk",Inter,sans-serif;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%}
+body{font:400 14.5px/1.5 Inter,system-ui,sans-serif;color:var(--tx);background:var(--bg);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
-a{color:var(--in)}
-svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+button{cursor:pointer;border:0;background:none;padding:0}
+:focus-visible{outline:3px solid var(--azul);outline-offset:2px}
+.banda :focus-visible{outline-color:#fff}
+a{color:var(--azul2)}
+svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:block}
 svg.i.s{width:15px;height:15px}
 .hid{display:none!important}
+h1,h2,h3{font-family:var(--fg);font-weight:700;letter-spacing:-.02em;margin:0;line-height:1.12}
 
-/* layout */
-.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
-.side{background:#15181f;color:#c9ced8;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
-.brand{display:flex;align-items:center;gap:10px;padding:18px 18px 14px}
-.brand .lg{width:30px;height:30px;border-radius:8px;background:var(--br);display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px}
-.brand b{color:#fff;font-size:14px;display:block;letter-spacing:-.01em}
-.brand small{color:#8790a0;font-size:11.5px}
-.nav{padding:8px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
-.nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:8px;font-size:13.5px;color:#c9ced8}
-.nav button:hover{background:#20242d;color:#fff}
-.nav button.on{background:#262b36;color:#fff}
-.nav button.on svg{color:#f3a7b0}
-.nav .ct{margin-left:auto;font-size:11px;background:#3a2025;color:#f3a7b0;border-radius:10px;padding:1px 7px}
-.nav .sep{height:1px;background:#262b36;margin:10px 6px}
-.me{padding:14px 18px;border-top:1px solid #262b36;font-size:12px;color:#8790a0;display:flex;align-items:center;gap:8px}
-.me b{color:#e5e8ee;font-weight:500;display:block;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
-.me button{all:unset;cursor:pointer;margin-left:auto;color:#8790a0;padding:4px;border-radius:6px}
-.me button:hover{color:#fff;background:#262b36}
-
-.main{min-width:0;display:flex;flex-direction:column}
-.top{position:sticky;top:0;z-index:20;background:rgba(245,246,248,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--ln);display:flex;align-items:center;gap:14px;padding:12px 28px}
-.crumbs{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--tx3);min-width:0;flex:1}
-.crumbs button{all:unset;cursor:pointer;color:var(--tx2)}
-.crumbs button:hover{color:var(--tx);text-decoration:underline}
-.crumbs b{color:var(--tx);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gsearch{position:relative;width:340px;max-width:40vw}
-.gsearch input{width:100%;height:36px;border:1px solid var(--ln);background:var(--sf);border-radius:9px;padding:0 12px 0 36px;outline:none}
-.gsearch input:focus{border-color:var(--br2);box-shadow:0 0 0 3px var(--brs)}
-.gsearch>svg{position:absolute;left:11px;top:9px;color:var(--tx3)}
-.gres{position:absolute;top:42px;left:0;right:0;background:var(--sf);border:1px solid var(--ln);border-radius:10px;box-shadow:var(--sh2);overflow:hidden;z-index:30}
-.gres button{all:unset;display:block;width:100%;box-sizing:border-box;padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--ln2)}
+/* ===== Faixa (banda) com as facetas da casinha ===== */
+.banda{position:relative;background:var(--banda);color:#fff;padding:8px 28px 92px;overflow:hidden}
+.banda.t-vinho{--banda:var(--mc3);--banda-claro:var(--mc2);--banda-escuro:#6E120F}
+.banda.t-vermelho{--banda:var(--mc2);--banda-claro:#E31B23;--banda-escuro:var(--mc4)}
+.banda.t-azul{--banda:var(--azul);--banda-claro:#0D63A3;--banda-escuro:#0A4E81}
+.banda>*:not(.facetas){position:relative}
+.facetas{position:absolute;inset:0;overflow:hidden;pointer-events:none;background:linear-gradient(100deg,var(--banda-escuro) -15%,rgba(0,0,0,0) 58%)}
+.facetas i{position:absolute;display:block}
+.facetas i:nth-child(1){right:-14%;top:-30%;width:46%;height:170%;background:var(--banda-claro);transform:skewX(-26deg);box-shadow:-40px 0 0 rgba(255,255,255,.06)}
+.facetas i:nth-child(2){left:44%;bottom:-40%;width:18%;height:120%;background:rgba(0,0,0,.14);transform:skewX(-26deg)}
+.facetas i:nth-child(3){right:31%;top:76px;width:56px;height:24px;background:var(--verde);transform:skewX(34deg)}
+.topo{display:flex;align-items:center;gap:14px;min-height:56px;max-width:1280px;margin:0 auto}
+.topo .marca{height:24px;flex:none}
+.topo .produto{font:700 15px var(--fg);padding-left:14px;border-left:1.5px solid rgba(255,255,255,.45);white-space:nowrap}
+.abas{display:flex;gap:2px;margin-left:10px;overflow-x:auto;scrollbar-width:none;min-width:0}
+.abas::-webkit-scrollbar{display:none}
+.abas button{color:#fff;min-height:38px;padding:0 13px;border-radius:var(--rp);font-weight:600;font-size:14px;white-space:nowrap;display:flex;align-items:center;gap:7px;opacity:.94;transition:background .12s}
+.abas button:hover{background:rgba(255,255,255,.16);opacity:1}
+.abas button.on{background:#fff;color:var(--banda);opacity:1}
+.abas button.sec span{display:none}.abas button.sec.on span{display:inline}
+.abas .ct{font-style:normal;font-size:11px;font-weight:700;background:#fff;color:var(--mc3);border-radius:9px;padding:0 6px;line-height:17px}
+.abas button.on .ct{background:var(--mc3);color:#fff}
+.gsearch{margin-left:auto;position:relative;width:270px;flex:none}
+.gsearch input{width:100%;height:38px;border:0;border-radius:var(--rp);background:rgba(255,255,255,.17);color:#fff;padding:0 14px 0 36px;outline:none;transition:background .15s}
+.gsearch input::placeholder{color:rgba(255,255,255,.82)}
+.gsearch input:focus{background:#fff;color:var(--tx)}
+.gsearch input:focus::placeholder{color:var(--tx3)}
+.gsearch>svg{position:absolute;left:12px;top:11px;color:#fff;z-index:1}
+.gsearch:focus-within>svg{color:var(--tx3)}
+.gres{position:absolute;top:44px;right:0;width:min(420px,92vw);background:var(--sf);color:var(--tx);border-radius:14px;box-shadow:var(--sh3);overflow:hidden;z-index:30}
+.gres button{display:block;width:100%;text-align:left;padding:10px 14px;border-bottom:1px solid var(--ln2)}
 .gres button:hover,.gres button.on{background:var(--sf2)}
-.gres b{font-weight:600;font-size:13px}
+.gres b{font-weight:600;font-size:13.5px}
 .gres small{display:block;color:var(--tx3);font-size:12px}
-.upd{font-size:12px;color:var(--tx3);white-space:nowrap}
-.content{padding:24px 28px 80px;max-width:1440px;width:100%}
+.eu{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;white-space:nowrap;text-align:right}
+.eu small{display:block;font-weight:500;opacity:.85;font-size:11.5px}
+.eu button{color:#fff;width:34px;height:34px;display:grid;place-items:center;border-radius:var(--rp);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.5)}
+.eu button:hover{background:rgba(255,255,255,.14)}
+.cabw{max-width:1280px;margin:20px auto 0}
+.crumbs{font-size:12.5px;opacity:.92;display:flex;gap:6px;align-items:center;min-height:18px}
+.crumbs svg{opacity:.8}
+.crumbs button{color:#fff;text-decoration:underline;text-underline-offset:3px}
+.crumbs b{font-weight:600}
+.ph{display:flex;justify-content:space-between;align-items:flex-end;gap:14px 32px;flex-wrap:wrap;margin-top:6px}
+.ph h1{font-size:clamp(28px,3.4vw,40px);color:#fff}
+.ph p{color:#fff;opacity:.93;margin:8px 0 0;font-size:15px;font-weight:500;max-width:780px}
+.ph .act{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.banda .btn{background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.65)}
+.banda .btn:hover{background:rgba(255,255,255,.13)}
+.banda .btn.pri{background:#fff;color:var(--banda);box-shadow:inset 0 -3px 0 rgba(0,0,0,.16)}
+.banda .btn.ghost{box-shadow:none}
+.banda .seg{background:rgba(255,255,255,.16)}
+.banda .seg button{color:#fff}
+.banda .seg button.on{background:#fff;color:var(--banda)}
+.banda .sel{background-color:#fff;border-color:transparent;color:var(--tx)}
+.banda .muted,.banda .small{color:#fff;opacity:.9}
+.miolo{max-width:1280px;margin:-62px auto 0;padding:0 28px 90px;position:relative}
 
-/* page head */
-.ph{display:flex;align-items:flex-end;gap:16px;margin-bottom:18px;flex-wrap:wrap}
-.ph h1{font-size:21px;line-height:1.2;margin:0;letter-spacing:-.02em;font-weight:700}
-.ph p{margin:4px 0 0;color:var(--tx2);font-size:13.5px;max-width:720px}
-.ph .act{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+/* ===== Recorte (filtros globais) ===== */
+.recbar{background:var(--sf);border-radius:var(--r);box-shadow:var(--sh2);padding:10px 12px;display:flex;gap:8px 12px;align-items:center;flex-wrap:wrap;margin-bottom:18px}
+.recbar .rl{display:flex;align-items:center;gap:6px;font:700 13px var(--fg);letter-spacing:.02em;text-transform:uppercase;color:var(--tx2);padding:0 4px}
+.recbar .seg b{font-weight:700;margin-left:3px;color:inherit;opacity:.75}
+.recbar .rr{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.fgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 14px}
+.fgrid .c2{grid-column:1/-1}
 
-/* controls */
-.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:8px;border:1px solid var(--ln);background:var(--sf);cursor:pointer;font-weight:500;font-size:13px;white-space:nowrap;color:var(--tx)}
-.btn:hover{border-color:#cfd3da;background:var(--sf2)}
-.btn.pri{background:var(--br);border-color:var(--br);color:#fff}
-.btn.pri:hover{background:var(--br2)}
-.btn.ghost{border-color:transparent;background:transparent}
-.btn.ghost:hover{background:#eceef1}
+/* ===== Controles ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:0 15px;border-radius:var(--r2);font-weight:600;font-size:14px;white-space:nowrap;background:var(--sf);color:var(--tx);box-shadow:inset 0 0 0 1.5px var(--ln),inset 0 -3px 0 var(--ln);transition:box-shadow .12s,background .12s}
+.btn:hover{box-shadow:inset 0 0 0 1.5px var(--borda),inset 0 -3px 0 var(--borda)}
+.btn:active{transform:translateY(1px)}
+.btn.pri{background:var(--va);color:#fff;box-shadow:inset 0 -3px 0 var(--ve)}
+.btn.pri:hover{background:#0F7535}
+.btn.ghost{background:none;box-shadow:none;color:var(--tx2)}
+.btn.ghost:hover{background:#EFE9EA;color:var(--tx)}
 .btn.dan{color:var(--cr)}
-.btn.sm{height:28px;padding:0 9px;font-size:12.5px}
-.btn:disabled{opacity:.5;cursor:default}
-.inp,.sel{height:34px;border:1px solid var(--ln);border-radius:8px;background:var(--sf);padding:0 10px;outline:none;min-width:0}
-.inp:focus,.sel:focus{border-color:var(--br2);box-shadow:0 0 0 3px var(--brs)}
-.seg{display:inline-flex;background:#eceef1;border-radius:9px;padding:3px;gap:2px}
-.seg button{all:unset;cursor:pointer;padding:5px 11px;border-radius:7px;font-size:12.5px;color:var(--tx2);font-weight:500;white-space:nowrap}
-.seg button.on{background:var(--sf);color:var(--tx);box-shadow:var(--sh)}
+.btn.sm{min-height:32px;padding:0 11px;font-size:13px}
+.btn:disabled{opacity:.45;cursor:default;transform:none}
+.inp,.sel{min-height:38px;border:1.5px solid var(--ln);border-bottom-color:var(--borda);border-radius:var(--r2);background:var(--sf);padding:0 11px;outline:none;min-width:0;font-size:14px}
+.inp:focus,.sel:focus{border-color:var(--azul);box-shadow:0 0 0 4px var(--inb)}
+.sel{appearance:none;padding-right:32px;background:var(--sf) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%235C5456' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 11px center}
+.seg{display:inline-flex;background:#EFE9EA;border-radius:var(--rp);padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{padding:6px 13px;border-radius:var(--rp);font-weight:600;font-size:13px;color:var(--tx2);white-space:nowrap}
+.seg button:hover{color:var(--tx)}
+.seg button.on{background:var(--sf);color:var(--tx);box-shadow:0 1px 2px rgba(35,31,32,.14)}
 .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
-.chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 6px 0 10px;border-radius:14px;background:var(--brs);color:var(--br);font-size:12.5px;font-weight:500}
-.chip button{all:unset;cursor:pointer;display:grid;place-items:center;width:18px;height:18px;border-radius:9px}
-.chip button:hover{background:#efd6da}
+.chip{display:inline-flex;align-items:center;gap:5px;min-height:30px;padding:0 6px 0 12px;border-radius:var(--rp);background:var(--inb);color:var(--azul2);font-size:13px;font-weight:600}
+.chip button{display:grid;place-items:center;width:20px;height:20px;border-radius:10px}
+.chip button:hover{background:#D3E4F4}
 
-/* cards */
-.card{background:var(--sf);border:1px solid var(--ln);border-radius:var(--r);box-shadow:var(--sh)}
-.card>.hd{display:flex;align-items:center;gap:10px;padding:14px 16px 0}
-.card>.hd h3{margin:0;font-size:14px;font-weight:600;letter-spacing:-.005em}
-.card>.hd .sub{color:var(--tx3);font-size:12px}
+/* ===== Blocos ===== */
+.card{background:var(--sf);border-radius:var(--r);box-shadow:var(--sh)}
+.card>.hd{display:flex;align-items:baseline;gap:10px;padding:16px 18px 0;flex-wrap:wrap}
+.card>.hd h3{font-size:17px}
+.card>.hd .sub{color:var(--tx3);font-size:12.5px}
 .card>.hd .r{margin-left:auto;display:flex;gap:6px;align-items:center}
-.card>.bd{padding:12px 16px 16px}
+.card>.bd{padding:12px 18px 18px}
 .muted{color:var(--tx3)}
-.small{font-size:12px}
-
-/* semantic */
-.b{display:inline-flex;align-items:center;gap:4px;height:21px;padding:0 8px;border-radius:11px;font-size:11.5px;font-weight:600;white-space:nowrap}
-.b.ok{background:var(--okb);color:var(--ok)} .b.wa{background:var(--wab);color:var(--wa)} .b.cr{background:var(--crb);color:var(--cr)} .b.in{background:var(--inb);color:var(--in)} .b.ne{background:var(--neb);color:var(--ne)}
-.dot{width:8px;height:8px;border-radius:4px;display:inline-block;flex:none}
-.dot.ok{background:var(--ok)} .dot.wa{background:#d39a2c} .dot.cr{background:var(--cr)} .dot.in{background:var(--in)} .dot.ne{background:#b5bac3}
-
-/* KPI */
+.small{font-size:12.5px}
+.b{display:inline-flex;align-items:center;gap:4px;min-height:22px;padding:0 9px;border-radius:var(--rp);font-size:12px;font-weight:700;white-space:nowrap}
+.b.ok{background:var(--okb);color:var(--ve)} .b.wa{background:var(--wab);color:var(--wa)} .b.cr{background:var(--crb);color:var(--cr)} .b.in{background:var(--inb);color:var(--azul2)} .b.ne{background:var(--neb);color:var(--tx2)}
+.dot{width:9px;height:9px;border-radius:5px;display:inline-block;flex:none}
+.dot.ok{background:var(--verde2)} .dot.wa{background:var(--wam)} .dot.cr{background:var(--mc2)} .dot.in{background:var(--azul)} .dot.ne{background:#B8AEB0}
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
 .g3{grid-template-columns:repeat(3,minmax(0,1fr))}
 .w-s{grid-column:span 1}.w-m{grid-column:span 2}.w-l{grid-column:span 4}
-.kpi{padding:16px;cursor:pointer;transition:border-color .15s,box-shadow .15s;display:flex;flex-direction:column;gap:2px;min-height:132px}
-.kpi:hover{border-color:#cfd3da;box-shadow:0 4px 14px rgba(16,24,40,.07)}
-.kpi .lb{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--tx2);font-weight:500}
+.mt{margin-top:16px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.hstack{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+
+/* ===== KPIs ===== */
+.kpi{position:relative;padding:16px 18px 15px;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-height:132px;transition:box-shadow .15s,transform .15s}
+.kpi:hover{box-shadow:var(--sh),0 12px 26px -14px rgba(80,12,10,.35);transform:translateY(-1px)}
+.kpi .lb{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--tx2);font-weight:600;padding-right:22px}
 .kpi .lb svg{color:var(--tx3)}
-.kpi .v{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.15;margin-top:6px}
-.kpi .v small{font-size:14px;font-weight:500;color:var(--tx3);letter-spacing:0;margin-left:4px}
-.kpi .cx{font-size:12px;color:var(--tx3)}
+.kpi .v{font:700 36px/1.05 var(--fg);letter-spacing:-.03em;margin-top:8px}
+.kpi .v small{font:500 14px Inter,sans-serif;color:var(--tx3);letter-spacing:0;margin-left:4px}
+.kpi .cx{font-size:12.5px;color:var(--tx3);margin-top:2px}
 .kpi.cr .v{color:var(--cr)} .kpi.wa .v{color:var(--wa)} .kpi.ok .v{color:var(--ok)}
-.kpi ul{list-style:none;margin:8px 0 0;padding:8px 0 0;border-top:1px dashed var(--ln);font-size:12px;color:var(--tx2);display:flex;flex-direction:column;gap:3px}
+.kpi ul{list-style:none;margin:10px 0 0;padding:8px 0 0;border-top:1px dashed var(--ln);font-size:12.5px;color:var(--tx2);display:flex;flex-direction:column;gap:3px}
 .kpi li{display:flex;gap:8px}
-.kpi li span:last-child{margin-left:auto;font-weight:600;color:var(--tx)}
-.kpi .cta{margin-top:auto;padding-top:8px;font-size:12px;color:var(--br);font-weight:500}
+.kpi li span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kpi li span:last-child{margin-left:auto;font-weight:700;color:var(--tx)}
+.kpi .cta{margin-top:auto;padding-top:8px;font-size:12.5px;color:var(--azul2);font-weight:600}
+.kpi.f{color:#fff;box-shadow:var(--sh2);background-image:linear-gradient(112deg,transparent 72%,rgba(255,255,255,.12) 72%,rgba(255,255,255,.12) 86%,transparent 86%)}
+.kpi.f .lb,.kpi.f .lb svg,.kpi.f .cx,.kpi.f ul,.kpi.f li span:last-child,.kpi.f .v,.kpi.f .v small,.kpi.f .cta{color:#fff}
+.kpi.f ul{border-top-color:rgba(255,255,255,.35)}
+.kpi.f-in{background-color:var(--azul)} .kpi.f-ok{background-color:var(--va)} .kpi.f-cr{background-color:var(--mc3)} .kpi.f-wa{background-color:#9A5B00} .kpi.f-ne{background-color:#5C5456}
+.def{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:11px;display:grid;place-items:center;color:var(--tx3);z-index:3;cursor:help}
+.kpi.f .def{color:#fff}
+.def .bub{display:none;position:absolute;top:26px;right:-6px;width:270px;background:var(--tx);color:#fff;font-size:12.5px;font-weight:500;line-height:1.45;padding:10px 12px;border-radius:10px;box-shadow:var(--sh3);text-align:left;white-space:normal;cursor:default}
+.def:hover .bub,.def:focus .bub{display:block}
 
-/* attention list */
+/* ===== Listas de atenção e resumo ===== */
 .att{display:flex;flex-direction:column}
-.att button{all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--ln2)}
-.att button:last-child{border-bottom:0}
-.att button:hover{background:var(--sf2)}
-.att .ic{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;flex:none}
-.att .ic.cr{background:var(--crb);color:var(--cr)} .att .ic.wa{background:var(--wab);color:var(--wa)} .att .ic.in{background:var(--inb);color:var(--in)} .att .ic.ok{background:var(--okb);color:var(--ok)}
+.att>button,.att>div{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--ln2);text-align:left;width:100%}
+.att>:last-child{border-bottom:0}
+.att>button:hover{background:var(--sf2)}
+.att .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;flex:none}
+.att .ic.cr{background:var(--crb);color:var(--cr)} .att .ic.wa{background:var(--wab);color:var(--wa)} .att .ic.in{background:var(--inb);color:var(--azul2)} .att .ic.ok{background:var(--okb);color:var(--ok)} .att .ic.ne{background:var(--neb);color:var(--tx2)}
 .att b{font-weight:600;font-size:13.5px;display:block}
-.att small{color:var(--tx3);font-size:12px}
-.att .go{margin-left:auto;color:var(--tx3);display:flex;align-items:center;gap:4px;font-size:12px;white-space:nowrap}
+.att small{color:var(--tx3);font-size:12.5px;display:block}
+.att .go{margin-left:auto;color:var(--tx3);display:flex;align-items:center;gap:4px;font-size:12.5px;white-space:nowrap}
+.rs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.rs li{display:flex;gap:10px;align-items:flex-start;padding:9px 2px;border-bottom:1px solid var(--ln2);font-size:14px}
+.rs li:last-child{border-bottom:0}
+.rs li .dot{margin-top:6px}
+.rs li.lk{cursor:pointer}
+.rs li.lk:hover{background:var(--sf2)}
+.rs li .go{margin-left:auto;color:var(--tx3);flex:none;padding-top:2px}
+.rs li.ne{color:var(--tx2);font-size:13px}
 
-/* bar list */
+/* ===== Barras claras com contorno ===== */
 .bl{display:flex;flex-direction:column;gap:2px}
-.bl .row{display:grid;grid-template-columns:minmax(120px,1.3fr) 2fr 64px;gap:10px;align-items:center;padding:6px 4px;border-radius:6px;cursor:pointer}
+.bl .row{display:grid;grid-template-columns:minmax(120px,1.3fr) 2fr 76px;gap:10px;align-items:center;padding:6px 4px;border-radius:8px;cursor:pointer}
 .bl .row:hover{background:var(--sf2)}
-.bl .nm{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bl .nm{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bl .nm small{color:var(--tx3);margin-left:4px}
 .bl .tr{height:14px;position:relative}
-.bl .br{position:absolute;left:0;top:0;bottom:0;border:1px solid #b9c3d1;background:#e8edf4;border-radius:3px}
-.bl .br.late{border-color:#e2a49b;background:#f8e1dd}
-.bl .num{text-align:right;font-size:12.5px;font-weight:600}
-.bl .num small{display:block;font-weight:400;color:var(--tx3);font-size:11px}
-.legend{display:flex;gap:14px;font-size:11.5px;color:var(--tx3);margin-top:8px;flex-wrap:wrap}
+.bl .br{position:absolute;left:0;top:0;bottom:0;border:1.5px solid #8DB3DA;background:#EEF5FC;border-radius:3px}
+.bl .br.late{border-color:#E09A92;background:#FBE7E4}
+.bl .num{text-align:right;font-size:13px;font-weight:700}
+.bl .num small{display:block;font-weight:500;color:var(--tx3);font-size:11px}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--tx3);margin-top:8px;flex-wrap:wrap}
 .legend span{display:inline-flex;align-items:center;gap:5px}
-.sw{width:12px;height:8px;border-radius:2px;border:1px solid #b9c3d1;background:#e8edf4;display:inline-block}
-.sw.late{border-color:#e2a49b;background:#f8e1dd}
+.sw{width:13px;height:9px;border-radius:2px;border:1.5px solid #8DB3DA;background:#EEF5FC;display:inline-block}
+.sw.late{border-color:#E09A92;background:#FBE7E4}
 
-/* tables */
-.tw{overflow:auto;max-height:calc(100vh - 250px);border-top:1px solid var(--ln)}
-table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
-.t th{position:sticky;top:0;z-index:2;background:var(--sf2);text-align:left;font-weight:600;font-size:12px;color:var(--tx2);padding:9px 12px;border-bottom:1px solid var(--ln);white-space:nowrap;cursor:pointer;user-select:none}
+/* ===== Tempo entre etapas ===== */
+.fluxo{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.tempo{border-radius:14px;padding:13px 14px;background:var(--sf2);box-shadow:inset 0 0 0 1.5px var(--ln);cursor:pointer;display:flex;flex-direction:column;gap:3px;transition:box-shadow .12s}
+.tempo:hover{box-shadow:inset 0 0 0 1.5px var(--borda)}
+.tempo .tt{font-size:12.5px;font-weight:600;color:var(--tx2);display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+.tempo .tt svg{color:var(--tx3)}
+.tempo .tv{font:700 28px/1.1 var(--fg);letter-spacing:-.02em}
+.tempo .tv small{font:500 13px Inter,sans-serif;color:var(--tx3)}
+.tempo .ts{font-size:12px;color:var(--tx3)}
+.tempo .b{align-self:flex-start;margin-top:4px}
+.tempo.tot{background:var(--inb);box-shadow:inset 0 0 0 1.5px #C9DDF1}
+.spk{display:block;margin-top:6px}
+
+/* ===== Tabelas ===== */
+.tw{overflow:visible}
+table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px}
+.t th{position:sticky;top:0;z-index:2;background:var(--sf);text-align:left;font-weight:700;font-size:12px;color:var(--tx2);padding:11px 12px;border-bottom:2px solid var(--ln);white-space:nowrap;cursor:pointer;user-select:none}
 .t th.n,.t td.n{text-align:right}
-.t th .ar{color:var(--br);margin-left:3px}
-.t td{padding:9px 12px;border-bottom:1px solid var(--ln2);vertical-align:middle}
+.t th .ar{color:var(--mc3);margin-left:3px}
+.t td{padding:10px 12px;border-bottom:1px solid var(--ln2);vertical-align:middle}
 .t tbody tr{cursor:pointer}
-.t tbody tr:hover td{background:#fafbfd}
+.t tbody tr:hover td{background:#FCFAFA}
 .t td b{font-weight:600}
 .t td small{display:block;color:var(--tx3);font-size:11.5px}
 .t td.cl{max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .t td.c1{max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.t td.c1 small{overflow:hidden;text-overflow:ellipsis}
 .t td.nw{white-space:nowrap}
-.pager{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:12.5px;color:var(--tx2);border-top:1px solid var(--ln)}
+.t tr.tot td{font-weight:700;background:var(--sf2);border-bottom:2px solid var(--ln)}
+.t td .pior{color:var(--cr);font-weight:700} .t td .melhor{color:var(--ok);font-weight:700}
+.t td.peq{color:var(--tx3)}
+.pager{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13px;color:var(--tx2);border-top:1px solid var(--ln)}
 .pager .r{margin-left:auto;display:flex;gap:6px}
+.team td .bar{height:10px;border-radius:3px;background:#EEF5FC;border:1.5px solid #8DB3DA;display:block}
 
-/* tree (estrutura) */
-.tree{font-size:13px}
-.tree .th,.tree .tr{display:grid;grid-template-columns:minmax(260px,2.4fr) 80px 92px 80px 80px 96px 110px 40px;gap:8px;align-items:center;padding:0 12px}
-.tree .th{font-size:11.5px;color:var(--tx3);font-weight:600;padding-top:10px;padding-bottom:10px;background:var(--sf2);border-bottom:1px solid var(--ln);position:sticky;top:57px;z-index:3}
+/* ===== Árvore (fases e sínteses) ===== */
+.tree{font-size:13.5px;overflow:hidden}
+.tree .th,.tree .tr{display:grid;grid-template-columns:minmax(260px,2.4fr) 80px 92px 80px 80px 96px 110px 40px;gap:8px;align-items:center;padding:0 14px}
+.tree .th{font-size:12px;color:var(--tx2);font-weight:700;padding-top:12px;padding-bottom:12px;border-bottom:2px solid var(--ln);background:var(--sf)}
 .tree .th>div:not(:first-child),.tree .tr>div.n{text-align:right}
-.tree .tr{min-height:44px;border-bottom:1px solid var(--ln2)}
-.tree .tr:hover{background:#fafbfd}
+.tree .tr{min-height:46px;border-bottom:1px solid var(--ln2)}
+.tree .tr:hover{background:#FCFAFA}
 .tree .nmc{display:flex;align-items:center;gap:8px;min-width:0}
-.tree .tg{all:unset;cursor:pointer;width:22px;height:22px;display:grid;place-items:center;border-radius:5px;color:var(--tx3);flex:none}
-.tree .tg:hover{background:#eceef1}
+.tree .tg{width:24px;height:24px;display:grid;place-items:center;border-radius:6px;color:var(--tx3);flex:none}
+.tree .tg:hover{background:var(--bg)}
 .tree .tg svg{transition:transform .15s}
 .tree .tg.op svg{transform:rotate(90deg)}
 .tree .tg.no{visibility:hidden}
-.tree input[type=checkbox]{width:15px;height:15px;accent-color:var(--br);flex:none;cursor:pointer}
+.tree input[type=checkbox]{width:16px;height:16px;accent-color:var(--azul);flex:none;cursor:pointer}
 .tree .lbl{min-width:0;overflow:hidden}
 .tree .lbl b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.tree .lbl small{display:block;color:var(--tx3);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tree .lv0{background:#fbfbfc}
-.tree .lv0 .lbl b{font-size:13.5px}
+.tree .lbl small{display:block;color:var(--tx3);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree .lv0{background:var(--sf2)}
+.tree .lv0 .lbl b{font:700 15px var(--fg);letter-spacing:-.01em}
 .tree .ind1{padding-left:26px}.tree .ind2{padding-left:52px}.tree .ind3{padding-left:78px}
-.tree .kind{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);border:1px solid var(--ln);border-radius:4px;padding:0 5px;flex:none}
-.tree .kind.g{color:var(--br);border-color:#e7c5ca;background:var(--brs)}
-.tree .kind.e{color:var(--in);border-color:#c8d7ec;background:var(--inb)}
-.tree .metai{width:64px;height:28px;text-align:right;border:1px solid transparent;background:transparent;border-radius:6px;padding:0 6px}
+.tree .kind{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-radius:var(--rp);padding:2px 8px;flex:none}
+.tree .kind.g{color:var(--mc3);background:var(--brs)}
+.tree .kind.e{color:var(--azul2);background:var(--inb)}
+.tree .metai{width:64px;height:30px;text-align:right;border:1.5px solid transparent;background:transparent;border-radius:8px;padding:0 6px}
 .tree .metai:hover{border-color:var(--ln)}
-.tree .metai:focus{border-color:var(--br2);background:#fff;outline:none}
-.tree .sit{all:unset;cursor:pointer}
-.mbtn{all:unset;cursor:pointer;width:28px;height:28px;display:grid;place-items:center;border-radius:6px;color:var(--tx3)}
-.mbtn:hover{background:#eceef1;color:var(--tx)}
-.selbar{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:40;background:#15181f;color:#fff;border-radius:12px;padding:10px 12px 10px 18px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh2);font-size:13px}
-.selbar .btn{height:32px}
-.selbar .btn.ghost{color:#c9ced8}
-.selbar .btn.ghost:hover{background:#262b36}
+.tree .metai:focus{border-color:var(--azul);background:#fff;outline:none}
+.mbtn{width:30px;height:30px;display:grid;place-items:center;border-radius:8px;color:var(--tx3)}
+.mbtn:hover{background:var(--bg);color:var(--tx)}
+.selbar{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:40;background:var(--tx);color:#fff;border-radius:14px;padding:10px 12px 10px 18px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh3);font-size:13.5px}
+.selbar .btn.ghost{color:#E8E2E3}
+.selbar .btn.ghost:hover{background:#3A3436}
 
-/* menu */
-.menu{position:fixed;z-index:60;background:var(--sf);border:1px solid var(--ln);border-radius:10px;box-shadow:var(--sh2);padding:5px;min-width:210px}
-.menu button{all:unset;display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13px}
+/* ===== Classificações ===== */
+.cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.cat{padding:15px 16px;cursor:pointer;display:flex;flex-direction:column;gap:4px;position:relative;box-shadow:var(--sh),inset 4px 0 0 var(--azul)}
+.cat:hover{box-shadow:var(--sh),inset 4px 0 0 var(--azul),0 10px 22px -14px rgba(13,92,151,.45)}
+.cat h4{margin:0;font:700 16px var(--fg);padding-right:30px}
+.cat .v{font:700 30px/1.1 var(--fg);letter-spacing:-.02em}
+.cat .v small{font:500 13px Inter,sans-serif;color:var(--tx3)}
+.cat .ss{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.cat .ss span{font-size:11.5px;background:var(--neb);color:var(--tx2);border-radius:var(--rp);padding:2px 8px}
+.cat .mbtn{position:absolute;top:10px;right:8px}
+.cat.semcat{box-shadow:var(--sh),inset 4px 0 0 #B8AEB0}
+
+/* ===== Menu, janelas, gaveta ===== */
+.menu{position:fixed;z-index:60;background:var(--sf);border-radius:12px;box-shadow:var(--sh3);padding:6px;min-width:220px}
+.menu button{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border-radius:8px;font-size:13.5px;text-align:left}
 .menu button:hover{background:var(--sf2)}
 .menu button.dan{color:var(--cr)}
 .menu hr{border:0;border-top:1px solid var(--ln2);margin:4px 0}
-
-/* modal + drawer */
-.ov{position:fixed;inset:0;background:rgba(17,20,27,.42);z-index:70;display:grid;place-items:center;padding:20px}
-.modal{background:var(--sf);border-radius:14px;box-shadow:var(--sh2);width:min(560px,100%);max-height:calc(100vh - 40px);display:flex;flex-direction:column}
-.modal.lg{width:min(860px,100%)}
-.modal .mh{padding:18px 20px 6px;display:flex;align-items:flex-start;gap:10px}
-.modal .mh h2{margin:0;font-size:17px;letter-spacing:-.01em}
-.modal .mh p{margin:4px 0 0;color:var(--tx2);font-size:13px}
-.modal .mb{padding:12px 20px;overflow-y:auto;overflow-x:hidden}
-.modal .mf{padding:12px 20px 18px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--ln2)}
+.ov{position:fixed;inset:0;background:rgba(35,20,20,.45);z-index:70;display:grid;place-items:center;padding:20px}
+.modal{background:var(--sf);border-radius:22px;box-shadow:var(--sh3);width:min(560px,100%);max-height:calc(100vh - 40px);display:flex;flex-direction:column;border-top:6px solid var(--mc2);animation:sobe .3s var(--ease)}
+@keyframes sobe{from{transform:translateY(14px);opacity:.3}to{transform:none;opacity:1}}
+.modal.lg{width:min(900px,100%)}
+.modal .mh{padding:20px 24px 6px;display:flex;align-items:flex-start;gap:10px}
+.modal .mh h2{font-size:22px}
+.modal .mh p{margin:6px 0 0;color:var(--tx2);font-size:13.5px}
+.modal .mb{padding:12px 24px;overflow-y:auto;overflow-x:hidden}
+.modal .mf{padding:14px 24px 20px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--ln2);flex-wrap:wrap}
 .modal .mf .l{margin-right:auto}
-.fl{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
-.fl label{font-size:12.5px;font-weight:600;color:var(--tx2)}
-.fl .hint{font-size:12px;color:var(--tx3)}
-.ck{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 14px;max-height:280px;overflow:auto;border:1px solid var(--ln);border-radius:8px;padding:8px 10px}
-.ck label{display:flex;gap:8px;align-items:center;font-size:12.5px;padding:3px 0;cursor:pointer}
-.ck input{accent-color:var(--br)}
-.dr{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--sf);z-index:65;box-shadow:var(--sh2);display:flex;flex-direction:column;animation:sl .18s ease-out}
+.fl{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;min-width:0}
+.fl label{font-size:12.5px;font-weight:700;color:var(--tx2)}
+.fl .hint{font-size:12px;color:var(--tx3);line-height:1.4}
+.ck{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:4px 14px;border:1.5px solid var(--ln);border-radius:var(--r2);padding:8px 12px}
+.ck label{display:flex;gap:8px;align-items:center;font-size:13px;padding:4px 0;cursor:pointer;font-weight:500;color:var(--tx)}
+.ck input{accent-color:var(--azul);width:16px;height:16px}
+.dr{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--sf);z-index:65;box-shadow:var(--sh3);display:flex;flex-direction:column;animation:sl .2s var(--ease)}
 @keyframes sl{from{transform:translateX(30px);opacity:.4}to{transform:none;opacity:1}}
-.dr .dh{padding:18px 20px 14px;border-bottom:1px solid var(--ln);display:flex;gap:12px;align-items:flex-start}
-.dr .dh h2{margin:0;font-size:17px;letter-spacing:-.01em}
-.dr .dh p{margin:3px 0 0;color:var(--tx2);font-size:12.5px}
-.dr .db{padding:16px 20px 30px;overflow-y:auto;overflow-x:hidden}
+.dr .dh{padding:20px 22px 16px;display:flex;gap:12px;align-items:flex-start;background:var(--mc3);color:#fff}
+.dr .dh h2{font-size:20px}
+.dr .dh p{margin:4px 0 0;opacity:.9;font-size:13px}
+.dr .dh .mbtn{color:#fff}
+.dr .dh .mbtn:hover{background:rgba(255,255,255,.15)}
+.dr .db{padding:18px 22px 30px;overflow-y:auto;overflow-x:hidden}
 .dsec{margin-bottom:20px}
-.dsec h4{margin:0 0 8px;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);font-weight:600}
-.kv{display:grid;grid-template-columns:170px 1fr;gap:6px 12px;font-size:13px}
+.dsec h4{margin:0 0 8px;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);font-weight:700}
+.kv{display:grid;grid-template-columns:170px 1fr;gap:6px 12px;font-size:13.5px;margin:0}
 .kv dt{color:var(--tx2)} .kv dd{margin:0;font-weight:500;min-width:0;overflow-wrap:anywhere}
-.path{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px}
-.path span{background:var(--neb);border-radius:6px;padding:3px 8px}
+.path{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px}
+.path span{background:var(--neb);border-radius:var(--rp);padding:3px 10px}
 .path svg{color:var(--tx3)}
 .tl{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px solid var(--ln)}
-.tl li{position:relative;padding:4px 0 8px 10px;font-size:12.5px}
-.tl li:before{content:'';position:absolute;left:-19px;top:9px;width:8px;height:8px;border-radius:4px;background:#c3c8d0}
-.tl li.cur:before{background:var(--br)}
+.tl li{position:relative;padding:4px 0 8px 10px;font-size:13px}
+.tl li:before{content:'';position:absolute;left:-20px;top:9px;width:10px;height:10px;border-radius:5px;background:#C9C0C2}
+.tl li.cur:before{background:var(--mc2);box-shadow:0 0 0 4px rgba(236,28,36,.16)}
 .tl li b{font-weight:600}
 .tl li small{color:var(--tx3);margin-left:6px}
 .slab{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.slab div{background:var(--sf2);border:1px solid var(--ln2);border-radius:8px;padding:9px 10px}
-.slab b{display:block;font-size:19px;letter-spacing:-.02em}
-.slab small{color:var(--tx3);font-size:11.5px}
+.slab div{background:var(--sf2);box-shadow:inset 0 0 0 1.5px var(--ln);border-radius:12px;padding:10px 12px}
+.slab b{display:block;font:700 22px var(--fg)}
+.slab small{color:var(--tx3);font-size:12px}
 
-/* painel edit */
-.vtabs{display:flex;gap:4px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
-.vtabs .vt{all:unset;cursor:pointer;padding:7px 13px;border-radius:8px;font-size:13px;font-weight:500;color:var(--tx2)}
-.vtabs .vt:hover{background:#eceef1}
-.vtabs .vt.on{background:var(--sf);color:var(--tx);box-shadow:var(--sh);border:1px solid var(--ln);padding:6px 12px}
-.editing .wd{outline:2px dashed #d6b3b9;outline-offset:2px;position:relative;cursor:grab}
+/* ===== Painel personalizável ===== */
+.vtabs{display:flex;gap:6px;align-items:center;margin-bottom:16px;flex-wrap:wrap;background:var(--sf);border-radius:var(--rp);padding:4px;box-shadow:var(--sh);width:max-content;max-width:100%}
+.vtabs .vt{padding:7px 15px;border-radius:var(--rp);font-size:13.5px;font-weight:600;color:var(--tx2)}
+.vtabs .vt:hover{background:var(--bg);color:var(--tx)}
+.vtabs .vt.on{background:var(--mc3);color:#fff}
+.editing .wd{outline:2px dashed #E09A92;outline-offset:3px;border-radius:var(--r);position:relative;cursor:grab}
 .editing .wd *{pointer-events:none}
 .editing .wd .wtools,.editing .wd .wtools *{pointer-events:auto}
-.wtools{display:none;position:absolute;top:8px;right:8px;z-index:5;gap:4px;background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:3px;box-shadow:var(--sh)}
+.wtools{display:none;position:absolute;top:8px;right:40px;z-index:5;gap:3px;background:var(--sf);border-radius:10px;padding:3px;box-shadow:var(--sh2)}
 .editing .wtools{display:flex}
-.wtools button{all:unset;cursor:pointer;height:24px;min-width:24px;padding:0 5px;display:grid;place-items:center;border-radius:5px;font-size:11px;font-weight:600;color:var(--tx2)}
-.wtools button:hover{background:var(--sf2);color:var(--tx)}
+.wtools button{height:26px;min-width:26px;padding:0 6px;display:grid;place-items:center;border-radius:7px;font-size:11.5px;font-weight:700;color:var(--tx2)}
+.wtools button:hover{background:var(--bg);color:var(--tx)}
 .wd.drag{opacity:.4}
-.wd.over{outline-color:var(--br)}
-.editbar{display:flex;align-items:center;gap:10px;background:var(--brs);border:1px solid #ecd3d7;color:var(--br);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px}
-.editbar .r{margin-left:auto;display:flex;gap:8px}
-.catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
-.catalog button{all:unset;cursor:pointer;border:1px solid var(--ln);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:flex-start}
-.catalog button:hover{border-color:var(--br2);background:var(--brs)}
-.catalog b{font-size:13px;display:block}
-.catalog small{color:var(--tx3);font-size:12px}
+.wd.over{outline-color:var(--mc2)}
+.editbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--brs);color:var(--mc3);border-radius:14px;padding:10px 14px;margin-bottom:14px;font-size:13.5px;font-weight:500}
+.editbar .r{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.catalog button{border-radius:14px;padding:13px;display:flex;gap:10px;align-items:flex-start;text-align:left;box-shadow:inset 0 0 0 1.5px var(--ln)}
+.catalog button:hover{box-shadow:inset 0 0 0 1.5px var(--azul);background:var(--inb)}
+.catalog b{font-size:13.5px;display:block}
+.catalog small{color:var(--tx3);font-size:12.5px}
 
-/* misc */
-.empty{padding:40px 20px;text-align:center;color:var(--tx2)}
-.empty .ei{width:44px;height:44px;border-radius:12px;background:var(--okb);color:var(--ok);display:grid;place-items:center;margin:0 auto 10px}
-.empty b{display:block;color:var(--tx);font-size:14px;margin-bottom:3px}
-.note{background:var(--inb);color:#24518a;border-radius:9px;padding:10px 12px;font-size:12.5px;display:flex;gap:9px;align-items:flex-start}
-.note.wa{background:var(--wab);color:#7d4f0c}
+/* ===== Estados, avisos, feedback ===== */
+.empty{padding:36px 20px;text-align:center;color:var(--tx2)}
+.empty .ei{width:46px;height:46px;border-radius:14px;background:var(--okb);color:var(--ok);display:grid;place-items:center;margin:0 auto 10px}
+.empty b{display:block;color:var(--tx);font:700 17px var(--fg);margin-bottom:4px}
+.note{background:var(--inb);color:#0D4A7A;border-radius:12px;padding:11px 13px;font-size:13px;display:flex;gap:9px;align-items:flex-start;line-height:1.45}
+.note svg{margin-top:1px}
+.note.wa{background:var(--wab);color:#6B4100}
 .toasts{position:fixed;right:20px;bottom:20px;z-index:90;display:flex;flex-direction:column;gap:8px}
-.toast{background:#15181f;color:#fff;border-radius:10px;padding:11px 14px;font-size:13px;box-shadow:var(--sh2);display:flex;gap:10px;align-items:center;min-width:260px;max-width:380px;animation:sl .18s ease-out}
-.toast .dot{width:9px;height:9px;border-radius:5px}
-.prog{height:6px;background:var(--ln2);border-radius:3px;overflow:hidden}
-.prog div{height:100%;background:var(--br);transition:width .2s}
-.drop{border:1.5px dashed #c9ced6;border-radius:12px;padding:22px;text-align:center;color:var(--tx2);cursor:pointer;background:var(--sf2)}
-.drop:hover,.drop.ov2{border-color:var(--br2);background:var(--brs)}
-.basecard{padding:16px;display:flex;flex-direction:column;gap:10px}
-.basecard h3{margin:0;font-size:14.5px}
-.mapt{width:100%;border-collapse:collapse;font-size:12.5px}
+.toast{background:var(--tx);color:#fff;border-radius:12px;padding:12px 15px;font-size:13.5px;box-shadow:var(--sh3);display:flex;gap:10px;align-items:center;min-width:260px;max-width:380px;animation:sl .2s var(--ease)}
+.prog{height:8px;background:var(--ln2);border-radius:4px;overflow:hidden}
+.prog div{height:100%;background:var(--va);transition:width .25s}
+.drop{display:block;border:2px dashed #CFC6C8;border-radius:16px;padding:26px;text-align:center;color:var(--tx2);cursor:pointer;background:var(--sf2)}
+.drop svg{margin:0 auto}
+.drop:hover,.drop.ov2{border-color:var(--azul);background:var(--inb)}
+.basecard{padding:18px;display:flex;flex-direction:column;gap:10px}
+.basecard h3{font-size:16px}
+.mapt{width:100%;border-collapse:collapse;font-size:13px}
 .mapt td,.mapt th{padding:6px 8px;border-bottom:1px solid var(--ln2);text-align:left}
-.mapt select{height:30px;max-width:260px}
+.mapt select{min-height:32px;max-width:260px}
 .vsum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
-.vsum div{border:1px solid var(--ln);border-radius:8px;padding:10px}
-.vsum b{display:block;font-size:20px;letter-spacing:-.02em}
-.vsum small{color:var(--tx3);font-size:11.5px}
-.issues{display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.vsum div{box-shadow:inset 0 0 0 1.5px var(--ln);border-radius:12px;padding:10px 12px}
+.vsum b{display:block;font:700 22px var(--fg)}
+.vsum small{color:var(--tx3);font-size:12px}
+.issues{display:flex;flex-direction:column;gap:6px;font-size:13px}
 .issues div{display:flex;gap:8px;align-items:flex-start}
-.login{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(1200px 500px at 10% -10%,#f1e3e6,transparent),var(--bg)}
-.login .card{width:min(400px,100%);padding:28px}
-.login h1{font-size:20px;margin:14px 0 4px;letter-spacing:-.02em}
-.login p{color:var(--tx2);margin:0 0 18px;font-size:13.5px}
-.login .inp{width:100%;height:40px;margin-bottom:10px}
-.login .btn{width:100%;justify-content:center;height:40px}
-.err{color:var(--cr);font-size:12.5px;min-height:18px;margin-bottom:6px}
-.loading{min-height:60vh;display:grid;place-items:center;color:var(--tx2)}
-.loading .card{padding:24px;width:min(380px,100%)}
+.err{color:var(--cr);font-size:13px;font-weight:600;min-height:18px;margin:8px 0}
 .pend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
-.pcard{padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:6px}
-.pcard:hover{border-color:#cfd3da;box-shadow:0 4px 14px rgba(16,24,40,.07)}
+.pcard{padding:15px 17px;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:box-shadow .15s}
+.pcard:hover{box-shadow:var(--sh),0 12px 26px -14px rgba(80,12,10,.35)}
+.pcard.cr{box-shadow:var(--sh),inset 4px 0 0 var(--mc2)} .pcard.wa{box-shadow:var(--sh),inset 4px 0 0 var(--wam)}
 .pcard .top2{display:flex;align-items:center;gap:8px}
-.pcard .v{font-size:26px;font-weight:700;letter-spacing:-.03em}
-.pcard p{margin:0;font-size:12.5px;color:var(--tx2)}
+.pcard .v{font:700 30px/1.1 var(--fg);letter-spacing:-.02em}
+.pcard p{margin:0;font-size:13px;color:var(--tx2)}
 .pcard .cc{font-size:12px;color:var(--tx3)}
-.pcard.zero{cursor:default;opacity:.75}
+.pcard.zero{cursor:default;opacity:.8;box-shadow:var(--sh)}
 .pcard.zero .v{color:var(--ok)}
-.team td .bar{height:8px;border-radius:4px;background:#e8edf4;border:1px solid #b9c3d1;display:block}
-.mt{margin-top:14px}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.hstack{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.spark{display:block}
-.sit-pill{font-size:11px}
 
-/* responsive */
+/* ===== Login e carga ===== */
+.login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr;background:var(--sf)}
+.login-arte{--banda:var(--mc3);--banda-claro:var(--mc2);--banda-escuro:#6E120F;position:relative;overflow:hidden;background:var(--banda);color:#fff;padding:44px;display:flex;flex-direction:column;justify-content:space-between}
+.login-arte>*:not(.facetas){position:relative}
+.login-arte .lmarca{height:34px;align-self:flex-start}
+.login-arte .mais{height:34px;margin-bottom:10px}
+.login-arte h1{font-size:clamp(36px,4.6vw,56px)}
+.login-arte p{font-size:17px;opacity:.92;max-width:420px;margin:12px 0 0}
+.lform{align-self:center;justify-self:center;width:min(380px,90%);padding:20px 0}
+.lform h2{font-size:28px;margin-bottom:4px}
+.lform p{margin:0 0 20px}
+.lform label{display:block;font-weight:700;font-size:13px;margin:12px 0 6px;color:var(--tx2)}
+.lform .inp{width:100%;min-height:48px;font-size:15px}
+.lform .btn{width:100%;min-height:48px;font-size:15.5px;margin-top:6px}
+.loading{min-height:100vh;display:grid;place-items:center;background:var(--bg)}
+.loading .card{padding:26px;width:min(400px,90%)}
+
+/* ===== Responsivo ===== */
 .bnav{display:none}
-@media (max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.w-l{grid-column:span 2}.tree .th,.tree .tr{grid-template-columns:minmax(200px,2fr) 64px 80px 64px 64px 84px 40px}.tree .c-med{display:none}}
+@media (max-width:1500px){.topo .produto{display:none}.gsearch{width:190px}.eu span{display:none}.abas{gap:0;margin-left:6px}.abas button{padding:0 10px;font-size:13.5px;gap:6px}}
+@media (max-width:1240px){.abas button span{display:none}.abas button{padding:0 11px}.abas button.on span{display:inline}.gsearch{width:190px}}
+@media (max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.w-l{grid-column:span 2}.fluxo{grid-template-columns:repeat(3,minmax(0,1fr))}.tree .th,.tree .tr{grid-template-columns:minmax(200px,2fr) 64px 80px 64px 64px 84px 40px}.tree .c-med{display:none}.fgrid{grid-template-columns:1fr 1fr}}
 @media (max-width:820px){
-  .app{grid-template-columns:1fr}
-  .side{display:none}
-  .top{padding:10px 16px}
-  .gsearch{width:auto;flex:1;max-width:none}
+  .banda{padding:6px 16px 84px}
+  .facetas i:nth-child(3){display:none}
+  .topo{flex-wrap:wrap;gap:10px}
+  .abas{display:none}
+  .gsearch{order:5;width:100%}
+  .eu span{display:none}
+  .cabw{margin-top:12px}
   .crumbs{display:none}
-  .upd{display:none}
-  .content{padding:16px 16px 90px}
+  .miolo{padding:0 14px 96px}
   .grid,.g3{grid-template-columns:1fr}.w-s,.w-m,.w-l{grid-column:span 1}
   .kpi{min-height:0}
   .row2{grid-template-columns:1fr}
-  .bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;background:#15181f;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
-  .bnav button{all:unset;flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:#9aa1ae;padding:4px 0;cursor:pointer}
-  .bnav button.on{color:#fff}
+  .fluxo{grid-template-columns:1fr 1fr}
+  .fgrid{grid-template-columns:1fr}
+  .recbar .rr{margin-left:0}
+  .bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--mc3);padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .bnav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:#F6D9DB;padding:4px 0}
+  .bnav button.on{color:#fff;font-weight:700}
   .tw{max-height:none}
   table.t.cards thead{display:none}
   table.t.cards,table.t.cards tbody,table.t.cards tr,table.t.cards td{display:block;width:100%}
@@ -349,10 +446,12 @@ table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
   .tree .ind1{padding-left:14px}.tree .ind2{padding-left:28px}.tree .ind3{padding-left:42px}
   .vsum{grid-template-columns:1fr 1fr}
   .kv{grid-template-columns:130px 1fr}
-  .selbar{left:12px;right:12px;transform:none;bottom:72px;flex-wrap:wrap}
-  .ph h1{font-size:19px}
+  .selbar{left:12px;right:12px;transform:none;bottom:74px;flex-wrap:wrap}
+  .login{grid-template-columns:1fr}
+  .login-arte{min-height:240px;padding:26px}
+  .vtabs{width:auto}
 }
-@media print{.side,.top,.bnav{display:none}.app{display:block}}
+@media print{.banda,.bnav,.recbar{display:none}.miolo{margin-top:0}}
 </style>
 </head>
 <body>
@@ -369,7 +468,7 @@ table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
    ===================================================================== */
 const SB='https://jspfqktrbimrarimpzgh.supabase.co', SBK='sb_publishable_v5q-FJsZbsufq31dqi3zlA_ddzJQ_f-';
 const LOCAL=/[?&]local\b/.test(location.search)||location.protocol==='file:';
-const VERSAO='1.0';
+const VERSAO='2.0';
 const DIA=864e5;
 let HOJE=new Date();HOJE.setHours(23,59,59,0);
 const NOW=Date.now();
@@ -489,6 +588,11 @@ const CAMPOS={
   ['dagd','Data de Agendamento','dt',['Data de Agendamento']],
   ['vcv','Valor Compra e Venda','num',['ValorCompraVenda']],
   ['vfin','Valor Financiamento','num',['ValorFinanciamento']],
+  ['tipoat','Tipo de atendimento','txt',['TipoAtendimento']],
+  ['status','Status','txt',['Status']],
+  ['renda','Renda formal (código)','txt',['ValorRendaFormal']],
+  ['fgts','Valor FGTS','num',['ValorFGTS']],
+  ['subs','Valor Subsídio','num',['ValorSubsidio']],
   ['obs','Observações','txt',['Observacoes']],
  ],
  slaf:[['k','Nº Contrato','txt',['N° CONTRATO','Nº CONTRATO','Numero_Contrato_CRM'],1],['fase','Fase atual','txt',['FASE']],['sint','Síntese atual','txt',['SINTESE']],['amont','Analista montagem','txt',['ANALISTA MONTAGEM']]],
@@ -594,7 +698,7 @@ function garanteConfig(){
   E.novas=[...fases].filter(f=>!E.ordem.includes(f));   // fases que chegaram numa importação nova
   for(const f of E.novas)E.ordem.push(f);
   for(const k of ['situacao','apelidoF','apelidoS','metaF','inicio'])E[k]=E[k]||{};
-  E.etapas=E.etapas||[];E.grupos=E.grupos||[];
+  E.etapas=E.etapas||[];E.grupos=E.grupos||[];E.classes=E.classes||[];
   if(!S.cfg.regras)S.cfg.regras=regrasPadrao();
   const R=S.cfg.regras;for(const r of REGRAS){if(R.ativas[r.id]==null)R.ativas[r.id]=true;if(r.fases&&!R.fases[r.id])R.fases[r.id]=r.fases}
   if(!S.cfg.equipe){const lim=NOW-180*DIA;const c={};for(const d of S.raw.movfin){if(d.amont&&ms(d.dst)>lim)c[d.amont]=(c[d.amont]||0)+1}S.cfg.equipe={v:1,membros:Object.keys(c).sort(),marco:'concl'}}
@@ -616,10 +720,12 @@ function modelo(){
   const ativ={};for(const r of REGRAS)ativ[r.id]=RG.ativas[r.id]!==false;
   const fasesR={};for(const r of REGRAS)if(r.fases)fasesR[r.id]=new Set(RG.fases[r.id]||[]);
   const amanha=NOW+2*DIA;
+  const clsMaps=(E.classes||[]).map(c=>[c.id,Object.fromEntries(c.cats.flatMap(k=>k.sints.map(x=>[x,k.id])))]);
   const R=S.raw.movfin.map((d,i)=>{
     const fase=clean(d.fase)||'(sem fase)',sint=clean(d.sint)||'(sem síntese)';
     const r={i,d,k:d.k,fase,sint,par:fase+'||'+sint,sit:d.fase?sitF(fase):'andamento'};
     r.et=etapaDe[fase]||null;r.gr=grupoDe[r.par]||null;
+    r.cls={};for(const [cid,mp] of clsMaps)if(mp[sint])r.cls[cid]=mp[sint];
     r.tMov=ms(d.dst);r.diasMov=diasDesde(r.tMov);
     // início da contagem na fase: campo escolhido > relatório de SLA > data status
     const tl=TL[d.k];let tF=null,src='mov';
@@ -654,7 +760,7 @@ function modelo(){
     r.busca=norm([d.k,d.nome,d.emp,d.unid,d.contrato,d.protocolo,d.amont].join(' '));
     return r;
   });
-  S.R=R;S.temTL=temTL;S.M=null;
+  S.R=R;S.temTL=temTL;S.M=null;recorte();
 }
 // agrega um conjunto de registros num nó; nivel define qual "dias" usar
 function agrega(rs,nivel){
@@ -668,8 +774,8 @@ function agrega(rs,nivel){
 // árvore completa (respeita ordem e agrupamentos)
 function arvore(){
   if(S.M)return S.M;const E=cfgE();
-  const porF={};for(const r of S.R)(porF[r.fase]=porF[r.fase]||[]).push(r);
-  const ordem=[...E.ordem.filter(f=>porF[f]||E.etapas.some(e=>e.fases.includes(f))),...Object.keys(porF).filter(f=>!E.ordem.includes(f))];
+  const porF={};for(const r of S.V)(porF[r.fase]=porF[r.fase]||[]).push(r);const naBase=new Set(S.R.map(r=>r.fase));
+  const ordem=[...E.ordem.filter(f=>porF[f]||naBase.has(f)||E.etapas.some(e=>e.fases.includes(f))),...Object.keys(porF).filter(f=>!E.ordem.includes(f))];
   const noFase=f=>{const rs=porF[f]||[];const porS={};for(const r of rs)(porS[r.sint]=porS[r.sint]||[]).push(r);
     const gs=E.grupos.filter(g=>g.fase===f).map(g=>{const rr=g.sints.flatMap(s=>porS[s]||[]);return {tipo:'grupo',id:g.id,g,nome:g.nome,rs:rr,ag:agrega(rr,'grupo'),filhos:g.sints.map(s=>({tipo:'sint',fase:f,sint:s,nome:nomeS(s),rs:porS[s]||[],ag:agrega(porS[s]||[],'sint')}))}});
     const emG=new Set(E.grupos.filter(g=>g.fase===f).flatMap(g=>g.sints));
@@ -681,15 +787,15 @@ function arvore(){
     else{usado.add(f);top.push(noFase(f))}}
   return S.M=top;
 }
-const ativos=()=>S.R.filter(r=>r.sit==='andamento');
+const ativos=()=>S.V.filter(r=>r.sit==='andamento');
 // rótulo da etapa macro de um registro
 const macroNome=r=>r.et?r.et.nome:nomeF(r.fase);
 
 /* ---------------- filtros e navegação ---------------- */
-const FILTROS={etapa:'Etapa',fase:'Fase',grupo:'Grupo',sint:'Síntese',amont:'Analista',sit:'Situação',sla:'Prazo',pend:'Pendência',parado:'Parados',q:'Busca',per:'Período'};
+const FILTROS={dim:'',sel:'',cat:'Categoria',etapa:'Etapa',fase:'Fase',grupo:'Grupo',sint:'Síntese',amont:'Analista',sit:'Situação',sla:'Prazo',pend:'Pendência',parado:'Parados',q:'Busca',per:'Período'};
 const SLA_TXT={ok:['No prazo','ok'],ate:['Perto da meta','wa'],atr:['Fora do prazo','cr'],sem:['Sem meta','ne'],na:['—','ne']};
 function aplicaF(F,base){
-  let rs=base||S.R;
+  let rs=base||S.V;
   if(F.sit)rs=rs.filter(r=>r.sit===F.sit);
   if(F.etapa)rs=rs.filter(r=>r.et&&r.et.id===F.etapa);
   if(F.fase)rs=rs.filter(r=>r.fase===F.fase);
@@ -702,6 +808,9 @@ function aplicaF(F,base){
   if(F.per){const lim=NOW-F.per*DIA;rs=rs.filter(r=>r.sit==='andamento'||(r.tMov&&r.tMov>=lim))}
   if(F.concl){const lim=NOW-F.concl*DIA;rs=rs.filter(r=>r.sit==='concluido'&&r.tMov>=lim)}
   if(F.marco){const [c,dias]=F.marco;const lim=NOW-dias*DIA;rs=rs.filter(r=>r.d[c]&&ms(r.d[c])>=lim)}
+  if(F.dim){const [k,v]=F.dim;const f=DIMS[k][1];rs=rs.filter(r=>f(r)===v)}
+  if(F.sel&&S.SEL&&S.SEL[F.sel]){const st=S.SEL[F.sel].set;rs=rs.filter(r=>st.has(r.i))}
+  if(F.cat){const [cid,cat]=F.cat;rs=rs.filter(r=>cat==='__sem'?!r.cls[cid]:r.cls[cid]===cat)}
   if(F.q){const q=norm(F.q);rs=rs.filter(r=>r.busca.includes(q))}
   return rs;
 }
@@ -711,44 +820,48 @@ function rotuloF(k,v){
   if(k==='sint')return nomeS(v);if(k==='amont')return v==='__sem'?'Sem analista':v;if(k==='sit')return SIT[v]?SIT[v][0]:v;
   if(k==='sla')return SLA_TXT[v]?SLA_TXT[v][0]:v;if(k==='pend'){if(v==='__any')return 'Com pendência';const r=REGRAS.find(x=>x.id===v);return r?r.nome:v}
   if(k==='parado')return 'Sem movimentação há +'+S.cfg.regras.parado+' dias';if(k==='per')return 'ativos + encerrados em '+v+' dias';
-  if(k==='concl')return 'Concluídos nos últimos '+v+' dias';if(k==='marco')return rot(v[0])+' nos últimos '+v[1]+' dias';return v}
+  if(k==='concl')return 'Concluídos nos últimos '+v+' dias';if(k==='marco')return rot(v[0])+' nos últimos '+v[1]+' dias';
+  if(k==='dim')return DIMS[v[0]][0]+': '+v[1];if(k==='sel')return S.SEL&&S.SEL[v]?S.SEL[v].nome:'Seleção da análise';
+  if(k==='cat'){const cl=cfgE().classes.find(x=>x.id===v[0]);if(!cl)return v[1];return cl.nome+': '+(v[1]==='__sem'?'Sem categoria':(cl.cats.find(x=>x.id===v[1])||{nome:'?'}).nome)}return v}
 function abrir(F,titulo){S.hist.push({view:S.view,F:S.F,titulo:S.titulo});S.F=F||{};S.titulo=titulo||'';S.pag=0;S.sort=null;go('registros',true)}
 function go(v,keep){if(!keep){S.hist=[];S.F={};S.titulo=''}S.view=v;S.pag=0;fechaDr();render();window.scrollTo(0,0)}
 function voltar(){const h=S.hist.pop();if(!h){go('painel');return}S.view=h.view;S.F=h.F;S.titulo=h.titulo;render()}
 
 /* =====================================================================
-   SHELL
+   SHELL · faixa colorida (banda) com abas, busca e o cabeçalho de cada tela
    ===================================================================== */
-const NAV=[['painel','home','Meu painel'],['estrutura','layers','Fases e sínteses'],['registros','list','Processos'],['equipe','users','Equipe'],['pendencias','alert','Pendências'],['sep'],['bases','db','Bases'],['config','cog','Configurações']];
-const TIT={painel:'Meu painel',estrutura:'Fases e sínteses',registros:'Processos',equipe:'Equipe de montagem',pendencias:'Pendências',bases:'Bases',config:'Configurações'};
+const NAV=[['painel','home','Painel'],['analises','chart','Análises'],['estrutura','layers','Fases e sínteses'],['registros','list','Processos'],['equipe','users','Equipe'],['pendencias','alert','Pendências'],['bases','db','Bases'],['config','cog','Configurações']];
+const TIT={painel:'Painel',analises:'Análises',estrutura:'Fases e sínteses',registros:'Processos',equipe:'Equipe de montagem',pendencias:'Pendências',bases:'Bases',config:'Configurações'};
+const BANDA={analises:'t-azul',equipe:'t-azul',bases:'t-azul',config:'t-azul',pendencias:'t-vermelho'};
+const COM_RECORTE=['painel','analises','estrutura','registros','equipe','pendencias'];
+let OBS=null;
 function shell(){
-  const np=S.R.filter(r=>r.pend.length&&r.sit==='andamento').length;
-  $('#root').innerHTML=`<div class="app">
-   <aside class="side"><div class="brand"><div class="lg">CM</div><div><b>Central da Montagem</b><small>Operações · movfin e SLA</small></div></div>
-    <nav class="nav">${NAV.map(n=>n[0]==='sep'?'<div class="sep"></div>':`<button data-v="${n[0]}" class="${S.view===n[0]?'on':''}">${ic(n[1])}${n[2]}${n[0]==='pendencias'&&np?`<span class="ct">${n0(np)}</span>`:''}</button>`).join('')}</nav>
-    <div class="me">${ic('user','s')}<div><b>${esc(S.eu.email)}</b>${esc({admin:'Administrador',gestor:'Gestora',analista:'Analista',leitor:'Leitura'}[S.eu.papel]||S.eu.papel)}${LOCAL?' · modo local':''}</div>${LOCAL?'':`<button title="Sair" id="sair">${ic('out','s')}</button>`}</div>
-   </aside>
-   <div class="main">
-    <header class="top"><div class="crumbs" id="crumbs"></div>
-     <div class="gsearch">${ic('search','s')}<input id="gq" placeholder="Buscar cliente, contrato, unidade…" autocomplete="off"><div class="gres hid" id="gres"></div></div>
-     <div class="upd" title="Última importação do movfin">${S.info.bases.movfin?'Base de '+esc(S.info.bases.movfin.em):'Sem base'}</div></header>
-    <main class="content" id="pg"></main>
-   </div></div>
-   <nav class="bnav">${[['painel','home','Painel'],['estrutura','layers','Fases'],['registros','list','Processos'],['equipe','users','Equipe'],['pendencias','alert','Pendências'],['bases','db','Bases']].map(n=>`<button data-v="${n[0]}" class="${S.view===n[0]?'on':''}">${ic(n[1])}${n[2]}</button>`).join('')}</nav>`;
+  const np=(S.V||[]).filter(r=>r.pend.length&&r.sit==='andamento').length;
+  const papel={admin:'Administrador',gestor:'Gestora',analista:'Analista',leitor:'Leitura'}[S.eu.papel]||S.eu.papel;
+  $('#root').innerHTML=`<header class="banda ${BANDA[S.view]||'t-vinho'}"><div class="facetas"><i></i><i></i><i></i></div>
+   <div class="topo"><img class="marca" src="assets/logos/horizontal-branco.png" alt="Metrocasa"><span class="produto">Central da Montagem</span>
+    <nav class="abas" aria-label="Seções">${NAV.map(n=>`<button data-v="${n[0]}" class="${S.view===n[0]?'on':''} ${['bases','config'].includes(n[0])?'sec':''}" title="${n[2]}">${ic(n[1],'s')}<span>${n[2]}</span>${n[0]==='pendencias'&&np?`<em class="ct">${n0(np)}</em>`:''}</button>`).join('')}</nav>
+    <div class="gsearch">${ic('search','s')}<input id="gq" placeholder="Buscar cliente, contrato, unidade…" autocomplete="off" aria-label="Buscar processo"><div class="gres hid" id="gres"></div></div>
+    <div class="eu"><span>${esc(pessoa(S.eu.email.split('@')[0].replace(/\./g,' ')))}<small>${esc(papel)}${LOCAL?' · modo local':''}</small></span>${LOCAL?'':`<button id="sair" title="Sair (${esc(S.eu.email)})">${ic('out','s')}</button>`}</div></div>
+   <div class="cabw"><div class="crumbs" id="crumbs"></div><div id="cab"></div></div></header>
+   <main class="miolo"><div id="recbar"></div><div id="pg"></div></main>
+   <nav class="bnav">${[['painel','home','Painel'],['analises','chart','Análises'],['estrutura','layers','Fases'],['registros','list','Processos'],['pendencias','alert','Pendências'],['bases','db','Bases']].map(n=>`<button data-v="${n[0]}" class="${S.view===n[0]?'on':''}">${ic(n[1])}${n[2]}</button>`).join('')}</nav>`;
   $$('[data-v]').forEach(b=>b.onclick=()=>go(b.dataset.v));
   const s=$('#sair');if(s)s.onclick=()=>{guardaSes(null);location.reload()};
+  // o cabeçalho (.ph) que cada tela desenha vai para a faixa colorida
+  const pg=$('#pg');if(OBS)OBS.disconnect();OBS=new MutationObserver(()=>{const ph=[...pg.children].find(x=>x.classList.contains('ph'));if(ph){const c=$('#cab');c.innerHTML='';c.appendChild(ph)}});OBS.observe(pg,{childList:true});
   busca();
 }
 function crumbs(extra){
-  const c=[['painel','Central']];let h=`<button data-cv="painel">Central</button>`;
+  let h=`<button data-cv="painel">Central</button>`;
   if(S.view!=='painel'){if(S.hist.length&&S.view==='registros'){const p=S.hist[S.hist.length-1];h+=` ${ic('chev','s')} <button id="cbk">${esc(TIT[p.view]||p.view)}</button>`}h+=` ${ic('chev','s')} <b>${esc(TIT[S.view])}${extra?' · '+esc(extra):''}</b>`}
-  else h=`<b>Central da Montagem</b>`;
-  $('#crumbs').innerHTML=h;const b=$('[data-cv]',$('#crumbs'));if(b)b.onclick=()=>go('painel');const k=$('#cbk');if(k)k.onclick=voltar;
+  else h=`<b>Central da Montagem</b>${S.info.bases.movfin?` · base de ${esc(S.info.bases.movfin.em)}`:''}`;
+  const c=$('#crumbs');if(!c)return;c.innerHTML=h;const b=$('[data-cv]',c);if(b)b.onclick=()=>go('painel');const k=$('#cbk');if(k)k.onclick=voltar;
 }
 function busca(){
   const inp=$('#gq'),box=$('#gres');let sel=0,res=[];
   const draw=()=>{if(!res.length){box.innerHTML=inp.value.trim().length>1?'<div class="muted small" style="padding:12px">Nada encontrado.</div>':'';box.classList.toggle('hid',inp.value.trim().length<2);return}
-    box.innerHTML=res.map((r,j)=>`<button class="${j===sel?'on':''}" data-i="${r.i}"><b>${esc(r.d.nome||r.k)}</b><small>${esc(r.k)} · ${esc(r.d.emp||'')} ${esc(r.d.unid||'')} · ${esc(nomeF(r.fase))}</small></button>`).join('')+(res.length>=8?`<button data-all="1"><small>Ver todos os resultados para “${esc(inp.value)}”</small></button>`:'');box.classList.remove('hid');
+    box.innerHTML=res.map((r,j)=>`<button class="${j===sel?'on':''}" data-i="${r.i}"><b>${esc(r.d.nome||r.k)}</b><small>${esc(r.k)} · ${esc(nomeEmp(r.d.emp))} ${esc(r.d.unid||'')} · ${esc(nomeF(r.fase))}</small></button>`).join('')+(res.length>=8?`<button data-all="1"><small>Ver todos os resultados para “${esc(inp.value)}”</small></button>`:'');box.classList.remove('hid');
     $$('button',box).forEach(b=>b.onmousedown=e=>{e.preventDefault();if(b.dataset.all){abrir({q:inp.value},'Busca');}else ficha(+b.dataset.i);box.classList.add('hid')})};
   inp.oninput=debounce(()=>{const q=norm(inp.value);sel=0;res=q.length<2?[]:S.R.filter(r=>r.busca.includes(q)).slice(0,8);draw()},120);
   inp.onkeydown=e=>{if(e.key==='ArrowDown'){sel=Math.min(sel+1,res.length-1);draw();e.preventDefault()}else if(e.key==='ArrowUp'){sel=Math.max(sel-1,0);draw();e.preventDefault()}else if(e.key==='Enter'){if(res[sel]&&res.length<8)ficha(res[sel].i);else if(inp.value.trim())abrir({q:inp.value},'Busca');box.classList.add('hid')}else if(e.key==='Escape'){box.classList.add('hid');inp.blur()}};
@@ -757,10 +870,237 @@ function busca(){
 }
 function render(){
   shell();const pg=$('#pg');
-  if(!S.R.length&&!['bases','config'].includes(S.view)){crumbs();pg.innerHTML=semBase();const b=$('#irb');if(b)b.onclick=()=>go('bases');return}
-  ({painel:vPainel,estrutura:vEstrutura,registros:vRegistros,equipe:vEquipe,pendencias:vPend,bases:vBases,config:vConfig})[S.view](pg);
+  if(S.R.length&&COM_RECORTE.includes(S.view))rRec();
+  if(!S.R.length&&!['bases','config'].includes(S.view)){crumbs();pg.innerHTML=`<div class="ph"><div><h1>Central da Montagem</h1><p>Movfin, SLA, fases e sínteses da operação num lugar só.</p></div></div>`+semBase();const b=$('#irb');if(b)b.onclick=()=>go('bases');return}
+  ({painel:vPainel,analises:vAnalises,estrutura:vEstrutura,registros:vRegistros,equipe:vEquipe,pendencias:vPend,bases:vBases,config:vConfig})[S.view](pg);
 }
-function semBase(){return `<div class="card" style="max-width:620px;margin:40px auto"><div class="empty"><div class="ei" style="background:var(--inb);color:var(--in)">${ic('db')}</div><b>Nenhuma base carregada ainda</b>${pode()?'Importe o movfin para começar. Os relatórios de SLA de fases e sínteses são opcionais e deixam o tempo em cada etapa mais preciso.<div class="mt"><button class="btn pri" id="irb">'+ic('up','s')+'Importar bases</button></div>':'Assim que a gestora importar o movfin, a operação aparece aqui.'}</div></div>`}
+function semBase(){return `<div class="card" style="max-width:640px;margin:0 auto"><div class="empty"><div class="ei" style="background:var(--inb);color:var(--azul2)">${ic('db')}</div><b>Nenhuma base carregada ainda</b>${pode()?'Importe o movfin para começar. Os relatórios de SLA de fases e sínteses são opcionais e deixam o tempo em cada etapa mais preciso.<div class="mt"><button class="btn pri" id="irb">'+ic('up','s')+'Importar bases</button></div>':'Assim que a gestora importar o movfin, a operação aparece aqui.'}</div></div>`}
+
+/* =====================================================================
+   RECORTE · filtros globais. Valem para todas as telas e ficam salvos no acesso de cada pessoa.
+   Padrão: só registros com Data Minuta preenchida.
+   ===================================================================== */
+const REC_PADRAO={dmin:'com'};
+const REC_ROT={dminDe:'Minuta a partir de',dminAte:'Minuta até',dvDe:'Venda a partir de',dvAte:'Venda até',emp:'Empreendimento',banco:'Banco',cca:'Consultoria',modal:'Modalidade',tipoat:'Atendimento',fase:'Fase',sint:'Síntese',status:'Status',renda:'Renda (código)',vmin:'Valor de venda a partir de R$',vmax:'Valor de venda até R$'};
+const pctl=(a,p)=>{if(!a.length)return null;const s=[...a].sort((x,y)=>x-y);const i=(s.length-1)*p,lo=Math.floor(i),hi=Math.ceil(i);return s[lo]+(s[hi]-s[lo])*(i-lo)};
+const nomeEmp=v=>String(v||'').replace(/\s*-\s*VENDAS.*$/i,'').replace(/\s*\/\s*COMERCIAL.*$/i,'').trim();
+function passa(r,c){const d=r.d;
+  if(c.dmin==='com'&&!d.dmin)return false;if(c.dmin==='sem'&&d.dmin)return false;
+  if(c.dminDe&&!(d.dmin&&d.dmin>=c.dminDe))return false;if(c.dminAte&&!(d.dmin&&d.dmin<=c.dminAte))return false;
+  if(c.dvDe&&!(d.dvenda&&d.dvenda>=c.dvDe))return false;if(c.dvAte&&!(d.dvenda&&d.dvenda<=c.dvAte))return false;
+  for(const k of ['emp','banco','cca','modal','tipoat','renda'])if(c[k]&&d[k]!==c[k])return false;
+  if(c.fase&&r.fase!==c.fase)return false;if(c.sint&&r.sint!==c.sint)return false;if(c.status&&r.par!==c.status)return false;
+  if(c.vmin!=null&&c.vmin!==''&&!(d.vcv>=+c.vmin))return false;if(c.vmax!=null&&c.vmax!==''&&!(d.vcv<=+c.vmax))return false;
+  if(c.cls)for(const [cid,cat] of Object.entries(c.cls)){if(!cat)continue;const v=r.cls[cid]||'';if(cat==='__sem'?v:v!==cat)return false}
+  return true}
+function recorte(){if(!S.rec)S.rec=clone(REC_PADRAO);S.V=S.R.filter(r=>passa(r,S.rec));S.M=null;CACHE_IV=null}
+function rotRec(k,v){if(k==='fase')return nomeF(v);if(k==='sint')return nomeS(v);if(k==='status'){const [f,s]=v.split('||');return nomeF(f)+' · '+nomeS(s)}if(k==='emp')return nomeEmp(v);if(/^(dminDe|dminAte|dvDe|dvAte)$/.test(k))return fD(v);if(k==='vmin'||k==='vmax')return n0(+v);return v}
+function chipsRec(c){const out=[];for(const [k,v] of Object.entries(c||{})){if(k==='dmin'||v==null||v==='')continue;
+  if(k==='cls'){for(const [cid,cat] of Object.entries(v||{})){if(!cat)continue;const cl=cfgE().classes.find(x=>x.id===cid);if(!cl)continue;const ct=cat==='__sem'?{nome:'Sem categoria'}:cl.cats.find(x=>x.id===cat);out.push(['cls:'+cid,cl.nome+': '+(ct?ct.nome:'?')])}continue}
+  out.push([k,(REC_ROT[k]||k)+': '+rotRec(k,v)])}return out}
+function rRec(){
+  const c=S.rec;const base=S.R.filter(r=>passa(r,{...c,dmin:''}));const com=base.filter(r=>r.d.dmin).length;const ch=chipsRec(c);const padrao=JSON.stringify(c)===JSON.stringify(REC_PADRAO);
+  $('#recbar').innerHTML=`<div class="recbar"><span class="rl">${ic('target','s')}Recorte</span>
+   <div class="seg" role="group" aria-label="Data Minuta"><button data-dm="" class="${!c.dmin?'on':''}">Todos<b>${n0(base.length)}</b></button><button data-dm="com" class="${c.dmin==='com'?'on':''}">Com Data Minuta<b>${n0(com)}</b></button><button data-dm="sem" class="${c.dmin==='sem'?'on':''}">Sem Data Minuta<b>${n0(base.length-com)}</b></button></div>
+   ${ch.map(([k,l])=>`<span class="chip">${esc(l)}<button data-rr="${esc(k)}" title="Tirar este filtro" aria-label="Tirar filtro">${ic('x','s')}</button></span>`).join('')}
+   <span class="rr"><span class="muted small"><b style="color:var(--tx)">${n0(S.V.length)}</b> registros no recorte</span><button class="btn sm" id="rfil">${ic('layers','s')}Filtros${ch.length?' · '+ch.length:''}</button>${padrao?'':`<button class="btn sm ghost" id="rpad" title="Volta ao padrão: só registros com Data Minuta">Padrão</button>`}</span></div>`;
+  $$('[data-dm]').forEach(b=>b.onclick=()=>setRec({...c,dmin:b.dataset.dm}));
+  $$('[data-rr]').forEach(b=>b.onclick=()=>{const k=b.dataset.rr;const n=clone(c);if(k.startsWith('cls:'))delete n.cls[k.slice(4)];else delete n[k];setRec(n)});
+  $('#rfil').onclick=painelFiltros;const p=$('#rpad');if(p)p.onclick=()=>setRec(clone(REC_PADRAO),'Recorte padrão: só registros com Data Minuta');
+}
+function setRec(c,msg){for(const k of Object.keys(c))if(c[k]===''||c[k]==null)delete c[k];if(c.cls&&!Object.keys(c.cls).length)delete c.cls;S.rec=c;painelCfg().recorte=c;LS.set('mon_rec',c);salvaPainel();recorte();S.pag=0;render();if(msg)toast(msg)}
+function painelFiltros(){
+  const c=clone(S.rec);c.cls=c.cls||{};const E=cfgE();
+  const vals=k=>{const m=new Map();for(const r of S.R){const v=k==='fase'?r.fase:k==='sint'?r.sint:k==='status'?r.par:r.d[k];if(v)m.set(v,(m.get(v)||0)+1)}return [...m.entries()].sort((a,b)=>b[1]-a[1])};
+  const sel=(k,l,nota)=>{const o=vals(k);return `<div class="fl"><label>${l}</label><select class="sel" data-rk="${k}" ${o.length?'':'disabled'}><option value="">Todos</option>${o.map(([v,n])=>`<option value="${esc(v)}" ${c[k]===v?'selected':''}>${esc(rotRec(k,v))} · ${n0(n)}</option>`).join('')}</select>${nota?`<span class="hint">${nota}</span>`:''}</div>`};
+  const dt=(k,l)=>`<div class="fl"><label>${l}</label><input class="inp" type="date" data-rk="${k}" value="${esc(c[k]||'')}"></div>`;
+  const vv=S.R.map(r=>r.d.vcv).filter(v=>v>0);const q1=pctl(vv,.25),q3=pctl(vv,.75);
+  const nren=vals('renda').reduce((s,x)=>s+x[1],0),nmod=vals('modal').length;
+  modal(`<div class="mh"><div><h2>Filtros do recorte</h2><p>Valem para todas as telas (painel, análises, fases, processos, equipe e pendências) e ficam salvos no seu acesso.</p></div></div>
+   <div class="mb"><div class="fgrid">
+    <div class="fl c2"><label>Data Minuta</label><div class="seg" id="fdm"><button data-v="">Todos os registros</button><button data-v="com">Só com Data Minuta</button><button data-v="sem">Só sem Data Minuta</button></div></div>
+    ${dt('dminDe','Data Minuta de')}${dt('dminAte','Data Minuta até')}<div class="fl"></div>${dt('dvDe','Data da Venda de')}${dt('dvAte','Data da Venda até')}<div class="fl"></div>
+    ${sel('emp','Empreendimento')}${sel('banco','Banco','Vem como “CAIXA” ou pelo código da agência, como está no movfin.')}${sel('cca','Consultoria (CCA)')}
+    ${sel('fase','Fase')}${sel('sint','Síntese')}${sel('status','Status (fase · síntese)')}
+    ${sel('modal','Modalidade de financiamento',nmod<=1?'A base atual só tem uma modalidade.':'')}${sel('tipoat','Tipo de atendimento')}
+    <div class="fl"><label>Valor de compra e venda (R$)</label><div class="hstack" style="flex-wrap:nowrap"><input class="inp" type="number" min="0" step="1000" data-rk="vmin" placeholder="mínimo" value="${c.vmin??''}" style="flex:1;width:0"><input class="inp" type="number" min="0" step="1000" data-rk="vmax" placeholder="máximo" value="${c.vmax??''}" style="flex:1;width:0"></div>${q1?`<span class="hint">Metade das vendas da base está entre R$ ${n0(q1)} e R$ ${n0(q3)}.</span>`:''}</div>
+    ${sel('renda','Faixa de renda',`A MOVFIN só traz “ValorRendaFormal” em ${n0(nren)} registros, e como código (1, 2), não como valor. Não dá para montar faixa de renda com esta base.`)}
+    ${E.classes.map(cl=>`<div class="fl"><label>${esc(cl.nome)}</label><select class="sel" data-rc="${cl.id}"><option value="">Todas as categorias</option>${cl.cats.map(k=>`<option value="${k.id}" ${c.cls[cl.id]===k.id?'selected':''}>${esc(k.nome)}</option>`).join('')}<option value="__sem" ${c.cls[cl.id]==='__sem'?'selected':''}>Sem categoria</option></select></div>`).join('')}
+   </div></div>
+   <div class="mf"><button class="btn ghost l" id="fpad">Voltar ao padrão</button><button class="btn" data-x>Cancelar</button><button class="btn pri" id="fok">${ic('check','s')}Aplicar filtros</button></div>`,'lg',m=>{
+    const seg=$$('#fdm button',m);const mk=()=>seg.forEach(b=>b.classList.toggle('on',b.dataset.v===(c.dmin||'')));mk();seg.forEach(b=>b.onclick=()=>{c.dmin=b.dataset.v;mk()});
+    $('#fpad',m).onclick=()=>{fechaModal();setRec(clone(REC_PADRAO),'Recorte padrão: só registros com Data Minuta')};
+    $('#fok',m).onclick=()=>{$$('[data-rk]',m).forEach(i=>{c[i.dataset.rk]=i.value});$$('[data-rc]',m).forEach(i=>{c.cls[i.dataset.rc]=i.value});for(const k of Object.keys(c.cls))if(!c.cls[k])delete c.cls[k];fechaModal();setRec(c,'Filtros aplicados')};
+  });
+}
+
+/* =====================================================================
+   ANÁLISES · tudo calculado sobre o recorte (S.V). Nenhuma conclusão sem número.
+   ===================================================================== */
+const INTERV=[['dvenda','dmin'],['dmin','dass'],['dass','dreg'],['dreg','dent'],['dent','dret']];
+const INTERV_TOT=[['dass','dret'],['dvenda','dret']];
+const nomeDt=k=>({dvenda:'Venda',dmin:'Minuta',dass:'Assinatura',dreg:'Entregue ao registro',dent:'Entrada no cartório',dret:'Retirada'})[k]||rot(k);
+const ymk=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
+function meses(n,atual){const out=[];const d=new Date();d.setDate(1);d.setHours(12,0,0,0);for(let i=atual?n-1:n;i>=(atual?0:1);i--){const x=new Date(d);x.setMonth(x.getMonth()-i);out.push(ymk(x.getTime()))}return out}
+const fmtMes=k=>{const [y,m]=k.split('-');return ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'][+m-1]+'/'+y.slice(2)};
+const diasEntre=(a,b)=>Math.round((ms(b.slice(0,10))-ms(a.slice(0,10)))/DIA);
+let CACHE_IV=null;
+function intervalo(a,b){
+  const key=a+'>'+b;if(!CACHE_IV||CACHE_IV.V!==S.V)CACHE_IV={V:S.V};if(CACHE_IV[key])return CACHE_IV[key];
+  const v=[],neg=[];for(const r of S.V){const x=r.d[a],y=r.d[b];if(!x||!y)continue;const d=diasEntre(x,y);if(d<0)neg.push(r);else v.push({d,m:y.slice(0,7),r})}
+  const ds=v.map(x=>x.d);const m6=meses(6);const pm=m6.map(k=>{const q=v.filter(x=>x.m===k).map(x=>x.d);return {k,n:q.length,med:med(q)}});
+  const ant=v.filter(x=>m6.slice(0,3).includes(x.m)).map(x=>x.d),rec=v.filter(x=>m6.slice(3).includes(x.m)).map(x=>x.d);
+  let tend=null;if(ant.length>=20&&rec.length>=20){const A=med(ant),B=med(rec);const dl=A?(B-A)/A:(B>0?1:0);tend={A,B,dl,na:ant.length,nr:rec.length,tipo:Math.abs(dl)<.1||Math.abs(B-A)<2?'estavel':dl<0?'melhora':'piora'}}
+  return CACHE_IV[key]={a,b,nome:nomeDt(a)+' → '+nomeDt(b),n:v.length,neg,med:med(ds),p75:pctl(ds,.75),v,pm,tend};
+}
+function chipTend(t){if(!t)return '<span class="b ne" title="Precisa de pelo menos 20 processos em cada trimestre">tendência: poucos dados</span>';const tt=`Mediana ${n1(t.A)} → ${n1(t.B)} dias (${n0(t.na)} e ${n0(t.nr)} processos)`;if(t.tipo==='estavel')return `<span class="b ne" title="${tt}">estável</span>`;const p=Math.round(Math.abs(t.dl)*100);return t.tipo==='melhora'?`<span class="b ok" title="${tt}">↓ ${p}% mais rápido</span>`:`<span class="b cr" title="${tt}">↑ ${p}% mais lento</span>`}
+function sparkMes(pm){const mx=Math.max(1,...pm.map(x=>x.med||0));return `<svg class="spk" viewBox="0 0 120 28" width="100%" height="28" aria-hidden="true">${pm.map((x,i)=>x.med==null?`<rect x="${i*20+3}" y="25" width="14" height="1.5" fill="#E7E1E2"/>`:`<rect x="${i*20+3}" y="${26-(x.med/mx)*22}" width="14" height="${Math.max(1.5,(x.med/mx)*22)}" rx="2" fill="#EEF5FC" stroke="#8DB3DA" stroke-width="1.2"><title>${fmtMes(x.k)}: mediana ${n1(x.med)} dias (${x.n} processos)</title></rect>`).join('')}</svg>`}
+function blocoTempo(iv,tot){return `<div class="tempo ${tot?'tot':''}" data-iv="${iv.a}|${iv.b}" title="Clique para ver os processos acima do P75"><div class="tt">${esc(nomeDt(iv.a))} ${ic('chev','s')} ${esc(nomeDt(iv.b))}</div>${iv.n?`<div class="tv">${n0(iv.med)}<small> ${Math.round(iv.med)===1?'dia':'dias'}</small></div><div class="ts">P75 ${n0(iv.p75)} d · ${plural(iv.n,'processo')}</div>${sparkMes(iv.pm)}${chipTend(iv.tend)}`:`<div class="tv">—</div><div class="ts">nenhum processo do recorte com as duas datas</div>`}${iv.neg.length?`<div class="ts" style="color:var(--wa)">${n0(iv.neg.length)} com datas invertidas ficaram fora</div>`:''}</div>`}
+function fluxoTempos(){const iv=INTERV.map(([a,b])=>intervalo(a,b)),tot=INTERV_TOT.map(([a,b])=>intervalo(a,b));
+  return `<div class="fluxo">${iv.map(x=>blocoTempo(x)).join('')}</div><div class="fluxo mt" style="grid-template-columns:repeat(2,minmax(0,1fr))">${tot.map(x=>blocoTempo(x,1)).join('')}</div><p class="small muted" style="margin:10px 0 0">Mediana: metade dos processos levou até esse número de dias. P75: 3 em cada 4 levaram até esse número. Só contam processos do recorte com as duas datas preenchidas e em ordem. A tendência compara a mediana dos últimos 3 meses fechados com a dos 3 anteriores (pela data final) e só aparece com 20 ou mais processos em cada trimestre. As barrinhas são a mediana de cada um dos últimos 6 meses.</p>`}
+function selecao(nome,rs){S.SEL=S.SEL||{};const id='s'+uid();S.SEL[id]={nome,set:new Set(rs.map(r=>r.i))};return id}
+function ligaTempos(root){$$('[data-iv]',root).forEach(el=>el.onclick=()=>{const [a,b]=el.dataset.iv.split('|');const iv=intervalo(a,b);if(!iv.n)return;const l=iv.v.filter(x=>x.d>iv.p75).map(x=>x.r);abrir({sel:selecao(`${iv.nome} acima de ${n0(iv.p75)} dias`,l)},`${iv.nome}: os mais lentos`)})}
+function gargalos(A){const m=new Map();for(const r of A){const o=m.get(r.fase)||{fase:r.fase,rs:[]};o.rs.push(r);m.set(r.fase,o)}
+  return [...m.values()].map(o=>{const ds=o.rs.map(r=>r.dF).filter(x=>x!=null);const md=med(ds)||0;return {...o,n:o.rs.length,med:md,par:o.rs.filter(r=>r.parado).length,score:o.rs.length*Math.max(md,0.5)}}).sort((a,b)=>b.score-a.score)}
+function gargalosHTML(A,n=5){const G=gargalos(A).slice(0,n);if(!G.length)return '<div class="empty"><b>Sem processos em andamento</b>Nada no recorte atual.</div>';const mx=G[0].score;
+  return `<div class="att">${G.map((g,j)=>`<button data-go='${esc(JSON.stringify({fase:g.fase,sit:'andamento'}))}'><span class="ic ${j===0?'cr':'wa'}" style="font:700 15px var(--fg)">${j+1}</span><span style="flex:1;min-width:0"><b>${esc(nomeF(g.fase))}</b><small>${plural(g.n,'processo')} (${pct(g.n,A.length)} dos ativos) · mediana de ${plural(g.med,'dia')} na fase${g.par?` · ${plural(g.par,'parado')}`:''}</small><span class="bl" style="margin-top:6px;display:block"><span class="tr" style="display:block"><span class="br ${j===0?'late':''}" style="width:${Math.max(2,g.score/mx*100)}%"></span></span></span></span><span class="go">${ic('chev','s')}</span></button>`).join('')}</div><p class="small muted" style="margin:8px 0 0">Ordem: processos em andamento × mediana de dias na fase. Mostra onde há mais volume parado por mais tempo.</p>`}
+const DIMS={emp:['Empreendimento',r=>nomeEmp(r.d.emp)||'(sem empreendimento)'],banco:['Banco',r=>r.d.banco||'(sem banco)'],cca:['Consultoria',r=>r.d.cca||'(sem consultoria)'],amont:['Analista de montagem',r=>r.d.amont?pessoa(r.d.amont):'(sem analista)'],tipoat:['Tipo de atendimento',r=>r.d.tipoat||'(sem informação)'],etapa:['Etapa',r=>macroNome(r)],modal:['Modalidade',r=>r.d.modal||'(sem modalidade)']};
+let ANDIM='emp',CMPS={c:'n',d:-1},CMPALL=false;
+function statsGrupo(rs){const a=rs.filter(r=>r.sit==='andamento');const ma=[],ar=[];let comAss=0,comRet=0;
+  for(const r of rs){const d=r.d;if(d.dmin&&d.dass){const x=diasEntre(d.dmin,d.dass);if(x>=0)ma.push(x)}if(d.dass){comAss++;if(d.dret){comRet++;const x=diasEntre(d.dass,d.dret);if(x>=0)ar.push(x)}}}
+  return {n:rs.length,na:a.length,ret:comAss?comRet/comAss:null,ma:med(ma),nma:ma.length,ar:med(ar),nar:ar.length,par:a.filter(r=>r.parado).length,pend:a.filter(r=>r.pend.length).length}}
+function compDados(dim){const f=DIMS[dim][1];const m=new Map();for(const r of S.V){const k=f(r);if(!m.has(k))m.set(k,[]);m.get(k).push(r)}return {tot:statsGrupo(S.V),L:[...m.entries()].map(([k,rs])=>({k,...statsGrupo(rs)}))}}
+function compTabela(dim,lim,compacto){
+  const {tot,L}=compDados(dim);const s=compacto?{c:'n',d:-1}:CMPS;const val=x=>x[s.c]==null?-1:x[s.c];L.sort((a,b)=>(val(a)<val(b)?-1:val(a)>val(b)?1:0)*s.d);
+  const rows=lim&&(compacto||!CMPALL)?L.slice(0,lim):L;
+  const cmp=(v,ref,n)=>{if(v==null)return '<span class="muted">—</span>';if(n<10||ref==null)return `<span class="muted" title="Menos de 10 processos: amostra pequena">${n0(v)}</span>`;const cl=v>ref*1.25&&v-ref>=2?'pior':v<ref*0.8&&ref-v>=2?'melhor':'';return `<span class="${cl}" title="${cl==='pior'?'Mais lento que o recorte inteiro':cl==='melhor'?'Mais rápido que o recorte inteiro':'Perto do recorte inteiro'} (${n0(ref)} dias)">${n0(v)}${cl==='pior'?' ↑':cl==='melhor'?' ↓':''}</span>`};
+  const th=(c,l,n)=>`<th class="${n?'n':''}" data-cs="${c}">${l}${!compacto&&s.c===c?`<span class="ar">${s.d>0?'↑':'↓'}</span>`:''}</th>`;
+  const head=`<tr>${th('k',DIMS[dim][0])}${th('n','Registros',1)}${th('na','Em andamento',1)}${compacto?'':th('ret','Com retirada',1)}${th('ma','Minuta → Assinatura',1)}${th('ar','Assinatura → Retirada',1)}${compacto?'':th('par','Parados',1)+th('pend','Com pendência',1)}</tr>`;
+  const linha=(x,isTot)=>`<tr class="${isTot?'tot':''}" ${isTot?'':`data-cmp="${esc(x.k)}"`}><td class="cl" data-l="${esc(DIMS[dim][0])}">${isTot?'Recorte inteiro':esc(x.k)}</td><td class="n" data-l="Registros">${n0(x.n)}</td><td class="n" data-l="Em andamento">${n0(x.na)}</td>${compacto?'':`<td class="n" data-l="Com retirada" title="Dos que têm Data Assinatura">${x.ret==null?'—':Math.round(x.ret*100)+'%'}</td>`}<td class="n" data-l="Minuta → Assinatura">${isTot?(x.ma==null?'—':n0(x.ma)):cmp(x.ma,tot.ma,x.nma)}</td><td class="n" data-l="Assinatura → Retirada">${isTot?(x.ar==null?'—':n0(x.ar)):cmp(x.ar,tot.ar,x.nar)}</td>${compacto?'':`<td class="n" data-l="Parados">${n0(x.par)}</td><td class="n" data-l="Com pendência">${n0(x.pend)}</td>`}</tr>`;
+  return `<div class="tw"><table class="t cards" data-dim="${dim}"><thead>${head}</thead><tbody>${linha(tot,1)}${rows.map(x=>linha(x)).join('')}</tbody></table></div>${!compacto&&lim&&L.length>lim?`<div class="pager"><span>${n0(rows.length)} de ${n0(L.length)}</span><div class="r"><button class="btn sm" id="cmpall">${CMPALL?'Mostrar menos':'Mostrar todos'}</button></div></div>`:''}`;
+}
+function serieMes(campo,ks){const c=ks.map(()=>0);const idx=Object.fromEntries(ks.map((k,i)=>[k,i]));for(const r of S.V){const v=r.d[campo];if(!v)continue;const i=idx[v.slice(0,7)];if(i!=null)c[i]++}return c}
+function evolMes(){const ks=meses(12,true);const S1=[{nome:'Minutas',c:'#8F8688',v:serieMes('dmin',ks)},{nome:'Assinaturas',c:'#0D5C97',v:serieMes('dass',ks)},{nome:'Entregues ao registro',c:'#C98500',v:serieMes('dreg',ks)},{nome:'Retiradas',c:'#13803B',cheia:1,v:serieMes('dret',ks)}];
+  return linhas(S1,ks,220,fmtMes,fmtMes)+`<p class="small muted" style="margin:6px 0 0">Contagem pela data de cada etapa no movfin, dentro do recorte. ${fmtMes(ks[ks.length-1])} ainda está em andamento.</p>`}
+function statusTop(A,n=12){const m=new Map();for(const r of A)m.set(r.par,(m.get(r.par)||0)+1);const L=[...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,n).map(([p,v])=>{const [f,s]=p.split('||');return {nome:nomeS(s),sub:nomeF(f),v,sm:pct(v,A.length),F:{fase:f,sint:s,sit:'andamento'}}});return L.length?barras(L):'<div class="empty">Sem processos em andamento no recorte.</div>'}
+function inconsist(){const it=[];
+  for(const [a,b] of [...INTERV,...INTERV_TOT]){const iv=intervalo(a,b);if(iv.neg.length)it.push({t:`${plural(iv.neg.length,'registro')} com ${nomeDt(b)} antes de ${nomeDt(a)}`,sub:a==='dmin'&&b==='dass'?'Comum quando a minuta é reemitida depois da assinatura: vale conferir se a Data Minuta foi sobrescrita.':'As datas estão invertidas no movfin.',rs:iv.neg})}
+  const semAss=S.V.filter(r=>r.d.dret&&!r.d.dass);if(semAss.length)it.push({t:`${plural(semAss.length,'registro')} com Data Retirada e sem Data Assinatura`,sub:'Não há retirada sem contrato assinado: falta lançar a assinatura.',rs:semAss});
+  for(const id of ['upd','fs']){const rs=S.V.filter(r=>r.pend.includes(id));if(rs.length){const g=REGRAS.find(x=>x.id===id);it.push({t:`${plural(rs.length,'registro')}: ${g.nome.toLowerCase()}`,sub:g.ds,rs})}}
+  return it}
+function resumoAnalitico(completo){
+  const V=S.V,A=V.filter(r=>r.sit==='andamento'),RG=S.cfg.regras,it=[];
+  if(!V.length)return [{s:'ne',t:'Nenhum registro no recorte atual. Ajuste os filtros na barra do recorte.'}];
+  const conc=V.filter(r=>r.sit==='concluido').length;
+  it.push({s:'in',t:`${n0(V.length)} registros no recorte: ${n0(A.length)} em andamento (${pct(A.length,V.length)}), ${n0(conc)} concluídos e ${n0(V.length-A.length-conc)} cancelados ou fora da operação.`});
+  if(A.length){const G=gargalos(A);const top=[...G].sort((a,b)=>b.n-a.n)[0];const p=top.n/A.length;
+    it.push({s:p>=.25?'wa':'in',t:`${pct(top.n,A.length)} dos processos em andamento estão em ${nomeF(top.fase)} (${n0(top.n)}).`,F:{fase:top.fase,sit:'andamento'},tt:nomeF(top.fase)});
+    const g=G[0];if(g&&g.fase!==top.fase)it.push({s:'wa',t:`Maior gargalo: ${nomeF(g.fase)}, com ${plural(g.n,'processo')} e mediana de ${plural(g.med,'dia')} na fase.`,F:{fase:g.fase,sit:'andamento'},tt:nomeF(g.fase)});
+    else if(g)it.push({s:g.med>=7?'wa':'in',t:`É também o maior gargalo: mediana de ${plural(g.med,'dia')} na fase.`,F:{fase:g.fase,sit:'andamento'},tt:nomeF(g.fase)})}
+  const ivs=[...INTERV,...INTERV_TOT].map(([a,b])=>intervalo(a,b));const mud=ivs.filter(x=>x.tend&&x.tend.tipo!=='estavel').sort((a,b)=>Math.abs(b.tend.dl)-Math.abs(a.tend.dl));
+  if(mud.length){for(const x of mud.slice(0,2)){const t=x.tend;it.push({s:t.tipo==='melhora'?'ok':'cr',t:`${x.nome}: a mediana ${t.tipo==='melhora'?'caiu':'subiu'} de ${plural(t.A,'dia')} para ${plural(t.B,'dia')} nos últimos 3 meses (${Math.round(Math.abs(t.dl)*100)}% ${t.tipo==='melhora'?'mais rápido':'mais lento'}).`,iv:x.a+'|'+x.b})}}
+  else{const cd=ivs.filter(x=>x.tend);it.push({s:cd.length?'ok':'ne',t:cd.length?'Os tempos entre etapas estão estáveis nos últimos 3 meses (variação abaixo de 10%).':'Ainda não há processos suficientes no recorte para medir tendência dos tempos.'})}
+  {const {tot,L}=compDados('emp');const lt=L.filter(x=>x.nar>=30&&x.ar!=null&&tot.ar);if(lt.length>1){const pi=lt.reduce((a,b)=>b.ar>a.ar?b:a),me=lt.reduce((a,b)=>b.ar<a.ar?b:a);if(pi.ar>=tot.ar*1.25&&pi.ar-tot.ar>=3)it.push({s:'wa',t:`${pi.k} leva ${plural(pi.ar,'dia')} da assinatura à retirada (mediana de ${n0(pi.nar)} processos), contra ${n0(tot.ar)} no recorte. O mais rápido é ${me.k}, com ${n0(me.ar)}.`,F:{dim:['emp',pi.k]},tt:pi.k})}}
+  if(completo){const par=A.filter(r=>r.parado);if(par.length){const c=concentracao(par,1)[0];it.push({s:'wa',t:`${plural(par.length,'processo')} sem movimentação há mais de ${RG.parado} dias, ${n0(c.n)} em ${c.nome}.`,F:{parado:1,sit:'andamento'},tt:'Parados'})}else if(A.length)it.push({s:'ok',t:`Nenhum processo em andamento parado há mais de ${RG.parado} dias.`});
+  const pm={};for(const r of A)for(const p of r.pend)if(p!=='par')pm[p]=(pm[p]||0)+1;const tp=Object.entries(pm).sort((a,b)=>b[1]-a[1])[0];
+  if(tp){const g=REGRAS.find(x=>x.id===tp[0]);it.push({s:g.sev,t:`Pendência mais frequente: ${g.nome.toLowerCase()}, em ${plural(tp[1],'processo')} em andamento.`,F:{pend:tp[0],sit:'andamento'},tt:g.nome})}}
+  const lim=[];if(A.length&&!A.some(r=>r.meta!=null))lim.push('“fora do prazo” não é calculado porque nenhuma meta de prazo foi definida');
+  const comTL=A.filter(r=>r.tl).length;if(A.length&&comTL<A.length)lim.push(`o relatório de SLA cobre ${n0(comTL)} dos ${n0(A.length)} processos em andamento; nos demais o tempo na fase vem das datas do movfin`);
+  if(lim.length)it.push({s:'ne',t:'Limitações: '+lim.join('; ')+'.'});
+  return it}
+function listaResumo(R){S._rs=R;return `<ul class="rs">${R.map((x,j)=>`<li class="${x.F||x.iv?'lk':''} ${x.s==='ne'?'ne':''}" ${x.F||x.iv?`data-rs="${j}"`:''}><span class="dot ${x.s}"></span><span>${esc(x.t)}</span>${x.F||x.iv?`<span class="go">${ic('chev','s')}</span>`:''}</li>`).join('')}</ul>`}
+function vAnalises(pg){
+  crumbs();const V=S.V,A=V.filter(r=>r.sit==='andamento');const inc=V.length?inconsist():[];S._inc=inc;
+  pg.innerHTML=`<div class="ph"><div><h1>Análises</h1><p>O que os dados mostram sobre o recorte atual. Cada frase vem com o número que a sustenta, e quando falta dado aparece o aviso.</p></div><div class="act"><button class="btn" id="xan">${ic('down','s')}Exportar análises</button></div></div>
+  ${V.length?`<div class="row2">${card('Resumo da situação',`${n0(V.length)} registros · ${n0(A.length)} em andamento`,listaResumo(resumoAnalitico(true)))}${card('Gargalos','em andamento × mediana de dias na fase',gargalosHTML(A,5))}</div>
+  <div class="card mt"><div class="hd"><h3>Tempo entre etapas</h3><span class="sub">mediana em dias · clique num bloco para ver os mais lentos</span></div><div class="bd">${fluxoTempos()}</div></div>
+  <div class="card mt"><div class="hd"><h3>Comparativo</h3><span class="sub">medianas em dias · <b style="color:var(--cr)">↑</b> 25% ou mais lento que o recorte · <b style="color:var(--ok)">↓</b> 20% ou mais rápido · cinza: menos de 10 processos</span><div class="r"><select class="sel" id="cmpd" aria-label="Comparar por">${Object.entries(DIMS).map(([k,v])=>`<option value="${k}" ${ANDIM===k?'selected':''}>Por ${v[0].toLowerCase()}</option>`).join('')}</select></div></div><div class="bd" style="padding:10px 0 0" id="cmpbox"></div></div>
+  <div class="row2 mt">${card('Evolução mensal','datas do movfin no recorte',evolMes())}${card('Status mais frequentes','fase · síntese dos processos em andamento',statusTop(A))}</div>
+  <div class="row2 mt">${card('Volume por etapa','em andamento · trecho vermelho = fora do prazo',barras(arvore().map(n=>({nome:n.nome,v:n.ag.na,late:n.ag.atr,F:n.tipo==='etapa'?{etapa:n.id,sit:'andamento'}:{fase:n.fase,sit:'andamento'},sm:pct(n.ag.na,A.length)})).filter(x=>x.v)))}${card('Para investigar','datas que não batem no movfin',inc.length?`<div class="att">${inc.map((x,j)=>`<button data-inc="${j}"><span class="ic wa">${ic('alert','s')}</span><span><b>${esc(x.t)}</b><small>${esc(x.sub)}</small></span><span class="go">Ver ${ic('chev','s')}</span></button>`).join('')}</div>`:`<div class="empty"><div class="ei">${ic('check')}</div><b>Nada a investigar</b>As datas do recorte estão em ordem.</div>`)}</div>`
+  :`<div class="card"><div class="empty"><b>Nenhum registro no recorte</b>Ajuste os filtros na barra do recorte.</div></div>`}`;
+  const box=$('#cmpbox');
+  const drawC=()=>{box.innerHTML=compTabela(ANDIM,15);$$('[data-cs]',box).forEach(th=>th.onclick=()=>{const c=th.dataset.cs;CMPS={c,d:CMPS.c===c?-CMPS.d:(c==='k'?1:-1)};drawC()});$$('[data-cmp]',box).forEach(tr=>tr.onclick=()=>abrir({dim:[ANDIM,tr.dataset.cmp]},DIMS[ANDIM][0]+': '+tr.dataset.cmp));const al=$('#cmpall',box);if(al)al.onclick=()=>{CMPALL=!CMPALL;drawC()}};
+  if(box){drawC();$('#cmpd').onchange=()=>{ANDIM=$('#cmpd').value;CMPS={c:'n',d:-1};CMPALL=false;drawC()}}
+  $$('[data-inc]',pg).forEach(b=>b.onclick=()=>{const x=S._inc[+b.dataset.inc];abrir({sel:selecao(x.t,x.rs)},x.t)});
+  ligaGo(pg);const xa=$('#xan',pg);if(xa)xa.onclick=exportaAnalises;
+}
+function exportaAnalises(){if(!S.V.length){toast('Nada no recorte para exportar','wa');return}
+  const ivs=[...INTERV,...INTERV_TOT].map(([a,b])=>intervalo(a,b));const ab=[];
+  ab.push(['Resumo',[['Situação do recorte'],...resumoAnalitico(true).map(x=>[x.t]),[],['Recorte',chipsRec(S.rec).map(x=>x[1]).join(' · ')||'sem outros filtros'],['Data Minuta',S.rec.dmin==='com'?'só com Data Minuta':S.rec.dmin==='sem'?'só sem Data Minuta':'todos'],['Registros',S.V.length],['Gerado em',new Date().toLocaleString('pt-BR')]]]);
+  ab.push(['Tempo entre etapas',[['Etapas','Processos','Mediana (dias)','P75 (dias)','Datas invertidas','Mediana 3 meses anteriores','Mediana últimos 3 meses','Tendência'],...ivs.map(x=>[x.nome,x.n,x.med??'',x.p75==null?'':Math.round(x.p75),x.neg.length,x.tend?x.tend.A:'',x.tend?x.tend.B:'',x.tend?{melhora:'mais rápido',piora:'mais lento',estavel:'estável'}[x.tend.tipo]:'poucos dados'])]]);
+  for(const [k,[nm]] of Object.entries(DIMS)){const {tot,L}=compDados(k);ab.push(['Por '+nm.toLowerCase(),[[nm,'Registros','Em andamento','Com retirada (% dos assinados)','Minuta→Assinatura (mediana dias)','Assinatura→Retirada (mediana dias)','Parados','Com pendência'],...[{k:'Recorte inteiro',...tot},...L.sort((a,b)=>b.n-a.n)].map(x=>[x.k,x.n,x.na,x.ret==null?'':Math.round(x.ret*100),x.ma??'',x.ar??'',x.par,x.pend])]])}
+  ab.push(['Gargalos',[['Fase','Em andamento','Mediana de dias na fase','Parados','Pontuação (processos × mediana)'],...gargalos(ativos()).map(g=>[nomeF(g.fase),g.n,g.med,g.par,Math.round(g.score)])]]);
+  const ks=meses(12,true);const se={};for(const c of ['dmin','dass','dreg','dret'])se[c]=serieMes(c,ks);ab.push(['Evolução mensal',[['Mês','Minutas','Assinaturas','Entregues ao registro','Retiradas'],...ks.map((k,i)=>[fmtMes(k),se.dmin[i],se.dass[i],se.dreg[i],se.dret[i]])]]);
+  const inc=inconsist();ab.push(['Para investigar',[['Situação','Registros'],...inc.map(x=>[x.t,x.rs.length])]]);
+  xlsx('Central Montagem - Analises',ab)}
+
+/* =====================================================================
+   CLASSIFICAÇÕES · camada de organização por cima do movfin (sínteses de qualquer fase em categorias)
+   ===================================================================== */
+let ESTT='estrutura',CLSA=null;
+function tabsEst(){return `<div class="seg" id="estt"><button data-et="estrutura" class="${ESTT==='estrutura'?'on':''}">Fases e grupos</button><button data-et="class" class="${ESTT==='class'?'on':''}">Classificações</button></div>`}
+function ligaEstTabs(pg){$$('[data-et]').forEach(b=>b.onclick=()=>{ESTT=b.dataset.et;vEstrutura(pg)})}
+function vClasses(pg){
+  crumbs('Classificações');const E=cfgE();const ed=pode();const cl=E.classes.find(c=>c.id===CLSA)||E.classes[0];CLSA=cl?cl.id:null;
+  const head=`<div class="ph"><div><h1>Fases e sínteses</h1><p>Classificações juntam sínteses de qualquer fase em categorias com nomes da operação. É uma camada de leitura: o movfin não muda.</p></div><div class="act">${tabsEst()}${ed?`<button class="btn pri" id="ncl">${ic('plus','s')}Nova classificação</button>`:''}</div></div>`;
+  if(!cl){pg.innerHTML=head+`<div class="card"><div class="empty"><div class="ei" style="background:var(--inb);color:var(--azul2)">${ic('folder')}</div><b>Nenhuma classificação ainda</b>Exemplo: uma classificação “Com quem está” com as categorias “Cliente”, “Banco” e “Cartório”, cada uma juntando as sínteses que dependem dela.${ed?`<div class="mt"><button class="btn pri" id="ncl2">${ic('plus','s')}Criar a primeira classificação</button></div>`:''}</div></div>`;
+    ligaEstTabs(pg);for(const id of ['#ncl','#ncl2']){const b=$(id);if(b)b.onclick=()=>editaClasse(null,()=>{modelo();vClasses(pg)})}return}
+  const V=S.V,A=V.filter(r=>r.sit==='andamento');
+  const cats=[...cl.cats.map(k=>({k,rs:V.filter(r=>r.cls[cl.id]===k.id)})),{k:{id:'__sem',nome:'Sem categoria',sints:[]},rs:V.filter(r=>!r.cls[cl.id]),sem:1}];cats.forEach(c=>c.ag=agrega(c.rs,'sint'));
+  const semS=[...new Set(cats[cats.length-1].rs.filter(r=>r.sit==='andamento').map(r=>r.sint))];
+  const ss=c=>c.sem?semS:c.k.sints;
+  pg.innerHTML=head+`<div class="hstack" style="margin-bottom:14px"><div class="vtabs" style="margin:0">${E.classes.map(c=>`<button class="vt ${c.id===cl.id?'on':''}" data-cl="${c.id}">${esc(c.nome)}</button>`).join('')}</div>${ed?`<button class="btn sm" id="ncat">${ic('plus','s')}Nova categoria</button><button class="btn sm ghost" id="rcl">Renomear</button><button class="btn sm ghost dan" id="dcl">Excluir classificação</button>`:''}<span class="muted small" style="margin-left:auto">Contagens do recorte atual</span></div>
+   <div class="cats">${cats.map(c=>`<div class="card cat ${c.sem?'semcat':''}" data-cat="${c.k.id}"><h4>${esc(c.k.nome)}</h4><div class="v">${n0(c.ag.na)}<small> em andamento · ${pct(c.ag.na,A.length)}</small></div><div class="small muted">${n0(c.ag.n)} no recorte${c.ag.na?` · ${n1(c.ag.media)} dias médios na síntese`:''}${c.ag.parados?` · ${n0(c.ag.parados)} parados`:''}</div><div class="ss">${ss(c).slice(0,6).map(s=>`<span>${esc(nomeS(s))}</span>`).join('')}${ss(c).length>6?`<span>+${ss(c).length-6}</span>`:''}</div>${ed&&!c.sem?`<button class="mbtn" data-mcat="${c.k.id}" title="Opções">${ic('dots','s')}</button>`:''}</div>`).join('')}</div>
+   ${cl.cats.length?'':`<div class="note mt">${ic('info','s')}<span>Esta classificação ainda não tem categorias. Clique em “Nova categoria” e escolha as sínteses.</span></div>`}
+   <div class="row2 mt">${card('Comparativo','processos em andamento por categoria',barras(cats.filter(c=>c.ag.na).map(c=>({nome:c.k.nome,v:c.ag.na,late:c.ag.atr,sm:pct(c.ag.na,A.length),F:{cat:[cl.id,c.k.id],sit:'andamento'}}))))}${card('Evolução entre importações','em andamento por categoria em cada importação',evolClasse(cl))}</div>`;
+  ligaEstTabs(pg);ligaGo(pg);
+  $$('[data-cl]',pg).forEach(b=>b.onclick=()=>{CLSA=b.dataset.cl;vClasses(pg)});
+  $$('[data-cat]',pg).forEach(c=>c.onclick=e=>{if(e.target.closest('.mbtn'))return;const id=c.dataset.cat;const nm=id==='__sem'?'Sem categoria':cl.cats.find(x=>x.id===id).nome;abrir({cat:[cl.id,id],sit:'andamento'},cl.nome+': '+nm)});
+  if(!ed)return;
+  const done=()=>{modelo();vClasses(pg)};
+  $('#ncl').onclick=()=>editaClasse(null,done);$('#ncat').onclick=()=>editaCat(cl,null,done);
+  $('#rcl').onclick=()=>editaClasse(cl,done);
+  $('#dcl').onclick=()=>confirma(`Excluir a classificação “${cl.nome}”?`,'As categorias dela somem. Nenhum dado do movfin é alterado.','Excluir',()=>{E.classes=E.classes.filter(x=>x!==cl);CLSA=null;if(S.rec.cls&&S.rec.cls[cl.id]){delete S.rec.cls[cl.id];setRec(S.rec)}salvaCfg('estrutura','Classificação excluída');done()});
+  $$('[data-mcat]',pg).forEach(b=>b.onclick=e=>{e.stopPropagation();const k=cl.cats.find(x=>x.id===b.dataset.mcat);menu(b,[['edit','Renomear e editar sínteses',()=>editaCat(cl,k,done)],['arrowup','Mover para antes',()=>{const i=cl.cats.indexOf(k);if(i>0){cl.cats.splice(i,1);cl.cats.splice(i-1,0,k);salvaCfg('estrutura','Ordem salva');done()}}],null,['undo','Excluir categoria',()=>confirma(`Excluir a categoria “${k.nome}”?`,'As sínteses dela voltam para “Sem categoria”.','Excluir',()=>{cl.cats=cl.cats.filter(x=>x!==k);salvaCfg('estrutura','Categoria excluída');done()}),'dan']])});
+}
+function editaClasse(cl,done){const E=cfgE();pergunta(cl?'Renomear classificação':'Nova classificação','Nome da classificação',cl?cl.nome:'',n=>{if(cl)cl.nome=n;else{const c={id:'c'+uid(),nome:n,cats:[]};E.classes.push(c);CLSA=c.id}salvaCfg('estrutura',cl?'Classificação renomeada':'Classificação criada. Agora crie as categorias.');done()})}
+function editaCat(cl,k,done){
+  const novo=!k;const usadas=new Set(cl.cats.filter(x=>x!==k).flatMap(x=>x.sints));const sel=new Set(k?k.sints:[]);
+  const cnt={};for(const r of S.R)cnt[r.sint]=(cnt[r.sint]||0)+(r.sit==='andamento'?1:0);
+  const todas=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]||a.localeCompare(b));
+  modal(`<div class="mh"><div><h2>${novo?'Nova categoria':'Editar categoria'}</h2><p>Na classificação <b>${esc(cl.nome)}</b>. Escolha sínteses de qualquer fase. Dentro de uma classificação, cada síntese fica em uma categoria só.</p></div></div>
+   <div class="mb"><div class="fl"><label>Nome da categoria</label><input class="inp" id="cn" value="${esc(k?k.nome:'')}" placeholder="Ex.: Depende do cliente"></div>
+   <div class="fl"><label>Sínteses <span class="muted" style="font-weight:500">(número = processos em andamento na base)</span></label><input class="inp" id="cq" placeholder="Filtrar sínteses…" style="margin-bottom:6px"><div class="ck" id="cck">${todas.map(s=>`<label data-s="${esc(norm(nomeS(s)+' '+s))}"><input type="checkbox" value="${esc(s)}" ${sel.has(s)?'checked':''} ${usadas.has(s)?'disabled':''}>${esc(nomeS(s))} <span class="muted">· ${n0(cnt[s])}</span>${usadas.has(s)?' <span class="muted">(em outra categoria)</span>':''}</label>`).join('')}</div></div></div>
+   <div class="mf">${novo?'':'<button class="btn dan l" id="cdel">Excluir categoria</button>'}<button class="btn" data-x>Cancelar</button><button class="btn pri" id="cok">${novo?'Criar categoria':'Salvar'}</button></div>`,'lg',m=>{
+    $('#cn',m).focus();$('#cq',m).oninput=()=>{const q=norm($('#cq',m).value);$$('#cck label',m).forEach(l=>l.style.display=!q||l.dataset.s.includes(q)?'':'none')};
+    const del=$('#cdel',m);if(del)del.onclick=()=>{fechaModal();confirma(`Excluir a categoria “${k.nome}”?`,'As sínteses dela voltam para “Sem categoria”.','Excluir',()=>{cl.cats=cl.cats.filter(x=>x!==k);salvaCfg('estrutura','Categoria excluída');done()})};
+    $('#cok',m).onclick=()=>{const nome=clean($('#cn',m).value);const ss=$$('#cck input:checked',m).map(c=>c.value);if(!nome){toast('Dê um nome para a categoria','wa');return}if(!ss.length){toast('Escolha pelo menos uma síntese','wa');return}
+      if(novo)cl.cats.push({id:'k'+uid(),nome,sints:ss});else Object.assign(k,{nome,sints:ss});fechaModal();salvaCfg('estrutura',novo?`Categoria “${esc(nome)}” criada`:'Categoria salva');done()};
+  });
+}
+const contaPares=L=>{const m={};for(const d of L){const p=(clean(d.fase)||'(sem fase)')+'||'+(clean(d.sint)||'(sem síntese)');m[p]=(m[p]||0)+1}return m};
+function fotos(){return (S.info.envios||[]).filter(e=>e.base==='movfin'&&e.resumo&&e.resumo.snap).slice(0,12).reverse()}
+function evolClasse(cl){const F=fotos();if(F.length<2)return `<div class="note">${ic('info','s')}<span>A evolução aparece a partir da 2ª importação do movfin: cada importação guarda uma fotografia das fases e sínteses. ${F.length?'Já existe 1 fotografia.':'Ainda não há nenhuma.'} A fotografia conta a base inteira, sem os filtros do recorte.</span></div>`;
+  const map={};for(const k of cl.cats)for(const s of k.sints)map[s]=k.id;const cores=['#0D5C97','#13803B','#C98500','#B6211D','#5C5456','#6B4FA8'];
+  const ser=cl.cats.slice(0,6).map((k,j)=>({nome:k.nome,c:cores[j],cheia:j===0,v:F.map(f=>Object.entries(f.resumo.snap).reduce((s,[p,n])=>{const [fa,si]=p.split('||');return s+(map[si]===k.id&&sitF(fa)==='andamento'?n:0)},0))}));
+  return linhas(ser,F.map(f=>f.em),200,x=>String(x).slice(0,5),x=>'importação de '+x)+`<p class="small muted" style="margin:6px 0 0">Processos em andamento de cada categoria na data de cada importação, base inteira (sem o recorte).</p>`}
+
+/* ---------------- definições dos indicadores (aparecem no ⓘ de cada número) ---------------- */
+const DEFS={
+ 'Registros no recorte':'Linhas do movfin que passam pelos filtros do recorte (barra logo abaixo da faixa). Inclui processos em andamento, concluídos e cancelados.',
+ 'Data Minuta':'Quantos registros têm a coluna DataMinuta preenchida ou em branco, considerando os outros filtros do recorte. Clique numa linha para trocar o recorte (o padrão é só com Data Minuta).',
+ 'Com Data Minuta':'Registros com a coluna DataMinuta preenchida, considerando os outros filtros do recorte mas não o de Data Minuta. Clique para ver só eles.',
+ 'Sem Data Minuta':'Registros com DataMinuta em branco, considerando os outros filtros do recorte mas não o de Data Minuta. Clique para ver só eles.',
+ 'Em andamento':'Processos em fases com situação “Em andamento” (definida em Fases e sínteses). Só eles contam para SLA, carteira, parados e atraso.',
+ 'Fora do prazo':'Em andamento com dias na etapa acima da meta: vale a meta do grupo; sem ela, a da fase; sem ela, a da etapa. Sem meta definida, não é calculado.',
+ 'Tempo médio na etapa':'Média de dias desde a entrada na fase atual, entre os processos em andamento. A entrada vem da data escolhida para a fase, do relatório de SLA ou da Data Status.',
+ 'Parados':'Em andamento sem nenhuma movimentação no movfin (Data Status) há mais dias que o limite definido em Configurações.',
+ 'Com pendência':'Processos em andamento com pelo menos uma regra de pendência ativa (veja a tela Pendências).',
+ 'Sem Data Retirada':'Registrados ainda ativos, ou finalizados dentro do período de histórico, sem a Data Retirada lançada.',
+ 'Sem analista de montagem':'Em andamento, nas fases escolhidas para a regra, sem o campo ID_USUARIO_ANALISTA_MONTAGEM.',
+ 'Concluídos (30 dias)':'Processos em fase concluída cuja última movimentação no movfin foi nos últimos 30 dias.',
+ 'Analistas na equipe':'Pessoas marcadas como equipe de montagem em Configurações.',
+ 'Carteira média':'Média de processos em andamento por analista que tem carteira.'};
 
 /* =====================================================================
    COMPONENTES DO PAINEL (widgets)
@@ -775,7 +1115,14 @@ const WIDGETS={
  k_ret:{nome:'Sem Data Retirada',ds:'Registrados sem a Data Retirada.',ic:'cal',size:'s'},
  k_ana:{nome:'Sem analista',ds:'Nas fases da montagem sem analista responsável.',ic:'user',size:'s'},
  k_concl:{nome:'Concluídos (30 dias)',ds:'Processos que chegaram a uma fase concluída.',ic:'check',size:'s'},
- k_total:{nome:'Registros no movfin',ds:'Tudo o que está na base importada.',ic:'db',size:'s'},
+ k_total:{nome:'Registros no recorte',ds:'Quantos registros passam pelos filtros do recorte.',ic:'db',size:'s'},
+ k_com:{nome:'Data Minuta',ds:'Com e sem Data Minuta no recorte; clique para trocar.',ic:'file',size:'s'},
+ k_sem:{nome:'Sem Data Minuta',ds:'Registros sem Data Minuta; clique para filtrar.',ic:'file',size:'s'},
+ resumo:{nome:'Resumo da situação',ds:'Leitura automática do recorte, com o número que sustenta cada frase.',ic:'info',size:'m'},
+ tempos:{nome:'Tempo entre etapas',ds:'Mediana de dias entre venda, minuta, assinatura, registro e retirada, com tendência.',ic:'clock',size:'l'},
+ gargalos:{nome:'Gargalos',ds:'Fases com mais processos parados por mais tempo.',ic:'alert',size:'m'},
+ evol_mes:{nome:'Evolução mensal',ds:'Minutas, assinaturas, entregas ao registro e retiradas por mês.',ic:'chart',size:'m'},
+ comparativo:{nome:'Comparativo por empreendimento',ds:'Volume e tempos por empreendimento, com destaque para quem foge do recorte.',ic:'layers',size:'m'},
  sla_etapas:{nome:'Tempo por etapa',ds:'Dias médios e processos fora do prazo em cada etapa.',ic:'chart',size:'m'},
  sla_grupos:{nome:'Grupos de trabalho',ds:'Os grupos que você criou, com o SLA de cada um.',ic:'folder',size:'m'},
  distrib:{nome:'Onde estão os processos',ds:'Quantos processos ativos há em cada etapa.',ic:'layers',size:'m'},
@@ -786,16 +1133,17 @@ const WIDGETS={
  etapa:{nome:'Acompanhar uma etapa',ds:'Indicadores de uma etapa ou fase.',ic:'layers',size:'s',param:'etapa'},
  analista:{nome:'Acompanhar um analista',ds:'Carteira e atrasos de uma pessoa da equipe.',ic:'user',size:'s',param:'analista'},
 };
-const VISOES_PADRAO=()=>({ativa:'geral',visoes:[
+const VISAO_EXEC=()=>({id:'exec',nome:'Executiva',itens:[{w:'k_total'},{w:'k_com'},{w:'k_andamento'},{w:'k_parados'},{w:'resumo',size:'m'},{w:'atencao',size:'m'},{w:'tempos',size:'l'},{w:'gargalos',size:'m'},{w:'distrib',size:'m'},{w:'evol_mes',size:'m'},{w:'comparativo',size:'m'}]});
+const VISOES_PADRAO=()=>({v2:1,ativa:'exec',visoes:[VISAO_EXEC(),
  {id:'geral',nome:'Visão geral',itens:[{w:'atencao',size:'l'},{w:'k_andamento'},{w:'k_atrasados'},{w:'k_pend'},{w:'k_ret'},{w:'distrib',size:'m'},{w:'sla_etapas',size:'m'},{w:'equipe',size:'m'},{w:'evolucao',size:'m'}]},
  {id:'sla',nome:'Prazos',itens:[{w:'k_atrasados'},{w:'k_dias'},{w:'k_parados'},{w:'k_andamento'},{w:'sla_etapas',size:'m'},{w:'sla_grupos',size:'m'}]},
  {id:'equipe',nome:'Equipe',itens:[{w:'equipe',size:'l'},{w:'k_ana'},{w:'k_andamento'},{w:'k_concl'},{w:'k_atrasados'},{w:'evolucao',size:'l'}]},
  {id:'pend',nome:'Pendências',itens:[{w:'k_pend'},{w:'k_ret'},{w:'k_ana'},{w:'k_parados'},{w:'pend_top',size:'l'}]},
 ]});
-function painelCfg(){if(!S.painel||!S.painel.visoes)S.painel=VISOES_PADRAO();return S.painel}
+function painelCfg(){if(!S.painel||!S.painel.visoes)S.painel=VISOES_PADRAO();const P=S.painel;if(!P.v2){if(!P.visoes.some(v=>v.id==='exec'))P.visoes.unshift(VISAO_EXEC());P.ativa='exec';P.v2=1}return P}
 const salvaPainel=debounce(async()=>{try{if(LOCAL)await IDB.set('painel',S.painel);else await rpc('mon_painel_salvar',{p_valor:S.painel})}catch(e){toast('Não foi possível salvar o painel: '+esc(msgErro(e)),'cr')}},600);
 
-function kpi(cls,ico,lb,v,cx,go,extra){return `<div class="card kpi ${cls}" data-go='${esc(JSON.stringify(go||null))}'><div class="lb">${ic(ico,'s')}${esc(lb)}</div><div class="v">${v}</div><div class="cx">${cx||''}</div>${extra||''}</div>`}
+function kpi(cls,ico,lb,v,cx,go,extra,def){const df=def||DEFS[lb];return `<div class="card kpi ${cls}" data-go='${esc(JSON.stringify(go||null))}'>${df?`<span class="def" tabindex="0" role="note" aria-label="${esc(df)}">${ic('info','s')}<span class="bub">${esc(df)}</span></span>`:''}<div class="lb">${ic(ico,'s')}${esc(lb)}</div><div class="v">${v}</div><div class="cx">${cx||''}</div>${extra||''}</div>`}
 function concentracao(rs,n=3){
   const m=new Map();for(const r of rs){const key=r.gr?'g:'+r.gr.id:'f:'+r.fase;const o=m.get(key)||{nome:r.gr?r.gr.nome:nomeF(r.fase),n:0,F:r.gr?{grupo:r.gr.id}:{fase:r.fase}};o.n++;m.set(key,o)}
   return [...m.values()].sort((a,b)=>b.n-a.n).slice(0,n);
@@ -803,9 +1151,17 @@ function concentracao(rs,n=3){
 function wHTML(it){
   const A=ativos(),RG=S.cfg.regras,W=WIDGETS[it.w];if(!W)return '';
   switch(it.w){
-  case 'k_andamento':{const nf=new Set(A.map(r=>r.fase)).size;return kpi('','flow','Em andamento',n0(A.length),`em ${plural(nf,'fase')} · ${pct(A.length,S.R.length)} da base`,{sit:'andamento'})}
-  case 'k_total':return kpi('','db','Registros no movfin',n0(S.R.length),S.info.bases.movfin?'base de '+esc(S.info.bases.movfin.em):'',{});
-  case 'k_concl':{const c=S.R.filter(r=>r.sit==='concluido'&&r.tMov>=NOW-30*DIA);return kpi('ok','check','Concluídos (30 dias)',n0(c.length),'chegaram a uma fase concluída',{concl:30})}
+  case 'k_andamento':{const nf=new Set(A.map(r=>r.fase)).size;return kpi('','flow','Em andamento',n0(A.length),`em ${plural(nf,'fase')} · ${pct(A.length,S.V.length)} do recorte`,{sit:'andamento'})}
+  case 'k_total':return kpi('f f-in','db','Registros no recorte',n0(S.V.length),`${pct(S.V.length,S.R.length)} dos ${n0(S.R.length)} do movfin`,{});
+  case 'k_com':{const b=S.R.filter(r=>passa(r,{...S.rec,dmin:''}));const c=b.filter(r=>r.d.dmin).length,sm=b.length-c;const lin=(k,l,n)=>`<li data-rec="${k}" style="cursor:pointer"><span>${(S.rec.dmin||'')===k?'● ':''}${l}</span><span>${n0(n)} · ${pct(n,b.length)}</span></li>`;
+    return kpi('','file','Data Minuta',n0(c)+'<small>com</small>',`${pct(c,b.length)} dos ${n0(b.length)} registros têm Data Minuta`,null,`<ul>${lin('com','Com Data Minuta',c)}${lin('sem','Sem Data Minuta',sm)}${lin('','Todos',b.length)}</ul><div class="cta">Clique numa linha para mudar o recorte</div>`)}
+  case 'k_sem':{const com=false;const b=S.R.filter(r=>passa(r,{...S.rec,dmin:''}));const n=b.filter(r=>com?r.d.dmin:!r.d.dmin).length;const at=S.rec.dmin===(com?'com':'sem');return kpi(at?'':'','file',com?'Com Data Minuta':'Sem Data Minuta',n0(n),`${pct(n,b.length)} dos ${n0(b.length)} registros${at?' · é o recorte atual':''}`,at?{}:{rec:{dmin:com?'com':'sem'}},at?'':'<div class="cta">Ver só estes →</div>')}
+  case 'resumo':return card('Resumo da situação',`${n0(S.V.length)} registros no recorte`,listaResumo(resumoAnalitico().slice(0,6)),`<button class="btn sm ghost" data-go='{"view":"analises"}'>Ver análises</button>`);
+  case 'tempos':return card('Tempo entre etapas','mediana em dias · clique num bloco para ver os mais lentos',fluxoTempos());
+  case 'gargalos':return card('Gargalos','em andamento × mediana de dias na fase',gargalosHTML(A,5));
+  case 'evol_mes':return card('Evolução mensal','datas do movfin no recorte',evolMes());
+  case 'comparativo':return card('Comparativo por empreendimento','os 8 com mais registros · medianas em dias',compTabela('emp',8,true),`<button class="btn sm ghost" data-go='{"view":"analises"}'>Mais comparativos</button>`);
+  case 'k_concl':{const c=S.V.filter(r=>r.sit==='concluido'&&r.tMov>=NOW-30*DIA);return kpi('ok','check','Concluídos (30 dias)',n0(c.length),'chegaram a uma fase concluída',{concl:30})}
   case 'k_atrasados':{const at=A.filter(r=>r.sla==='atr');const cm=A.filter(r=>r.meta!=null).length;
     if(!cm)return kpi('','clock','Fora do prazo','—','Nenhuma meta de prazo definida ainda.',{view:'estrutura'},'<div class="cta">Definir metas em Fases e sínteses →</div>');
     const c=concentracao(at);return kpi(at.length?'cr':'ok','clock','Fora do prazo',n0(at.length),at.length?`${pct(at.length,cm)} dos ${n0(cm)} com meta`:'Todos dentro da meta',{sla:'atr'},at.length?`<ul>${c.map(x=>`<li><span>${esc(x.nome)}</span><span>${n0(x.n)}</span></li>`).join('')}</ul><div class="cx" style="margin-top:6px">Principal concentração: <b>${esc(c[0].nome)}</b></div>`:'')}
@@ -822,9 +1178,9 @@ function wHTML(it){
   case 'equipe':return wEquipe();
   case 'evolucao':return wEvolucao();
   case 'pend_top':return wPendTop();
-  case 'grupo':{const g=cfgE().grupos.find(x=>x.id===it.p);if(!g)return kpi('','folder','Grupo removido','—','escolha outro grupo no modo edição',null);const rs=S.R.filter(r=>r.gr&&r.gr.id===g.id),ag=agrega(rs,'grupo');
+  case 'grupo':{const g=cfgE().grupos.find(x=>x.id===it.p);if(!g)return kpi('','folder','Grupo removido','—','escolha outro grupo no modo edição',null);const rs=S.V.filter(r=>r.gr&&r.gr.id===g.id),ag=agrega(rs,'grupo');
     return kpi(ag.atr?'cr':'','folder',g.nome,n0(ag.na),`${n1(ag.media)} dias em média no grupo${g.meta!=null?' · meta '+g.meta:''}`,{grupo:g.id,sit:'andamento'},`<ul><li><span>Fora do prazo</span><span>${g.meta!=null?n0(ag.atr):'—'}</span></li><li><span>Mais antigo</span><span>${n0(ag.max)} dias</span></li><li><span>Fase</span><span>${esc(nomeF(g.fase))}</span></li></ul>`)}
-  case 'etapa':{const E=cfgE();const e=E.etapas.find(x=>x.id===it.p);const rs=e?S.R.filter(r=>r.et&&r.et.id===e.id):S.R.filter(r=>r.fase===it.p);const nm=e?e.nome:nomeF(it.p);const ag=agrega(rs,'fase');
+  case 'etapa':{const E=cfgE();const e=E.etapas.find(x=>x.id===it.p);const rs=e?S.V.filter(r=>r.et&&r.et.id===e.id):S.V.filter(r=>r.fase===it.p);const nm=e?e.nome:nomeF(it.p);const ag=agrega(rs,'fase');
     return kpi(ag.atr?'cr':'','layers',nm||'Etapa',n0(ag.na),`${n1(ag.media)} dias em média`,e?{etapa:e.id,sit:'andamento'}:{fase:it.p,sit:'andamento'},`<ul><li><span>Fora do prazo</span><span>${ag.comMeta?n0(ag.atr):'—'}</span></li><li><span>Parados</span><span>${n0(ag.parados)}</span></li><li><span>Mais antigo</span><span>${n0(ag.max)} dias</span></li></ul>`)}
   case 'analista':{const rs=A.filter(r=>r.d.amont===it.p),ag=agrega(rs,'fase');return kpi(ag.atr?'cr':'','user',it.p||'Analista',n0(rs.length),'processos ativos na carteira',{amont:it.p,sit:'andamento'},`<ul><li><span>Fora do prazo</span><span>${ag.comMeta?n0(ag.atr):'—'}</span></li><li><span>Com pendência</span><span>${n0(rs.filter(r=>r.pend.length).length)}</span></li><li><span>Dias médios</span><span>${n1(ag.media)}</span></li></ul>`)}
   }
@@ -857,13 +1213,13 @@ function wSlaEtapas(){
 }
 function wGrupos(){
   const gs=cfgE().grupos;if(!gs.length)return card('Grupos de trabalho','',`<div class="empty"><b>Nenhum grupo criado</b>Em Fases e sínteses, marque as sínteses de uma fase e clique em “Criar grupo”.${pode()?'<div class="mt"><button class="btn sm" data-go=\'{"view":"estrutura"}\'>Organizar fases e sínteses</button></div>':''}</div>`);
-  const L=gs.map(g=>{const rs=S.R.filter(r=>r.gr&&r.gr.id===g.id),ag=agrega(rs,'grupo');return {nome:g.nome,sub:nomeF(g.fase),v:ag.media||0,lbl:n1(ag.media)+' d',sm:g.meta!=null?`${n0(ag.atr)} fora · meta ${g.meta}`:`${n0(ag.na)} ativos`,late:0,F:{grupo:g.id,sit:'andamento'}}});
+  const L=gs.map(g=>{const rs=S.V.filter(r=>r.gr&&r.gr.id===g.id),ag=agrega(rs,'grupo');return {nome:g.nome,sub:nomeF(g.fase),v:ag.media||0,lbl:n1(ag.media)+' d',sm:g.meta!=null?`${n0(ag.atr)} fora · meta ${g.meta}`:`${n0(ag.na)} ativos`,late:0,F:{grupo:g.id,sit:'andamento'}}});
   return card('Grupos de trabalho','dias médios dentro do grupo',barras(L));
 }
 function equipeStats(dias){
   const EQ=S.cfg.equipe,A=ativos();const marco=EQ.marco||'concl';const lim=NOW-(dias||30)*DIA;
   const prod=r=>marco==='concl'?(r.sit==='concluido'&&r.tMov>=lim):(r.d[marco]&&ms(r.d[marco])>=lim);
-  const L=EQ.membros.map(n=>{const rs=S.R.filter(r=>r.d.amont===n);const a=rs.filter(r=>r.sit==='andamento');const ag=agrega(a,'fase');return {n,cart:a.length,atr:ag.atr,comMeta:ag.comMeta,media:ag.media,pend:a.filter(r=>r.pend.length).length,par:ag.parados,prod:rs.filter(prod).length,rs,a}});
+  const L=EQ.membros.map(n=>{const rs=S.V.filter(r=>r.d.amont===n);const a=rs.filter(r=>r.sit==='andamento');const ag=agrega(a,'fase');return {n,cart:a.length,atr:ag.atr,comMeta:ag.comMeta,media:ag.media,pend:a.filter(r=>r.pend.length).length,par:ag.parados,prod:rs.filter(prod).length,rs,a}});
   return L;
 }
 const MARCOS={concl:'Concluídos',dret:'Retiradas',dreg:'Entregues ao registro',dent:'Entradas no cartório',dass:'Assinaturas'};
@@ -873,30 +1229,34 @@ function wEquipe(){
   return card('Equipe de montagem',`carteira ativa · ${MARCOS[S.cfg.equipe.marco||'concl'].toLowerCase()} em 30 dias`,`<div class="bl">${L.map(x=>`<div class="row" data-go='${esc(JSON.stringify({amont:x.n,sit:'andamento'}))}'><div class="nm" title="${esc(x.n)}">${esc(pessoa(x.n,1))}${x.cart>=mv*1.4&&L.length>1?' <span class="b wa">acima da média</span>':''}</div><div class="tr"><div class="br" style="width:${Math.max(1.5,x.cart/mx*100)}%"></div>${x.atr?`<div class="br late" style="width:${x.atr/mx*100}%"></div>`:''}</div><div class="num">${n0(x.cart)}<small>${x.atr?n0(x.atr)+' fora · ':''}${n0(x.prod)} prod.</small></div></div>`).join('')}</div><div class="legend"><span><i class="sw"></i>carteira ativa</span><span><i class="sw late"></i>fora do prazo</span><span>prod. = ${MARCOS[S.cfg.equipe.marco||'concl'].toLowerCase()} em 30 dias</span></div>`,`<button class="btn sm ghost" data-go='{"view":"equipe"}'>Ver equipe</button>`);
 }
 function semanas(n){const out=[];const d=new Date();d.setHours(0,0,0,0);const dow=(d.getDay()+6)%7;d.setDate(d.getDate()-dow);for(let i=n;i>=1;i--){const a=new Date(d);a.setDate(a.getDate()-7*i);out.push(a.getTime())}return out}
-function serieSemanal(campo,ws,filtro){const c=ws.map(()=>0);const ini=ws[0],fim=ws[ws.length-1]+7*DIA;for(const r of S.R){if(filtro&&!filtro(r))continue;const t=campo==='concl'?(r.sit==='concluido'?r.tMov:null):ms(r.d[campo]);if(!t||t<ini||t>=fim)continue;c[Math.min(ws.length-1,Math.floor((t-ini)/(7*DIA)))]++}return c}
-function linhas(series,ws,h=190){
+function serieSemanal(campo,ws,filtro){const c=ws.map(()=>0);const ini=ws[0],fim=ws[ws.length-1]+7*DIA;for(const r of S.V){if(filtro&&!filtro(r))continue;const t=campo==='concl'?(r.sit==='concluido'?r.tMov:null):ms(r.d[campo]);if(!t||t<ini||t>=fim)continue;c[Math.min(ws.length-1,Math.floor((t-ini)/(7*DIA)))]++}return c}
+function linhas(series,ws,h=190,fx,ftt){fx=fx||(w=>fD(new Date(w).toISOString()).slice(0,5));ftt=ftt||(w=>'semana de '+fD(new Date(w).toISOString()));
   const W=560,H=h,pl=30,pr=132,pt=12,pb=26;const mx=Math.max(1,...series.flatMap(s=>s.v));const x=i=>pl+i*(W-pl-pr)/(ws.length-1),y=v=>pt+(H-pt-pb)*(1-v/mx);
   const tk=[0,Math.round(mx/2),mx];
-  let g=tk.map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="#eef0f3"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="10.5" fill="#8a91a0">${v}</text>`).join('');
-  g+=ws.map((w,i)=>i%2&&ws.length>8?'':`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="#8a91a0">${fD(new Date(w).toISOString()).slice(0,5)}</text>`).join('');
+  let g=tk.map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="#F0EBEC"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="10.5" fill="#736A6C">${v}</text>`).join('');
+  g+=ws.map((w,i)=>i%2&&ws.length>8?'':`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="#736A6C">${fx(w)}</text>`).join('');
   // rótulos no fim das linhas sem sobreposição
   const ends=series.map((s,j)=>({j,y:y(s.v[s.v.length-1])})).sort((a,b)=>a.y-b.y);for(let k=1;k<ends.length;k++)if(ends[k].y-ends[k-1].y<14)ends[k].y=ends[k-1].y+14;
-  series.forEach((s,j)=>{const pts=s.v.map((v,i)=>`${x(i)},${y(v)}`).join(' ');g+=`<polyline points="${pts}" fill="none" stroke="${s.c}" stroke-width="${s.cheia?2.2:1.4}" ${s.cheia?'':'stroke-dasharray="2 3"'} stroke-linecap="round"/>`;g+=s.v.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="${s.cheia?2.6:1.8}" fill="${s.c}"><title>${s.nome}: ${v} (semana de ${fD(new Date(ws[i]).toISOString())})</title></circle>`).join('');const e=ends.find(z=>z.j===j);g+=`<text x="${W-pr+8}" y="${e.y+4}" font-size="11" fill="${s.c}" font-weight="${s.cheia?600:500}">${s.nome} · ${s.v[s.v.length-1]}</text>`});
+  series.forEach((s,j)=>{const pts=s.v.map((v,i)=>`${x(i)},${y(v)}`).join(' ');g+=`<polyline points="${pts}" fill="none" stroke="${s.c}" stroke-width="${s.cheia?2.2:1.4}" ${s.cheia?'':'stroke-dasharray="2 3"'} stroke-linecap="round"/>`;g+=s.v.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="${s.cheia?2.6:1.8}" fill="${s.c}"><title>${s.nome}: ${v} (${ftt(ws[i])})</title></circle>`).join('');const e=ends.find(z=>z.j===j);g+=`<text x="${W-pr+8}" y="${e.y+4}" font-size="11" fill="${s.c}" font-weight="${s.cheia?600:500}">${s.nome} · ${s.v[s.v.length-1]}</text>`});
   return `<svg class="spark" viewBox="0 0 ${W} ${H}" width="100%" role="img">${g}</svg>`;
 }
 function wEvolucao(){
-  const ws=semanas(12);const S1=[{nome:'Assinaturas',c:'#6b7280',v:serieSemanal('dass',ws)},{nome:'Entregues ao registro',c:'#2d64a8',v:serieSemanal('dreg',ws)},{nome:'Retiradas',c:'#7a1f2b',cheia:1,v:serieSemanal('dret',ws)}];
+  const ws=semanas(12);const S1=[{nome:'Assinaturas',c:'#0D5C97',v:serieSemanal('dass',ws)},{nome:'Entregues ao registro',c:'#C98500',v:serieSemanal('dreg',ws)},{nome:'Retiradas',c:'#13803B',cheia:1,v:serieSemanal('dret',ws)}];
   return card('Evolução semanal','12 semanas fechadas · datas do movfin',linhas(S1,ws));
 }
-function contaPend(per){const RG=S.cfg.regras;const lim=per?NOW-per*DIA:0;const m={};for(const r of S.R){if(!r.pend.length)continue;if(per&&r.sit!=='andamento'&&!(r.tMov>=lim))continue;for(const x of r.pend)m[x]=(m[x]||0)+1}return m}
+function contaPend(per){const RG=S.cfg.regras;const lim=per?NOW-per*DIA:0;const m={};for(const r of S.V){if(!r.pend.length)continue;if(per&&r.sit!=='andamento'&&!(r.tMov>=lim))continue;for(const x of r.pend)m[x]=(m[x]||0)+1}return m}
 function wPendTop(){
   const RG=S.cfg.regras,m=contaPend(RG.periodo);const L=REGRAS.filter(r=>RG.ativas[r.id]!==false).map(r=>({nome:r.nome,v:m[r.id]||0,F:{pend:r.id,per:RG.periodo}})).filter(x=>x.v).sort((a,b)=>b.v-a.v);
   if(!L.length)return card('Pendências','',`<div class="empty"><div class="ei">${ic('check')}</div><b>Nenhuma pendência</b>Todas as informações obrigatórias estão preenchidas.</div>`);
   return card('Pendências',`ativos + encerrados em ${RG.periodo} dias`,barras(L),`<button class="btn sm ghost" data-go='{"view":"pendencias"}'>Ver todas</button>`);
 }
 function ligaGo(root){
-  $$('[data-go]',root).forEach(el=>{el.addEventListener('click',e=>{if(S.editPainel&&el.closest('.wd'))return;const F=JSON.parse(el.dataset.go||'null');if(!F)return;e.stopPropagation();if(F.view){go(F.view);return}const t=el.querySelector('.lb,.nm,b');abrir(F,t?t.textContent.trim():'')})});
+  $$('[data-go]',root).forEach(el=>{el.addEventListener('click',e=>{if(e.target.closest('.def'))return;if(S.editPainel&&el.closest('.wd'))return;const F=JSON.parse(el.dataset.go||'null');if(!F)return;e.stopPropagation();if(F.view){go(F.view);return}if(F.rec){setRec({...S.rec,...F.rec});return}const t=el.querySelector('.lb,.nm,b');abrir(F,t?t.textContent.trim():'')})});
   $$('[data-att]',root).forEach(b=>b.onclick=()=>{const x=S._att[+b.dataset.att];if(x.view)go(x.view);else abrir(x.F,x.tt)});
+  $$('[data-rec]',root).forEach(li=>li.onclick=e=>{e.stopPropagation();if(S.editPainel)return;setRec({...S.rec,dmin:li.dataset.rec})});
+  $$('[data-rs]',root).forEach(li=>li.onclick=()=>{const x=S._rs[+li.dataset.rs];if(!x)return;if(x.iv){const [a,b]=x.iv.split('|');const iv=intervalo(a,b);abrir({sel:selecao(iv.nome+' (últimos 3 meses)',iv.v.filter(z=>meses(3).includes(z.m)).map(z=>z.r))},iv.nome)}else if(x.F)abrir(x.F,x.tt||'')});
+  $$('[data-cmp]',root).forEach(tr=>{if(tr.onclick)return;tr.onclick=()=>{const dim=tr.closest('table').dataset.dim;abrir({dim:[dim,tr.dataset.cmp]},DIMS[dim][0]+': '+tr.dataset.cmp)}});
+  ligaTempos(root);
 }
 
 /* ---------------- Meu painel ---------------- */
@@ -946,14 +1306,15 @@ function catalogo(V,done){
 /* ---------------- Estrutura: fases e sínteses ---------------- */
 let OPEN=new Set(),SELF=new Set(),SELS=new Set(),ESTV='ativos',ESTQ='';
 function vEstrutura(pg){
+  if(ESTT==='class'){vClasses(pg);return}
   crumbs();const E=cfgE();const T=arvore();const ed=pode();
   const fil=n=>{if(ESTV==='ativos'&&!n.ag.na)return false;if(!ESTQ)return true;const q=norm(ESTQ);const hit=x=>norm(x.nome+' '+(x.fase||'')+' '+(x.sint||'')).includes(q)||(x.filhos||[]).some(hit);return hit(n)};
   const semMeta=!E.grupos.some(g=>g.meta!=null)&&!Object.keys(E.metaF).length&&!E.etapas.some(e=>e.meta!=null);
   pg.innerHTML=`<div class="ph"><div><h1>Fases e sínteses</h1><p>A estrutura da operação como está no movfin. Agrupe fases em etapas e sínteses em grupos de trabalho, renomeie do jeito da casa e defina metas de prazo. O SLA de cada grupo considera só as sínteses dele.</p></div>
-    <div class="act"><div class="seg"><button data-ev="ativos" class="${ESTV==='ativos'?'on':''}">Em andamento</button><button data-ev="todos" class="${ESTV==='todos'?'on':''}">Todas</button></div><button class="btn" id="exp">${OPEN.size?'Recolher tudo':'Abrir tudo'}</button></div></div>
+    <div class="act">${tabsEst()}<div class="seg"><button data-ev="ativos" class="${ESTV==='ativos'?'on':''}">Em andamento</button><button data-ev="todos" class="${ESTV==='todos'?'on':''}">Todas</button></div><button class="btn" id="exp">${OPEN.size?'Recolher tudo':'Abrir tudo'}</button></div></div>
    ${E.novas&&E.novas.length&&ed?`<div class="note wa" style="margin-bottom:12px">${ic('info','s')}<span>${plural(E.novas.length,'fase nova chegou','fases novas chegaram')} na última base: <b>${E.novas.map(esc).join(', ')}</b>. Elas aparecem no fim da lista. Agrupe ou ajuste a situação se precisar.</span></div>`:''}
    ${semMeta&&ed?`<div class="note" style="margin-bottom:12px">${ic('target','s')}<span>Nenhuma meta de prazo definida. Clique na coluna <b>Meta (dias)</b> de uma fase ou grupo e digite o prazo. Os processos acima da meta passam a aparecer como fora do prazo.</span></div>`:''}
-   <div class="filters"><input class="inp" id="estq" placeholder="Filtrar fase ou síntese…" value="${esc(ESTQ)}" style="width:260px"><span class="muted small">${ed?'Marque fases para criar uma etapa, ou sínteses de uma mesma fase para criar um grupo.':''}</span></div>
+   <div class="filters"><input class="inp" id="estq" placeholder="Filtrar fase ou síntese…" value="${esc(ESTQ)}" style="width:260px"><span class="muted small">Contagens do recorte atual. ${ed?'Marque fases para criar uma etapa, ou sínteses de uma mesma fase para criar um grupo.':''}</span></div>
    <div class="card tree"><div class="th"><div>Nome</div><div class="c-n">Ativos</div><div>Dias médios</div><div class="c-med">Mediana</div><div>Mais antigo</div><div class="c-m">Meta (dias)</div><div>Fora do prazo</div><div></div></div><div id="tb"></div></div>
    <p class="muted small mt">Dias médios: no nível da fase contam desde a entrada na fase; no grupo, desde a entrada no grupo; na síntese, desde a entrada naquela síntese. Fonte da data de entrada: relatório de SLA quando o processo está nele, a data escolhida em “Início da contagem” da fase, ou a Data Status (última movimentação).</p>
    <div id="selbar"></div>`;
@@ -982,7 +1343,7 @@ function vEstrutura(pg){
       salvaCfg('estrutura','Meta salva');modelo();vEstrutura(pg)});
     $$('[data-mn]').forEach(b=>b.onclick=e=>{e.stopPropagation();menuNo(idx[b.dataset.mn],b,()=>{modelo();vEstrutura(pg)})});
   };
-  $$('[data-ev]').forEach(b=>b.onclick=()=>{ESTV=b.dataset.ev;vEstrutura(pg)});
+  $$('[data-ev]').forEach(b=>b.onclick=()=>{ESTV=b.dataset.ev;vEstrutura(pg)});ligaEstTabs(pg);
   $('#exp').onclick=()=>{if(OPEN.size)OPEN.clear();else Object.keys(idx).forEach(k=>{if(idx[k].filhos&&idx[k].filhos.length)OPEN.add(k)});draw();$('#exp').textContent=OPEN.size?'Recolher tudo':'Abrir tudo'};
   $('#estq').oninput=debounce(e=>{ESTQ=$('#estq').value;if(ESTQ)Object.keys(idx).forEach(k=>{if(idx[k].filhos&&idx[k].filhos.length)OPEN.add(k)});draw()},200);
   const selbar=()=>{const el=$('#selbar');const nf=SELF.size,ns=SELS.size;if(!nf&&!ns){el.innerHTML='';return}
@@ -1101,7 +1462,7 @@ function vRegistros(pg){
   const E=cfgE();const A=S.R;
   const opt=(lst,v)=>lst.map(([k,l])=>`<option value="${esc(k)}" ${String(v??'')===String(k)?'selected':''}>${esc(l)}</option>`).join('');
   const fasesOp=E.ordem.filter(f=>A.some(r=>r.fase===f)).map(f=>[f,nomeF(f)]);
-  pg.innerHTML=`<div class="ph"><div>${S.hist.length?`<button class="btn ghost sm" id="bk" style="margin-bottom:6px">${ic('back','s')}Voltar</button>`:''}<h1>${esc(S.titulo||'Processos')}</h1><p>${n0(rs.length)} ${rs.length===1?'processo':'processos'}${rs0.length!==S.R.length?' de '+n0(S.R.length)+' na base':''}. Clique em um processo para ver tudo sobre ele.</p></div>
+  pg.innerHTML=`<div class="ph"><div>${S.hist.length?`<button class="btn ghost sm" id="bk" style="margin-bottom:6px">${ic('back','s')}Voltar</button>`:''}<h1>${esc(S.titulo||'Processos')}</h1><p>${n0(rs.length)} ${rs.length===1?'processo':'processos'}${rs0.length!==S.V.length?' de '+n0(S.V.length)+' no recorte':' no recorte'}. Clique em um processo para ver tudo sobre ele.</p></div>
    <div class="act"><button class="btn" id="colb">${ic('eye','s')}Colunas</button><button class="btn" id="xpf">${ic('down','s')}Exportar esta lista</button></div></div>
    <div class="filters">
     <input class="inp" id="fq" placeholder="Buscar nesta lista…" value="${esc(F.q||'')}" style="width:220px">
@@ -1178,12 +1539,12 @@ function vEquipe(pg){
 }
 function wEvolucaoEquipe(){
   const ws=semanas(12);const EQ=S.cfg.equipe;const marco=EQ.marco||'concl';const L=equipeStats(84).sort((a,b)=>b.prod-a.prod).slice(0,4);
-  const cores=['#7a1f2b','#2d64a8','#1d7a52','#a86a12'];
+  const cores=['#B6211D','#0D5C97','#13803B','#C98500'];
   const ser=L.map((x,j)=>({nome:pessoa(x.n,1),c:cores[j],cheia:j===0,v:serieSemanal(marco,ws,r=>r.d.amont===x.n)}));
   return card(`${MARCOS[marco]} por semana`,'os 4 analistas com mais produção em 12 semanas',ser.length?linhas(ser,ws,200):'<div class="empty">Sem produção no período.</div>');
 }
 function analista(n){
-  const rs=S.R.filter(r=>r.d.amont===n),A=rs.filter(r=>r.sit==='andamento');const T=arvore();
+  const rs=S.V.filter(r=>r.d.amont===n),A=rs.filter(r=>r.sit==='andamento');const T=arvore();
   const linhasF=T.map(t=>{const x=A.filter(r=>t.tipo==='etapa'?(r.et&&r.et.id===t.id):r.fase===t.fase);return [t,x]}).filter(x=>x[1].length);
   const gs=cfgE().grupos.map(g=>[g,A.filter(r=>r.gr&&r.gr.id===g.id)]).filter(x=>x[1].length);
   const ws=semanas(12);const marco=S.cfg.equipe.marco||'concl';const sp=serieSemanal(marco,ws,r=>r.d.amont===n);const mx=Math.max(1,...sp);
@@ -1232,7 +1593,7 @@ function vBases(pg){
      <div class="small">${inf?`<b>${n0(inf.linhas)}</b> registros · ${esc(inf.em)}${inf.por?' · '+esc(inf.por):''}${inf.origem?`<br><span class="muted">${esc(inf.origem)}</span>`:''}`:'<span class="muted">Ainda não importada.</span>'}</div>
      ${ed?`<button class="btn ${b==='movfin'?'pri':''}" data-imp="${b}">${ic('up','s')}Importar ${o.nome}</button>`:''}</div>`}).join('')}</div>
    <div class="card mt"><div class="hd"><h3>Exportar relatórios</h3><span class="sub">Excel (.xlsx)</span></div><div class="bd"><div class="catalog">
-    ${[['base','Base completa do movfin','Todos os registros com fase, síntese, grupo, etapa, SLA e pendências.','db'],['ativos','Processos em andamento','Só os ativos, com dias na etapa e situação do prazo.','flow'],['analista','Relatório por analista','Comparativo da equipe e a carteira de cada analista.','users'],['fase','Relatório por fase','Fases e sínteses com volumes e tempos.','layers'],['grupo','Relatório por grupo','Grupos de trabalho com as sínteses e o SLA.','folder'],['sla','Análise de SLA','Todos os níveis: operação, etapa, fase, grupo e síntese.','clock'],['pend','Relatório de pendências','Resumo por regra e a lista de cada uma.','alert'],['filtro','Lista filtrada','A última lista que você abriu em Processos, com os filtros dela.','list']].map(([k,t,d,i])=>`<button data-xp="${k}">${ic(i)}<span><b>${t}</b><small>${d}</small></span></button>`).join('')}
+    ${[['base','Base completa do movfin','Todos os registros, sem o recorte, com fase, síntese, grupo, etapa, SLA e pendências.','db'],['ativos','Processos em andamento','Os ativos do recorte, com dias na etapa e situação do prazo.','flow'],['analista','Relatório por analista','Comparativo da equipe e a carteira de cada analista.','users'],['fase','Relatório por fase','Fases e sínteses com volumes e tempos.','layers'],['grupo','Relatório por grupo','Grupos de trabalho com as sínteses e o SLA.','folder'],['sla','Análise de SLA','Todos os níveis: operação, etapa, fase, grupo e síntese.','clock'],['pend','Relatório de pendências','Resumo por regra e a lista de cada uma.','alert'],['filtro','Lista filtrada','A última lista que você abriu em Processos, com os filtros dela.','list'],['analises','Análises do recorte','Resumo, tempos entre etapas, comparativos, gargalos e evolução.','chart']].map(([k,t,d,i])=>`<button data-xp="${k}">${ic(i)}<span><b>${t}</b><small>${d}</small></span></button>`).join('')}
    </div></div></div>
    <div class="card mt"><div class="hd"><h3>Histórico de importações</h3></div><div class="bd">${S.info.envios&&S.info.envios.length?`<table class="t cards"><thead><tr><th>Quando</th><th>Base</th><th>Modo</th><th class="n">Linhas</th><th>Arquivo</th><th>Por</th></tr></thead><tbody>${S.info.envios.map(e=>`<tr style="cursor:default"><td>${esc(e.em)}</td><td>${esc((BASES[e.base]||{}).nome||e.base)}</td><td>${e.modo==='substituir'?'Substituiu a base':'Atualizou'}</td><td class="n">${n0(e.linhas)}</td><td class="cl">${esc(e.origem||'')}</td><td>${esc(e.por||'')}</td></tr>`).join('')}</tbody></table>`:'<p class="muted small" style="margin:0">Nenhuma importação ainda.</p>'}</div></div>`;
   $$('[data-imp]').forEach(b=>b.onclick=()=>importar(b.dataset.imp));
@@ -1288,7 +1649,7 @@ function passo3(base,rows,mapa,cab,nome,m){
   let modo='substituir';$$('#modo button',m).forEach(b=>b.onclick=()=>{modo=b.dataset.m;$$('#modo button',m).forEach(x=>x.classList.toggle('on',x===b));$('#mh',m).textContent=modo==='substituir'?'Recomendado para o movfin completo: a base fica igual ao arquivo.':'Atualiza os contratos do arquivo e mantém os que não vieram nele.'});
   $('.mf',m).innerHTML=`<button class="btn l" id="bk3">${ic('back','s')}Voltar</button><button class="btn" data-x>Cancelar</button><button class="btn pri" id="go">${ic('up','s')}Importar ${n0(linhas.length)} registros</button>`;
   $('[data-x]',m).onclick=fechaModal;$('#bk3',m).onclick=()=>{fechaModal();importar(base)};
-  $('#go',m).onclick=()=>{const conf=()=>grava(base,linhas,modo,nome,mapa,{validos:linhas.length,novos,sairao,dup:prob.dup.length,fasesNovas,sintNovas},m);
+  $('#go',m).onclick=()=>{const conf=()=>grava(base,linhas,modo,nome,mapa,{validos:linhas.length,novos,sairao,dup:prob.dup.length,fasesNovas,sintNovas,snap:base==='movfin'?contaPares(linhas):undefined},m);
     if(modo==='substituir'&&sairao>0)confirma('Substituir a base?',`${plural(sairao,'registro')} da base atual não ${sairao===1?'está':'estão'} no arquivo e ${sairao===1?'sairá':'sairão'} da Central.`,'Substituir',conf,true);else conf()};
 }
 async function grava(base,linhas,modo,nome,mapa,resumo,m){
@@ -1296,7 +1657,7 @@ async function grava(base,linhas,modo,nome,mapa,resumo,m){
   $$('.mf button',m).forEach(b=>b.disabled=true);bar(0);
   try{
     if(LOCAL){let dados=linhas;if(modo==='atualizar'){const mp=new Map(S.raw[base].map(d=>[d.k,d]));for(const d of linhas)mp.set(d.k,d);dados=[...mp.values()]}
-      await IDB.set('base_'+base,dados);S.raw[base]=dados;S.info.bases[base]={linhas:dados.length,origem:nome,em:new Date().toLocaleString('pt-BR').slice(0,17).replace(',',''),por:'modo local'};S.info.envios.unshift({base,modo,linhas:linhas.length,origem:nome,em:S.info.bases[base].em,por:'modo local'});await IDB.set('info',S.info);bar(100)}
+      await IDB.set('base_'+base,dados);S.raw[base]=dados;S.info.bases[base]={linhas:dados.length,origem:nome,em:new Date().toLocaleString('pt-BR').slice(0,17).replace(',',''),por:'modo local'};S.info.envios.unshift({base,modo,linhas:linhas.length,origem:nome,em:S.info.bases[base].em,por:'modo local',resumo});await IDB.set('info',S.info);bar(100)}
     else{const lote=await rpc('mon_import_iniciar');const T=1500;
       for(let i=0;i<linhas.length;i+=T){await rpc('mon_import_parte',{p_lote:lote,p_linhas:linhas.slice(i,i+T).map(d=>({k:d.k,d}))});bar(Math.round(Math.min(95,(i+T)/linhas.length*95)))}
       await rpc('mon_import_concluir',{p_lote:lote,p_base:base,p_modo:modo,p_origem:nome,p_colunas:mapa,p_resumo:resumo});bar(100);
@@ -1314,7 +1675,7 @@ function filtroTxt(F){return Object.entries(F||{}).filter(([k,v])=>v!=null&&v!==
 function exportaLista(rs,titulo){xlsx('Central Montagem - '+titulo,[['Processos',[CAB_REG,...rs.map(linhaReg)]],['Sobre',[['Lista',titulo],['Filtros',filtroTxt(S.F)],['Gerado em',new Date().toLocaleString('pt-BR')],['Registros',rs.length]]]])}
 function linhasSLA(){const out=[['Nível','Etapa','Fase','Grupo','Síntese','Ativos','Total na base','Dias médios','Mediana','Mais antigo','Meta (dias)','Com meta','Fora do prazo','% no prazo','Parados']];
   const add=(niv,e,f,g,s,ag,meta)=>out.push([niv,e,f,g,s,ag.na,ag.n,ag.media==null?'':Math.round(ag.media*10)/10,ag.mediana??'',ag.max??'',meta??'',ag.comMeta,ag.atr,ag.comMeta?Math.round(ag.noPrazo/ag.comMeta*100)+'%':'',ag.parados]);
-  add('Operação','','','','',agrega(S.R,'fase'));const E=cfgE();
+  add('Operação','','','','',agrega(S.V,'fase'));const E=cfgE();
   for(const n of arvore()){const fases=n.tipo==='etapa'?n.filhos:[n];if(n.tipo==='etapa')add('Etapa',n.nome,'','','',n.ag,n.e.meta);
     for(const f of fases){add('Fase',n.tipo==='etapa'?n.nome:'',f.nome,'','',f.ag,E.metaF[f.fase]);for(const c of f.filhos){if(c.tipo==='grupo'){add('Grupo',n.tipo==='etapa'?n.nome:'',f.nome,c.nome,'',c.ag,c.g.meta);for(const s of c.filhos)add('Síntese',n.tipo==='etapa'?n.nome:'',f.nome,c.nome,s.nome,s.ag)}else add('Síntese',n.tipo==='etapa'?n.nome:'',f.nome,'',c.nome,c.ag)}}}
   return out}
@@ -1322,11 +1683,12 @@ function exportaEquipe(){const L=equipeStats(EQD);const mk=MARCOS[S.cfg.equipe.m
   const ab=[['Equipe',[['Analista','Carteira ativa','Fora do prazo','Dias médios','Com pendência','Parados',`${mk} (${EQD} dias)`],...L.map(x=>[x.n,x.cart,x.atr,x.media==null?'':Math.round(x.media*10)/10,x.pend,x.par,x.prod])]]];
   const usados=new Set();for(const x of L.filter(x=>x.cart)){let t=pessoa(x.n,1).slice(0,28);while(usados.has(t))t+='+';usados.add(t);ab.push([t,[CAB_REG,...x.a.map(linhaReg)]])}
   const sem=ativos().filter(r=>!r.d.amont);ab.push(['Sem analista',[CAB_REG,...sem.map(linhaReg)]]);xlsx('Central Montagem - Equipe',ab)}
-function exportaPend(base){const RG=S.cfg.regras;const rs=base||S.R;const ab=[['Resumo',[['Pendência','Ocorrências','O que é','Vale para'],...REGRAS.filter(r=>RG.ativas[r.id]!==false).map(r=>[r.nome,rs.filter(x=>x.pend.includes(r.id)).length,r.ds,r.fases?(RG.fases[r.id]||[]).join(', '):''])]]];
+function exportaPend(base){const RG=S.cfg.regras;const rs=base||S.V;const ab=[['Resumo',[['Pendência','Ocorrências','O que é','Vale para'],...REGRAS.filter(r=>RG.ativas[r.id]!==false).map(r=>[r.nome,rs.filter(x=>x.pend.includes(r.id)).length,r.ds,r.fases?(RG.fases[r.id]||[]).join(', '):''])]]];
   for(const r of REGRAS){const l=rs.filter(x=>x.pend.includes(r.id));if(l.length)ab.push([r.nome.slice(0,31),[CAB_REG,...l.map(linhaReg)]])}xlsx('Central Montagem - Pendencias',ab)}
 function exporta(k){
   if(!S.R.length){toast('Importe o movfin primeiro','wa');return}
   if(k==='base')return xlsx('Central Montagem - Base movfin',[['Base',[CAB_REG,...S.R.map(linhaReg)]]]);
+  if(k==='analises')return exportaAnalises();
   if(k==='ativos')return xlsx('Central Montagem - Em andamento',[['Em andamento',[CAB_REG,...ativos().map(linhaReg)]]]);
   if(k==='analista')return exportaEquipe();
   if(k==='pend')return exportaPend(aplicaF({per:S.cfg.regras.periodo}));
@@ -1351,7 +1713,7 @@ function vConfig(pg){
     <table class="t"><thead><tr><th>Regra</th><th>Vale para</th><th class="n">Ativa</th></tr></thead><tbody>${REGRAS.map(r=>`<tr style="cursor:default"><td><b>${esc(r.nome)}</b><small>${esc(r.ds)}</small></td><td class="small">${r.fases?`<button class="btn sm" data-rf="${r.id}" ${ed&&E?'':'disabled'}>${plural((RG.fases[r.id]||[]).length,'fase')}</button>`:'<span class="muted">regra fixa</span>'}</td><td class="n"><input type="checkbox" data-ra="${r.id}" ${RG.ativas[r.id]!==false?'checked':''} ${ed?'':'disabled'} style="accent-color:var(--br);width:16px;height:16px"></td></tr>`).join('')}</tbody></table>
    </div></div>
    <div>
-   <div class="card"><div class="hd"><h3>Equipe de montagem</h3><span class="sub">${n0(EQ.membros.length)} pessoas</span></div><div class="bd"><p class="small muted" style="margin:0 0 8px">Nomes do campo “ID_USUARIO_ANALISTA_MONTAGEM” do movfin. Marque quem faz parte do time. Em negrito, quem teve movimentação no último ano.</p><div class="ck" style="max-height:340px">${todos.map(n=>`<label><input type="checkbox" value="${esc(n)}" data-eq ${EQ.membros.includes(n)?'checked':''} ${ed?'':'disabled'}>${recentes.has(n)?'<b>'+esc(n)+'</b>':esc(n)}</label>`).join('')||'<span class="muted">Importe o movfin para ver os analistas.</span>'}</div></div></div>
+   <div class="card"><div class="hd"><h3>Equipe de montagem</h3><span class="sub">${n0(EQ.membros.length)} pessoas</span></div><div class="bd"><p class="small muted" style="margin:0 0 8px">Nomes do campo “ID_USUARIO_ANALISTA_MONTAGEM” do movfin. Marque quem faz parte do time. Em negrito, quem teve movimentação no último ano.</p><div class="ck">${todos.map(n=>`<label><input type="checkbox" value="${esc(n)}" data-eq ${EQ.membros.includes(n)?'checked':''} ${ed?'':'disabled'}>${recentes.has(n)?'<b>'+esc(n)+'</b>':esc(n)}</label>`).join('')||'<span class="muted">Importe o movfin para ver os analistas.</span>'}</div></div></div>
    ${S.eu.papel==='admin'&&!LOCAL?`<div class="card mt"><div class="hd"><h3>Acessos</h3></div><div class="bd" id="acs"><span class="muted small">Carregando…</span></div></div>`:''}
    <div class="card mt"><div class="hd"><h3>Como os números são calculados</h3></div><div class="bd small" style="color:var(--tx2)">
     <p style="margin-top:0"><b>Em andamento</b>: processos em fases com situação “Em andamento”. Você muda a situação de cada fase em Fases e sínteses.</p>
@@ -1395,9 +1757,10 @@ function fechaMenu(){const m=$('#mnu');if(m)m.remove()}
    ===================================================================== */
 async function carregaInfo(){const i=await rpc('mon_info');S.eu=i.eu;S.info={bases:i.bases||{},envios:i.envios||[]};const c=i.config||{};S.cfg={estrutura:c.estrutura||null,regras:c.regras||null,equipe:c.equipe||null};S.painel=i.painel||null}
 async function carregaBase(b,prog){const tot=(S.info.bases[b]||{}).linhas||0;const out=[];const T=5000;for(let de=0;de<tot;de+=T){const p=await rpc('mon_registros',{p_base:b,p_de:de,p_qtd:T});out.push(...p);if(prog)prog(b,out.length,tot)}S.raw[b]=out}
-function telaCarga(msg,p){$('#root').innerHTML=`<div class="loading"><div class="card"><div class="hstack"><div class="lg" style="width:30px;height:30px;border-radius:8px;background:var(--br);display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px">CM</div><b>Central da Montagem</b></div><p class="small muted" style="margin:14px 0 8px">${msg}</p><div class="prog"><div style="width:${p||5}%"></div></div></div></div>`}
+function telaCarga(msg,p){$('#root').innerHTML=`<div class="loading"><div class="card"><div class="hstack"><img src="assets/logos/casinha.png" alt="" style="height:28px"><b style="font:700 18px var(--fg)">Central da Montagem</b></div><p class="small muted" style="margin:14px 0 8px">${msg}</p><div class="prog"><div style="width:${p||5}%"></div></div></div></div>`}
 function telaLogin(err){
-  $('#root').innerHTML=`<div class="login"><form class="card" id="lf"><div class="lg" style="width:38px;height:38px;border-radius:10px;background:var(--br);display:grid;place-items:center;color:#fff;font-weight:700">CM</div><h1>Central da Montagem</h1><p>Operação do movfin, SLA, fases e sínteses. Entre com o seu login da Metrocasa.</p><input class="inp" id="le" type="email" placeholder="seu.email@metrocasa.com.br" autocomplete="username" required><input class="inp" id="ls" type="password" placeholder="Senha" autocomplete="current-password" required><div class="err" id="lerr">${esc(err||'')}</div><button class="btn pri" type="submit">Entrar</button></form></div>`;
+  $('#root').innerHTML=`<div class="login"><div class="login-arte"><div class="facetas"><i></i><i></i><i></i></div><img class="lmarca" src="assets/logos/horizontal-branco.png" alt="Metrocasa"><div><img class="mais" src="assets/logos/mais-verde.png" alt=""><h1>Central da<br>Montagem</h1><p>Movfin, SLA, fases e sínteses da operação num lugar só.</p></div></div>
+   <form class="lform" id="lf"><h2>Entrar</h2><p class="muted">Use o seu login da Metrocasa.</p><label for="le">E-mail</label><input class="inp" id="le" type="email" placeholder="seu.email@metrocasa.com.br" autocomplete="username" required><label for="ls">Senha</label><input class="inp" id="ls" type="password" autocomplete="current-password" required><div class="err" id="lerr">${esc(err||'')}</div><button class="btn pri" type="submit">Entrar</button></form></div>`;
   $('#le').focus();
   $('#lf').onsubmit=async e=>{e.preventDefault();const b=$('#lf button');b.disabled=true;b.textContent='Entrando…';try{await entrar($('#le').value.trim(),$('#ls').value);await inicia()}catch(er){$('#lerr').textContent=msgErro(er);b.disabled=false;b.textContent='Entrar'}};
 }
@@ -1409,6 +1772,7 @@ async function inicia(){
     const tot=Object.keys(BASES).reduce((s,b)=>s+((S.info.bases[b]||{}).linhas||0),0);let feito=0;
     for(const b of Object.keys(BASES)){const ini=feito;await carregaBase(b,(bb,n)=>{telaCarga(`Carregando ${BASES[bb].nome}… ${n0(n)} de ${n0((S.info.bases[bb]||{}).linhas)}`,10+Math.round((ini+n)/Math.max(1,tot)*85))});feito+=(S.info.bases[b]||{}).linhas||0}
   }
+  S.rec=(S.painel&&S.painel.recorte)||LS.get('mon_rec',null)||clone(REC_PADRAO);
   modelo();if(S.raw.movfin.length&&!S.cfg.estrutura)garanteConfig();
   S.view=S.R.length?'painel':'bases';render();
 }
