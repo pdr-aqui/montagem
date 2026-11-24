@@ -1,0 +1,1425 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Central da Montagem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+/* ============ Design system ============ */
+:root{
+  --bg:#f5f6f8; --sf:#ffffff; --sf2:#fafbfc; --ln:#e5e7eb; --ln2:#eef0f3;
+  --tx:#161a22; --tx2:#4b5363; --tx3:#8a91a0;
+  --br:#7a1f2b; --br2:#9b2c3a; --brs:#f7ecee;
+  --ok:#1d7a52; --okb:#e7f4ed; --wa:#a86a12; --wab:#fcf3e1; --cr:#b9382a; --crb:#fbeae8; --in:#2d64a8; --inb:#e9f0f9; --ne:#6b7280; --neb:#f0f1f3;
+  --r:10px; --r2:8px; --sh:0 1px 2px rgba(16,24,40,.05); --sh2:0 12px 32px rgba(16,24,40,.16);
+  --f:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--f);font-size:14px;line-height:1.45;color:var(--tx);background:var(--bg);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--in)}
+svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+svg.i.s{width:15px;height:15px}
+.hid{display:none!important}
+
+/* layout */
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+.side{background:#15181f;color:#c9ced8;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;padding:18px 18px 14px}
+.brand .lg{width:30px;height:30px;border-radius:8px;background:var(--br);display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px}
+.brand b{color:#fff;font-size:14px;display:block;letter-spacing:-.01em}
+.brand small{color:#8790a0;font-size:11.5px}
+.nav{padding:8px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
+.nav button{all:unset;cursor:pointer;display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:8px;font-size:13.5px;color:#c9ced8}
+.nav button:hover{background:#20242d;color:#fff}
+.nav button.on{background:#262b36;color:#fff}
+.nav button.on svg{color:#f3a7b0}
+.nav .ct{margin-left:auto;font-size:11px;background:#3a2025;color:#f3a7b0;border-radius:10px;padding:1px 7px}
+.nav .sep{height:1px;background:#262b36;margin:10px 6px}
+.me{padding:14px 18px;border-top:1px solid #262b36;font-size:12px;color:#8790a0;display:flex;align-items:center;gap:8px}
+.me b{color:#e5e8ee;font-weight:500;display:block;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:150px}
+.me button{all:unset;cursor:pointer;margin-left:auto;color:#8790a0;padding:4px;border-radius:6px}
+.me button:hover{color:#fff;background:#262b36}
+
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:20;background:rgba(245,246,248,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--ln);display:flex;align-items:center;gap:14px;padding:12px 28px}
+.crumbs{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--tx3);min-width:0;flex:1}
+.crumbs button{all:unset;cursor:pointer;color:var(--tx2)}
+.crumbs button:hover{color:var(--tx);text-decoration:underline}
+.crumbs b{color:var(--tx);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gsearch{position:relative;width:340px;max-width:40vw}
+.gsearch input{width:100%;height:36px;border:1px solid var(--ln);background:var(--sf);border-radius:9px;padding:0 12px 0 36px;outline:none}
+.gsearch input:focus{border-color:var(--br2);box-shadow:0 0 0 3px var(--brs)}
+.gsearch>svg{position:absolute;left:11px;top:9px;color:var(--tx3)}
+.gres{position:absolute;top:42px;left:0;right:0;background:var(--sf);border:1px solid var(--ln);border-radius:10px;box-shadow:var(--sh2);overflow:hidden;z-index:30}
+.gres button{all:unset;display:block;width:100%;box-sizing:border-box;padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--ln2)}
+.gres button:hover,.gres button.on{background:var(--sf2)}
+.gres b{font-weight:600;font-size:13px}
+.gres small{display:block;color:var(--tx3);font-size:12px}
+.upd{font-size:12px;color:var(--tx3);white-space:nowrap}
+.content{padding:24px 28px 80px;max-width:1440px;width:100%}
+
+/* page head */
+.ph{display:flex;align-items:flex-end;gap:16px;margin-bottom:18px;flex-wrap:wrap}
+.ph h1{font-size:21px;line-height:1.2;margin:0;letter-spacing:-.02em;font-weight:700}
+.ph p{margin:4px 0 0;color:var(--tx2);font-size:13.5px;max-width:720px}
+.ph .act{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* controls */
+.btn{display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:8px;border:1px solid var(--ln);background:var(--sf);cursor:pointer;font-weight:500;font-size:13px;white-space:nowrap;color:var(--tx)}
+.btn:hover{border-color:#cfd3da;background:var(--sf2)}
+.btn.pri{background:var(--br);border-color:var(--br);color:#fff}
+.btn.pri:hover{background:var(--br2)}
+.btn.ghost{border-color:transparent;background:transparent}
+.btn.ghost:hover{background:#eceef1}
+.btn.dan{color:var(--cr)}
+.btn.sm{height:28px;padding:0 9px;font-size:12.5px}
+.btn:disabled{opacity:.5;cursor:default}
+.inp,.sel{height:34px;border:1px solid var(--ln);border-radius:8px;background:var(--sf);padding:0 10px;outline:none;min-width:0}
+.inp:focus,.sel:focus{border-color:var(--br2);box-shadow:0 0 0 3px var(--brs)}
+.seg{display:inline-flex;background:#eceef1;border-radius:9px;padding:3px;gap:2px}
+.seg button{all:unset;cursor:pointer;padding:5px 11px;border-radius:7px;font-size:12.5px;color:var(--tx2);font-weight:500;white-space:nowrap}
+.seg button.on{background:var(--sf);color:var(--tx);box-shadow:var(--sh)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 6px 0 10px;border-radius:14px;background:var(--brs);color:var(--br);font-size:12.5px;font-weight:500}
+.chip button{all:unset;cursor:pointer;display:grid;place-items:center;width:18px;height:18px;border-radius:9px}
+.chip button:hover{background:#efd6da}
+
+/* cards */
+.card{background:var(--sf);border:1px solid var(--ln);border-radius:var(--r);box-shadow:var(--sh)}
+.card>.hd{display:flex;align-items:center;gap:10px;padding:14px 16px 0}
+.card>.hd h3{margin:0;font-size:14px;font-weight:600;letter-spacing:-.005em}
+.card>.hd .sub{color:var(--tx3);font-size:12px}
+.card>.hd .r{margin-left:auto;display:flex;gap:6px;align-items:center}
+.card>.bd{padding:12px 16px 16px}
+.muted{color:var(--tx3)}
+.small{font-size:12px}
+
+/* semantic */
+.b{display:inline-flex;align-items:center;gap:4px;height:21px;padding:0 8px;border-radius:11px;font-size:11.5px;font-weight:600;white-space:nowrap}
+.b.ok{background:var(--okb);color:var(--ok)} .b.wa{background:var(--wab);color:var(--wa)} .b.cr{background:var(--crb);color:var(--cr)} .b.in{background:var(--inb);color:var(--in)} .b.ne{background:var(--neb);color:var(--ne)}
+.dot{width:8px;height:8px;border-radius:4px;display:inline-block;flex:none}
+.dot.ok{background:var(--ok)} .dot.wa{background:#d39a2c} .dot.cr{background:var(--cr)} .dot.in{background:var(--in)} .dot.ne{background:#b5bac3}
+
+/* KPI */
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.w-s{grid-column:span 1}.w-m{grid-column:span 2}.w-l{grid-column:span 4}
+.kpi{padding:16px;cursor:pointer;transition:border-color .15s,box-shadow .15s;display:flex;flex-direction:column;gap:2px;min-height:132px}
+.kpi:hover{border-color:#cfd3da;box-shadow:0 4px 14px rgba(16,24,40,.07)}
+.kpi .lb{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--tx2);font-weight:500}
+.kpi .lb svg{color:var(--tx3)}
+.kpi .v{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.15;margin-top:6px}
+.kpi .v small{font-size:14px;font-weight:500;color:var(--tx3);letter-spacing:0;margin-left:4px}
+.kpi .cx{font-size:12px;color:var(--tx3)}
+.kpi.cr .v{color:var(--cr)} .kpi.wa .v{color:var(--wa)} .kpi.ok .v{color:var(--ok)}
+.kpi ul{list-style:none;margin:8px 0 0;padding:8px 0 0;border-top:1px dashed var(--ln);font-size:12px;color:var(--tx2);display:flex;flex-direction:column;gap:3px}
+.kpi li{display:flex;gap:8px}
+.kpi li span:last-child{margin-left:auto;font-weight:600;color:var(--tx)}
+.kpi .cta{margin-top:auto;padding-top:8px;font-size:12px;color:var(--br);font-weight:500}
+
+/* attention list */
+.att{display:flex;flex-direction:column}
+.att button{all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--ln2)}
+.att button:last-child{border-bottom:0}
+.att button:hover{background:var(--sf2)}
+.att .ic{width:32px;height:32px;border-radius:8px;display:grid;place-items:center;flex:none}
+.att .ic.cr{background:var(--crb);color:var(--cr)} .att .ic.wa{background:var(--wab);color:var(--wa)} .att .ic.in{background:var(--inb);color:var(--in)} .att .ic.ok{background:var(--okb);color:var(--ok)}
+.att b{font-weight:600;font-size:13.5px;display:block}
+.att small{color:var(--tx3);font-size:12px}
+.att .go{margin-left:auto;color:var(--tx3);display:flex;align-items:center;gap:4px;font-size:12px;white-space:nowrap}
+
+/* bar list */
+.bl{display:flex;flex-direction:column;gap:2px}
+.bl .row{display:grid;grid-template-columns:minmax(120px,1.3fr) 2fr 64px;gap:10px;align-items:center;padding:6px 4px;border-radius:6px;cursor:pointer}
+.bl .row:hover{background:var(--sf2)}
+.bl .nm{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bl .nm small{color:var(--tx3);margin-left:4px}
+.bl .tr{height:14px;position:relative}
+.bl .br{position:absolute;left:0;top:0;bottom:0;border:1px solid #b9c3d1;background:#e8edf4;border-radius:3px}
+.bl .br.late{border-color:#e2a49b;background:#f8e1dd}
+.bl .num{text-align:right;font-size:12.5px;font-weight:600}
+.bl .num small{display:block;font-weight:400;color:var(--tx3);font-size:11px}
+.legend{display:flex;gap:14px;font-size:11.5px;color:var(--tx3);margin-top:8px;flex-wrap:wrap}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.sw{width:12px;height:8px;border-radius:2px;border:1px solid #b9c3d1;background:#e8edf4;display:inline-block}
+.sw.late{border-color:#e2a49b;background:#f8e1dd}
+
+/* tables */
+.tw{overflow:auto;max-height:calc(100vh - 250px);border-top:1px solid var(--ln)}
+table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+.t th{position:sticky;top:0;z-index:2;background:var(--sf2);text-align:left;font-weight:600;font-size:12px;color:var(--tx2);padding:9px 12px;border-bottom:1px solid var(--ln);white-space:nowrap;cursor:pointer;user-select:none}
+.t th.n,.t td.n{text-align:right}
+.t th .ar{color:var(--br);margin-left:3px}
+.t td{padding:9px 12px;border-bottom:1px solid var(--ln2);vertical-align:middle}
+.t tbody tr{cursor:pointer}
+.t tbody tr:hover td{background:#fafbfd}
+.t td b{font-weight:600}
+.t td small{display:block;color:var(--tx3);font-size:11.5px}
+.t td.cl{max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t td.c1{max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t td.c1 small{overflow:hidden;text-overflow:ellipsis}
+.t td.nw{white-space:nowrap}
+.pager{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:12.5px;color:var(--tx2);border-top:1px solid var(--ln)}
+.pager .r{margin-left:auto;display:flex;gap:6px}
+
+/* tree (estrutura) */
+.tree{font-size:13px}
+.tree .th,.tree .tr{display:grid;grid-template-columns:minmax(260px,2.4fr) 80px 92px 80px 80px 96px 110px 40px;gap:8px;align-items:center;padding:0 12px}
+.tree .th{font-size:11.5px;color:var(--tx3);font-weight:600;padding-top:10px;padding-bottom:10px;background:var(--sf2);border-bottom:1px solid var(--ln);position:sticky;top:57px;z-index:3}
+.tree .th>div:not(:first-child),.tree .tr>div.n{text-align:right}
+.tree .tr{min-height:44px;border-bottom:1px solid var(--ln2)}
+.tree .tr:hover{background:#fafbfd}
+.tree .nmc{display:flex;align-items:center;gap:8px;min-width:0}
+.tree .tg{all:unset;cursor:pointer;width:22px;height:22px;display:grid;place-items:center;border-radius:5px;color:var(--tx3);flex:none}
+.tree .tg:hover{background:#eceef1}
+.tree .tg svg{transition:transform .15s}
+.tree .tg.op svg{transform:rotate(90deg)}
+.tree .tg.no{visibility:hidden}
+.tree input[type=checkbox]{width:15px;height:15px;accent-color:var(--br);flex:none;cursor:pointer}
+.tree .lbl{min-width:0;overflow:hidden}
+.tree .lbl b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.tree .lbl small{display:block;color:var(--tx3);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tree .lv0{background:#fbfbfc}
+.tree .lv0 .lbl b{font-size:13.5px}
+.tree .ind1{padding-left:26px}.tree .ind2{padding-left:52px}.tree .ind3{padding-left:78px}
+.tree .kind{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);border:1px solid var(--ln);border-radius:4px;padding:0 5px;flex:none}
+.tree .kind.g{color:var(--br);border-color:#e7c5ca;background:var(--brs)}
+.tree .kind.e{color:var(--in);border-color:#c8d7ec;background:var(--inb)}
+.tree .metai{width:64px;height:28px;text-align:right;border:1px solid transparent;background:transparent;border-radius:6px;padding:0 6px}
+.tree .metai:hover{border-color:var(--ln)}
+.tree .metai:focus{border-color:var(--br2);background:#fff;outline:none}
+.tree .sit{all:unset;cursor:pointer}
+.mbtn{all:unset;cursor:pointer;width:28px;height:28px;display:grid;place-items:center;border-radius:6px;color:var(--tx3)}
+.mbtn:hover{background:#eceef1;color:var(--tx)}
+.selbar{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;z-index:40;background:#15181f;color:#fff;border-radius:12px;padding:10px 12px 10px 18px;display:flex;align-items:center;gap:12px;box-shadow:var(--sh2);font-size:13px}
+.selbar .btn{height:32px}
+.selbar .btn.ghost{color:#c9ced8}
+.selbar .btn.ghost:hover{background:#262b36}
+
+/* menu */
+.menu{position:fixed;z-index:60;background:var(--sf);border:1px solid var(--ln);border-radius:10px;box-shadow:var(--sh2);padding:5px;min-width:210px}
+.menu button{all:unset;display:flex;align-items:center;gap:9px;width:100%;box-sizing:border-box;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:13px}
+.menu button:hover{background:var(--sf2)}
+.menu button.dan{color:var(--cr)}
+.menu hr{border:0;border-top:1px solid var(--ln2);margin:4px 0}
+
+/* modal + drawer */
+.ov{position:fixed;inset:0;background:rgba(17,20,27,.42);z-index:70;display:grid;place-items:center;padding:20px}
+.modal{background:var(--sf);border-radius:14px;box-shadow:var(--sh2);width:min(560px,100%);max-height:calc(100vh - 40px);display:flex;flex-direction:column}
+.modal.lg{width:min(860px,100%)}
+.modal .mh{padding:18px 20px 6px;display:flex;align-items:flex-start;gap:10px}
+.modal .mh h2{margin:0;font-size:17px;letter-spacing:-.01em}
+.modal .mh p{margin:4px 0 0;color:var(--tx2);font-size:13px}
+.modal .mb{padding:12px 20px;overflow-y:auto;overflow-x:hidden}
+.modal .mf{padding:12px 20px 18px;display:flex;gap:8px;justify-content:flex-end;border-top:1px solid var(--ln2)}
+.modal .mf .l{margin-right:auto}
+.fl{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.fl label{font-size:12.5px;font-weight:600;color:var(--tx2)}
+.fl .hint{font-size:12px;color:var(--tx3)}
+.ck{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:4px 14px;max-height:280px;overflow:auto;border:1px solid var(--ln);border-radius:8px;padding:8px 10px}
+.ck label{display:flex;gap:8px;align-items:center;font-size:12.5px;padding:3px 0;cursor:pointer}
+.ck input{accent-color:var(--br)}
+.dr{position:fixed;top:0;right:0;bottom:0;width:min(560px,100%);background:var(--sf);z-index:65;box-shadow:var(--sh2);display:flex;flex-direction:column;animation:sl .18s ease-out}
+@keyframes sl{from{transform:translateX(30px);opacity:.4}to{transform:none;opacity:1}}
+.dr .dh{padding:18px 20px 14px;border-bottom:1px solid var(--ln);display:flex;gap:12px;align-items:flex-start}
+.dr .dh h2{margin:0;font-size:17px;letter-spacing:-.01em}
+.dr .dh p{margin:3px 0 0;color:var(--tx2);font-size:12.5px}
+.dr .db{padding:16px 20px 30px;overflow-y:auto;overflow-x:hidden}
+.dsec{margin-bottom:20px}
+.dsec h4{margin:0 0 8px;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);font-weight:600}
+.kv{display:grid;grid-template-columns:170px 1fr;gap:6px 12px;font-size:13px}
+.kv dt{color:var(--tx2)} .kv dd{margin:0;font-weight:500;min-width:0;overflow-wrap:anywhere}
+.path{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px}
+.path span{background:var(--neb);border-radius:6px;padding:3px 8px}
+.path svg{color:var(--tx3)}
+.tl{list-style:none;margin:0;padding:0 0 0 14px;border-left:2px solid var(--ln)}
+.tl li{position:relative;padding:4px 0 8px 10px;font-size:12.5px}
+.tl li:before{content:'';position:absolute;left:-19px;top:9px;width:8px;height:8px;border-radius:4px;background:#c3c8d0}
+.tl li.cur:before{background:var(--br)}
+.tl li b{font-weight:600}
+.tl li small{color:var(--tx3);margin-left:6px}
+.slab{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slab div{background:var(--sf2);border:1px solid var(--ln2);border-radius:8px;padding:9px 10px}
+.slab b{display:block;font-size:19px;letter-spacing:-.02em}
+.slab small{color:var(--tx3);font-size:11.5px}
+
+/* painel edit */
+.vtabs{display:flex;gap:4px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.vtabs .vt{all:unset;cursor:pointer;padding:7px 13px;border-radius:8px;font-size:13px;font-weight:500;color:var(--tx2)}
+.vtabs .vt:hover{background:#eceef1}
+.vtabs .vt.on{background:var(--sf);color:var(--tx);box-shadow:var(--sh);border:1px solid var(--ln);padding:6px 12px}
+.editing .wd{outline:2px dashed #d6b3b9;outline-offset:2px;position:relative;cursor:grab}
+.editing .wd *{pointer-events:none}
+.editing .wd .wtools,.editing .wd .wtools *{pointer-events:auto}
+.wtools{display:none;position:absolute;top:8px;right:8px;z-index:5;gap:4px;background:var(--sf);border:1px solid var(--ln);border-radius:8px;padding:3px;box-shadow:var(--sh)}
+.editing .wtools{display:flex}
+.wtools button{all:unset;cursor:pointer;height:24px;min-width:24px;padding:0 5px;display:grid;place-items:center;border-radius:5px;font-size:11px;font-weight:600;color:var(--tx2)}
+.wtools button:hover{background:var(--sf2);color:var(--tx)}
+.wd.drag{opacity:.4}
+.wd.over{outline-color:var(--br)}
+.editbar{display:flex;align-items:center;gap:10px;background:var(--brs);border:1px solid #ecd3d7;color:var(--br);border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px}
+.editbar .r{margin-left:auto;display:flex;gap:8px}
+.catalog{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.catalog button{all:unset;cursor:pointer;border:1px solid var(--ln);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:flex-start}
+.catalog button:hover{border-color:var(--br2);background:var(--brs)}
+.catalog b{font-size:13px;display:block}
+.catalog small{color:var(--tx3);font-size:12px}
+
+/* misc */
+.empty{padding:40px 20px;text-align:center;color:var(--tx2)}
+.empty .ei{width:44px;height:44px;border-radius:12px;background:var(--okb);color:var(--ok);display:grid;place-items:center;margin:0 auto 10px}
+.empty b{display:block;color:var(--tx);font-size:14px;margin-bottom:3px}
+.note{background:var(--inb);color:#24518a;border-radius:9px;padding:10px 12px;font-size:12.5px;display:flex;gap:9px;align-items:flex-start}
+.note.wa{background:var(--wab);color:#7d4f0c}
+.toasts{position:fixed;right:20px;bottom:20px;z-index:90;display:flex;flex-direction:column;gap:8px}
+.toast{background:#15181f;color:#fff;border-radius:10px;padding:11px 14px;font-size:13px;box-shadow:var(--sh2);display:flex;gap:10px;align-items:center;min-width:260px;max-width:380px;animation:sl .18s ease-out}
+.toast .dot{width:9px;height:9px;border-radius:5px}
+.prog{height:6px;background:var(--ln2);border-radius:3px;overflow:hidden}
+.prog div{height:100%;background:var(--br);transition:width .2s}
+.drop{border:1.5px dashed #c9ced6;border-radius:12px;padding:22px;text-align:center;color:var(--tx2);cursor:pointer;background:var(--sf2)}
+.drop:hover,.drop.ov2{border-color:var(--br2);background:var(--brs)}
+.basecard{padding:16px;display:flex;flex-direction:column;gap:10px}
+.basecard h3{margin:0;font-size:14.5px}
+.mapt{width:100%;border-collapse:collapse;font-size:12.5px}
+.mapt td,.mapt th{padding:6px 8px;border-bottom:1px solid var(--ln2);text-align:left}
+.mapt select{height:30px;max-width:260px}
+.vsum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.vsum div{border:1px solid var(--ln);border-radius:8px;padding:10px}
+.vsum b{display:block;font-size:20px;letter-spacing:-.02em}
+.vsum small{color:var(--tx3);font-size:11.5px}
+.issues{display:flex;flex-direction:column;gap:6px;font-size:12.5px}
+.issues div{display:flex;gap:8px;align-items:flex-start}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(1200px 500px at 10% -10%,#f1e3e6,transparent),var(--bg)}
+.login .card{width:min(400px,100%);padding:28px}
+.login h1{font-size:20px;margin:14px 0 4px;letter-spacing:-.02em}
+.login p{color:var(--tx2);margin:0 0 18px;font-size:13.5px}
+.login .inp{width:100%;height:40px;margin-bottom:10px}
+.login .btn{width:100%;justify-content:center;height:40px}
+.err{color:var(--cr);font-size:12.5px;min-height:18px;margin-bottom:6px}
+.loading{min-height:60vh;display:grid;place-items:center;color:var(--tx2)}
+.loading .card{padding:24px;width:min(380px,100%)}
+.pend-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.pcard{padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.pcard:hover{border-color:#cfd3da;box-shadow:0 4px 14px rgba(16,24,40,.07)}
+.pcard .top2{display:flex;align-items:center;gap:8px}
+.pcard .v{font-size:26px;font-weight:700;letter-spacing:-.03em}
+.pcard p{margin:0;font-size:12.5px;color:var(--tx2)}
+.pcard .cc{font-size:12px;color:var(--tx3)}
+.pcard.zero{cursor:default;opacity:.75}
+.pcard.zero .v{color:var(--ok)}
+.team td .bar{height:8px;border-radius:4px;background:#e8edf4;border:1px solid #b9c3d1;display:block}
+.mt{margin-top:14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.hstack{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spark{display:block}
+.sit-pill{font-size:11px}
+
+/* responsive */
+.bnav{display:none}
+@media (max-width:1100px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.w-l{grid-column:span 2}.tree .th,.tree .tr{grid-template-columns:minmax(200px,2fr) 64px 80px 64px 64px 84px 40px}.tree .c-med{display:none}}
+@media (max-width:820px){
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .top{padding:10px 16px}
+  .gsearch{width:auto;flex:1;max-width:none}
+  .crumbs{display:none}
+  .upd{display:none}
+  .content{padding:16px 16px 90px}
+  .grid,.g3{grid-template-columns:1fr}.w-s,.w-m,.w-l{grid-column:span 1}
+  .kpi{min-height:0}
+  .row2{grid-template-columns:1fr}
+  .bnav{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;background:#15181f;padding:6px 4px calc(6px + env(safe-area-inset-bottom))}
+  .bnav button{all:unset;flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10.5px;color:#9aa1ae;padding:4px 0;cursor:pointer}
+  .bnav button.on{color:#fff}
+  .tw{max-height:none}
+  table.t.cards thead{display:none}
+  table.t.cards,table.t.cards tbody,table.t.cards tr,table.t.cards td{display:block;width:100%}
+  table.t.cards tr{border-bottom:1px solid var(--ln);padding:10px 14px}
+  table.t.cards td{border:0;padding:2px 0;max-width:none}
+  table.t.cards td.n{text-align:left}
+  table.t.cards td[data-l]:before{content:attr(data-l) ': ';color:var(--tx3);font-size:12px}
+  .tree .th{display:none}
+  .tree .tr{grid-template-columns:1fr 44px 48px 30px;padding:6px 8px}
+  .tree .tr>div:not(.nmc):not(.c-n):not(.c-d):not(.c-k){display:none}
+  .tree .ind1{padding-left:14px}.tree .ind2{padding-left:28px}.tree .ind3{padding-left:42px}
+  .vsum{grid-template-columns:1fr 1fr}
+  .kv{grid-template-columns:130px 1fr}
+  .selbar{left:12px;right:12px;transform:none;bottom:72px;flex-wrap:wrap}
+  .ph h1{font-size:19px}
+}
+@media print{.side,.top,.bnav{display:none}.app{display:block}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="toasts" id="toasts"></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   Central da Montagem · operação MOVFIN, SLA, fases e sínteses
+   - Base original (movfin + relatórios de SLA) separada da configuração.
+   - Configuração (estrutura, regras, equipe) e painel pessoal no Supabase (schema montagem).
+   - ?local = modo de teste sem login (dados no navegador).
+   ===================================================================== */
+const SB='https://jspfqktrbimrarimpzgh.supabase.co', SBK='sb_publishable_v5q-FJsZbsufq31dqi3zlA_ddzJQ_f-';
+const LOCAL=/[?&]local\b/.test(location.search)||location.protocol==='file:';
+const VERSAO='1.0';
+const DIA=864e5;
+let HOJE=new Date();HOJE.setHours(23,59,59,0);
+const NOW=Date.now();
+
+/* ---------------- utilidades ---------------- */
+const $=(s,el=document)=>el.querySelector(s), $$=(s,el=document)=>[...el.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nf=new Intl.NumberFormat('pt-BR');
+const n0=v=>nf.format(Math.round(v||0));
+const n1=v=>v==null||isNaN(v)?'—':new Intl.NumberFormat('pt-BR',{maximumFractionDigits:1}).format(v);
+const pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
+const norm=s=>String(s??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+const clean=s=>String(s??'').replace(/\s+/g,' ').trim();
+const fD=iso=>{if(!iso)return '';const [y,m,d]=iso.slice(0,10).split('-');return `${d}/${m}/${y}`};
+const fDH=iso=>iso?fD(iso)+(iso.length>10?' '+iso.slice(11,16):''):'';
+const ms=iso=>{if(!iso)return null;const [y,m,d]=iso.slice(0,10).split('-').map(Number);const h=iso.length>10?+iso.slice(11,13):0,mi=iso.length>10?+iso.slice(14,16):0;return new Date(y,m-1,d,h,mi).getTime()};
+const diasDesde=t=>t==null?null:Math.max(0,Math.floor((NOW-t)/DIA));
+const plural=(n,s,p)=>n0(n)+' '+(Math.round(n)===1?s:(p||s+'s'));
+const uid=()=>Math.random().toString(36).slice(2,9);
+const med=a=>{if(!a.length)return null;const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
+const avg=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:null;
+const clone=o=>JSON.parse(JSON.stringify(o));
+const PREP=new Set(['da','de','do','das','dos','e']);
+const pessoa=(n,curto)=>{const w=clean(n).toLowerCase().split(' ').map(x=>PREP.has(x)?x:x.charAt(0).toUpperCase()+x.slice(1));if(!curto)return w.join(' ');const f=w.filter(x=>!PREP.has(x));return f.length>1?f[0]+' '+f[f.length-1]:f[0]||''};
+const debounce=(f,t)=>{let h;return(...a)=>{clearTimeout(h);h=setTimeout(()=>f(...a),t)}};
+
+const ICO={
+ home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+ layers:'<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+ alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/>',
+ db:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>',
+ cog:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-2.82 1.17V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 7.2 19.7l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.2 14H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.3 7.2l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 10 3.2V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 2.82 1.17l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 20.8 10H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+ search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+ chev:'<path d="m9 18 6-6-6-6"/>', back:'<path d="m15 18-6-6 6-6"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>', x:'<path d="M18 6 6 18M6 6l12 12"/>',
+ edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+ down:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/>',
+ up:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5M12 3v12"/>',
+ check:'<path d="M20 6 9 17l-5-5"/>', clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+ out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+ dots:'<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',
+ cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+ user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+ target:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+ chart:'<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-6"/>',
+ layout:'<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+ folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+ pause:'<circle cx="12" cy="12" r="10"/><path d="M10 15V9M14 15V9"/>',
+ flow:'<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M6 9v3a3 3 0 0 0 3 3h6"/>',
+ file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+ info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+ undo:'<path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>',
+ arrowup:'<path d="m18 15-6-6-6 6"/>', arrowdn:'<path d="m6 9 6 6 6-6"/>',
+ resize:'<path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>',
+ eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+};
+const ic=(n,c='')=>`<svg class="i ${c}" viewBox="0 0 24 24">${ICO[n]||''}</svg>`;
+
+function toast(msg,tipo='ok',t=3200){const el=document.createElement('div');el.className='toast';el.innerHTML=`<span class="dot ${tipo}"></span><div>${msg}</div>`;$('#toasts').appendChild(el);setTimeout(()=>el.remove(),t)}
+
+/* ---------------- armazenamento local (modo teste e cache de colunas) ---------------- */
+const IDB={db:null,
+ async open(){if(this.db)return this.db;return this.db=await new Promise((ok,er)=>{const r=indexedDB.open('central-montagem',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>ok(r.result);r.onerror=()=>er(r.error)})},
+ async get(k){const db=await this.open();return new Promise(ok=>{const r=db.transaction('kv').objectStore('kv').get(k);r.onsuccess=()=>ok(r.result);r.onerror=()=>ok(null)})},
+ async set(k,v){const db=await this.open();return new Promise(ok=>{const t=db.transaction('kv','readwrite');t.objectStore('kv').put(v,k);t.oncomplete=()=>ok(true);t.onerror=()=>ok(false)})}};
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------------- Supabase (fetch direto) ---------------- */
+let SES=null;
+async function sbFetch(path,body,auth=true){
+  const h={'apikey':SBK,'Content-Type':'application/json'};if(auth&&SES)h.Authorization='Bearer '+SES.access_token;
+  const r=await fetch(SB+path,{method:'POST',headers:h,body:JSON.stringify(body||{})});
+  const tx=await r.text();let j=null;try{j=tx?JSON.parse(tx):null}catch(e){}
+  if(!r.ok){const m=(j&&(j.message||j.error_description||j.msg||j.error))||('HTTP '+r.status);const e=new Error(m);e.status=r.status;throw e}
+  return j;
+}
+function guardaSes(s){SES=s?{access_token:s.access_token,refresh_token:s.refresh_token,exp:Date.now()+(s.expires_in||3600)*1000,email:(s.user&&s.user.email)||s.email||''}:null;if(SES)LS.set('mon_sb',SES);else localStorage.removeItem('mon_sb')}
+async function entrar(email,senha){guardaSes(await sbFetch('/auth/v1/token?grant_type=password',{email,password:senha},false))}
+async function renova(){const s=LS.get('mon_sb',null);if(!s||!s.refresh_token)return false;try{guardaSes(await sbFetch('/auth/v1/token?grant_type=refresh_token',{refresh_token:s.refresh_token},false));return true}catch(e){guardaSes(null);return false}}
+async function rpc(fn,args){if(SES&&SES.exp-Date.now()<120000)await renova();try{return await sbFetch('/rest/v1/rpc/'+fn,args||{})}catch(e){if(e.status===401&&await renova())return await sbFetch('/rest/v1/rpc/'+fn,args||{});throw e}}
+const MSG={sem_permissao:'Seu login ainda não tem acesso à Central. Peça ao administrador para liberar.',somente_leitura:'Seu acesso é só de leitura.',sem_login_supabase:'Essa pessoa ainda não tem login. Crie o usuário no Supabase primeiro.','Invalid login credentials':'E-mail ou senha incorretos.',nao_pode_rebaixar_a_si:'Você não pode tirar o seu próprio acesso de administrador.'};
+const msgErro=e=>{const m=String(e&&e.message||e);for(const k in MSG)if(m.includes(k))return MSG[k];return m};
+
+/* ---------------- campos das bases ---------------- */
+// [chave, rótulo, tipo, sinônimos (cabeçalhos aceitos), obrigatório]
+const CAMPOS={
+ movfin:[
+  ['k','Contrato CRM','txt',['Numero_Contrato_CRM','N° CONTRATO','Contrato CRM'],1],
+  ['emp','Empreendimento','txt',['Empreendimento']],
+  ['bloco','Bloco','txt',['Bloco']],
+  ['unid','Unidade','txt',['Unidade']],
+  ['nome','Cliente','txt',['Nome','NOME 1º COMPRADOR']],
+  ['banco','Banco','txt',['Banco']],
+  ['cca','Consultoria (CCA)','txt',['Consultoria','CCA']],
+  ['modal','Modalidade','txt',['ModalidadeFinanciamento']],
+  ['fase','Fase','txt',['Fase'],1],
+  ['sint','Síntese','txt',['Sintese'],1],
+  ['dst','Data Status','dth',['DataStatus','DATA STATUS'],1],
+  ['amont','Analista de montagem','txt',['ID_USUARIO_ANALISTA_MONTAGEM','ANALISTA MONTAGEM']],
+  ['aten','Analista de atendimento','txt',['Analista']],
+  ['uhist','Último usuário no histórico','txt',['USUARIO_HISTORICO_REPASSE']],
+  ['contrato','Contrato de financiamento','txt',['ContratoFinanciamento']],
+  ['protocolo','Número do protocolo','txt',['NumeroProtocolo']],
+  ['dvenda','Data da Venda','dt',['Data da Venda']],
+  ['dvn','Data Venda Nova','dt',['DataVendaNova']],
+  ['dvalid','Data Validade','dt',['DataValidade']],
+  ['dagreg','Data Conforme Agregação ou Demanda','dt',['Data Conforme Agregação ou Demanda']],
+  ['dcem','Conforme Emitir Minuta','dt',['ConformeEmitirMinuta']],
+  ['dcemd','Data Conforme Emitido','dt',['DataConformeEmitido']],
+  ['dmin','Data Minuta','dt',['DataMinuta']],
+  ['dass','Data Assinatura','dt',['DataAssinatura']],
+  ['dreg','Data Entregue Registro','dt',['DataEntregueRegistro']],
+  ['dent','Data Entrada','dt',['DataEntrada']],
+  ['dret','Data Retirada','dt',['DataRetirada']],
+  ['dagd','Data de Agendamento','dt',['Data de Agendamento']],
+  ['vcv','Valor Compra e Venda','num',['ValorCompraVenda']],
+  ['vfin','Valor Financiamento','num',['ValorFinanciamento']],
+  ['obs','Observações','txt',['Observacoes']],
+ ],
+ slaf:[['k','Nº Contrato','txt',['N° CONTRATO','Nº CONTRATO','Numero_Contrato_CRM'],1],['fase','Fase atual','txt',['FASE']],['sint','Síntese atual','txt',['SINTESE']],['amont','Analista montagem','txt',['ANALISTA MONTAGEM']]],
+ slas:[['k','Nº Contrato','txt',['N° CONTRATO','Nº CONTRATO','Numero_Contrato_CRM'],1],['fase','Fase atual','txt',['FASE']],['sint','Síntese atual','txt',['SINTESE']],['amont','Analista montagem','txt',['ANALISTA MONTAGEM']]],
+};
+const BASES={movfin:{nome:'MOVFIN',ds:'Movimentação financeira: fase, síntese, datas e analistas de cada contrato. É a base principal.',ic:'db'},
+ slaf:{nome:'SLA · fases',ds:'Relatório com a data e hora em que cada processo entrou em cada fase. Dá o tempo real na fase.',ic:'clock'},
+ slas:{nome:'SLA · sínteses',ds:'Relatório com a data e hora em que cada processo entrou em cada síntese. Dá o tempo real na síntese e no grupo.',ic:'clock'}};
+const CMAP=Object.fromEntries(CAMPOS.movfin.map(c=>[c[0],c]));
+const DATAS=CAMPOS.movfin.filter(c=>c[2]==='dt'||c[2]==='dth').map(c=>c[0]);
+const rot=k=>(CMAP[k]||[k,k])[1];
+
+/* ---------------- estado ---------------- */
+const S={eu:null,info:{bases:{},envios:[]},raw:{movfin:[],slaf:[],slas:[]},cfg:{estrutura:null,regras:null,equipe:null},painel:null,
+  R:[],M:null,view:'painel',hist:[],F:{},editPainel:false};
+const pode=()=>S.eu&&['admin','gestor'].includes(S.eu.papel);
+
+/* ---------------- estrutura padrão (derivada dos nomes da própria base) ---------------- */
+const ORDEM_PADRAO=['ENT - AGENDADO PRESENCIAL','ENT - CONTATO S/SUCESSO','ENT - RETORNAR CONTATO','ENT - NEGOCIAÇÃO','REAVALIAR','REAVALIAR - PEND. DOCS.','REAVALIAR - NEGOCIAÇÃO','REAVALIAR - RESTRIÇÃO','FGTS - PEND. AUTORIZAÇÃO','FGTS - DEBITAR','FGTS - AGUARD. RESSARCIMENTO','SUBIR - SUBIR','SUBIR - PEND. DOCUMENTOS','SUBIR - PEND. FORMULARIOS','SUBIR - SIOPI','SUBIR - IMÓVEL PRONTO','SUBIR - INTERNALIZADO','NA CEHOP - ANALISE','NA CEHOP - INTERNALIZADO','NA CEHOP - INCONFORME','CONFORME - AGREGAÇÃO','CONFORME - DEMANDA','CONFORME - RESTRIÇÃO','CONFORME - EMITIR MINUTA','CONFORME - MINUTA SOLICITADA','CONFORME - EM EDIÇÃO','CONFORME - EMITIDO','CONFORME - MINUTA ENVIADA','CONFORME - AGENDADO PRESENCIAL','ASSINADO - P/CONFERIR','ASSINADO','ASSINADO - PEND. ASSESSORIA','ASSINADO - C/AGENCIA PRESENCIAL','ASSINADO - COM VENDEDOR','ASSINADO - ENTREGUE AO REGISTRO','ASSINADO – NO CARTORIO','REGISTRADO','NEGOCIAÇÃO','DEMANDA FUTURA','FINALIZADO','DISTRATO','VENDA DIRETA','MIGRAÇÃO'];
+const SIT={andamento:['Em andamento','in'],concluido:['Concluído','ok'],cancelado:['Cancelado','ne'],fora:['Fora da operação','ne']};
+const SIT_PADRAO={'FINALIZADO':'concluido','DISTRATO':'cancelado','VENDA DIRETA':'fora','MIGRAÇÃO':'fora'};
+const INICIO_PADRAO={'ASSINADO – NO CARTORIO':'dent','ASSINADO - ENTREGUE AO REGISTRO':'dreg'};
+const prefixo=f=>clean(f).split(/\s[-–]\s/)[0];
+
+function estruturaPadrao(fases){
+  const ordem=[...ORDEM_PADRAO.filter(f=>fases.has(f)),...[...fases].filter(f=>!ORDEM_PADRAO.includes(f)).sort()];
+  const fam={};for(const f of ordem){const p=prefixo(f);(fam[p]=fam[p]||[]).push(f)}
+  const etapas=Object.entries(fam).filter(([p,l])=>l.length>1).map(([p,l])=>({id:'e'+uid(),nome:p,fases:l,meta:null}));
+  return {v:1,ordem,situacao:{...SIT_PADRAO},apelidoF:{},apelidoS:{},etapas,grupos:[],metaF:{},inicio:{...INICIO_PADRAO}};
+}
+const REGRAS=[
+ {id:'ret',nome:'Sem Data Retirada',ic:'cal',ds:'Processos registrados sem a Data Retirada lançada no movfin.',campo:'dret',fases:['REGISTRADO','FINALIZADO'],sev:'cr'},
+ {id:'reg',nome:'Sem Data Entregue Registro',ic:'cal',ds:'Contratos no cartório ou registrados sem a data de entrega ao registro.',campo:'dreg',fases:['ASSINADO - ENTREGUE AO REGISTRO','ASSINADO – NO CARTORIO','REGISTRADO'],sev:'wa'},
+ {id:'ent',nome:'Sem Data Entrada',ic:'cal',ds:'No cartório ou registrados sem a Data Entrada (protocolo).',campo:'dent',fases:['ASSINADO – NO CARTORIO','REGISTRADO'],sev:'wa'},
+ {id:'ass',nome:'Sem Data Assinatura',ic:'cal',ds:'Em fases de assinado ou registrado sem a Data Assinatura.',campo:'dass',fases:['ASSINADO - P/CONFERIR','ASSINADO','ASSINADO - PEND. ASSESSORIA','ASSINADO - C/AGENCIA PRESENCIAL','ASSINADO - COM VENDEDOR','ASSINADO - ENTREGUE AO REGISTRO','ASSINADO – NO CARTORIO','REGISTRADO'],sev:'wa'},
+ {id:'min',nome:'Sem Data Minuta',ic:'file',ds:'Minuta enviada, emitida, assinada ou registrada sem a Data Minuta.',campo:'dmin',fases:['CONFORME - EMITIDO','CONFORME - MINUTA ENVIADA','CONFORME - AGENDADO PRESENCIAL','ASSINADO - P/CONFERIR','ASSINADO','ASSINADO - PEND. ASSESSORIA','ASSINADO - C/AGENCIA PRESENCIAL','ASSINADO - COM VENDEDOR','ASSINADO - ENTREGUE AO REGISTRO','ASSINADO – NO CARTORIO','REGISTRADO'],sev:'wa'},
+ {id:'ctr',nome:'Sem contrato de financiamento',ic:'file',ds:'Do conforme em diante sem o número do contrato de financiamento.',campo:'contrato',fases:['CONFORME - EMITIDO','CONFORME - MINUTA ENVIADA','CONFORME - AGENDADO PRESENCIAL','ASSINADO - P/CONFERIR','ASSINADO','ASSINADO - PEND. ASSESSORIA','ASSINADO - C/AGENCIA PRESENCIAL','ASSINADO - COM VENDEDOR','ASSINADO - ENTREGUE AO REGISTRO','ASSINADO – NO CARTORIO','REGISTRADO'],sev:'wa'},
+ {id:'ana',nome:'Sem analista de montagem',ic:'user',ds:'Processos nas fases da montagem sem analista responsável.',campo:'amont',fases:['ASSINADO - ENTREGUE AO REGISTRO','ASSINADO – NO CARTORIO','REGISTRADO'],sev:'cr'},
+ {id:'fs',nome:'Sem fase ou síntese',ic:'layers',ds:'Registros do movfin sem fase ou sem síntese preenchida.',sev:'wa'},
+ {id:'ord',nome:'Datas fora de ordem',ic:'alert',ds:'Retirada ou entrada no cartório antes da assinatura, ou data no futuro.',sev:'wa'},
+ {id:'upd',nome:'Fase desatualizada',ic:'flow',ds:'Já tem Data Retirada, mas a fase ainda não chegou a Registrado ou Finalizado.',sev:'wa'},
+ {id:'par',nome:'Parados há muito tempo',ic:'pause',ds:'Em andamento e sem nenhuma movimentação há mais dias que o limite definido.',sev:'wa'},
+ {id:'atr',nome:'Fora do prazo (SLA vencido)',ic:'clock',ds:'Tempo na etapa acima da meta definida na Estrutura.',sev:'cr'},
+];
+const regrasPadrao=()=>({v:1,parado:30,periodo:90,ativas:Object.fromEntries(REGRAS.map(r=>[r.id,true])),fases:Object.fromEntries(REGRAS.filter(r=>r.fases).map(r=>[r.id,r.fases]))});
+
+/* ---------------- leitura de arquivos (xlsx/csv) ---------------- */
+function lerData(v,comHora){
+  if(v==null||v==='')return '';
+  if(typeof v==='number'){if(v<20000||v>80000)return '';const p=XLSX.SSF.parse_date_code(v);if(!p)return '';const d=`${p.y}-${String(p.m).padStart(2,'0')}-${String(p.d).padStart(2,'0')}`;return comHora?d+`T${String(p.H).padStart(2,'0')}:${String(p.M).padStart(2,'0')}`:d}
+  if(v instanceof Date){if(isNaN(v))return '';const d=`${v.getFullYear()}-${String(v.getMonth()+1).padStart(2,'0')}-${String(v.getDate()).padStart(2,'0')}`;return comHora?d+`T${String(v.getHours()).padStart(2,'0')}:${String(v.getMinutes()).padStart(2,'0')}`:d}
+  const s=String(v).trim();if(!s)return '';
+  let m=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:\s+(\d{1,2}):(\d{2}))?/);
+  if(m){let y=+m[3];if(y<100)y+=2000;const d=`${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;return comHora?d+'T'+(m[4]?m[4].padStart(2,'0')+':'+m[5]:'00:00'):d}
+  m=s.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/);
+  if(m){const d=`${m[1]}-${m[2]}-${m[3]}`;return comHora?d+'T'+(m[4]?m[4]+':'+m[5]:'00:00'):d}
+  if(/^\d+(\.\d+)?$/.test(s))return lerData(+s,comHora);
+  return '#'+s; // inválida (marcada para a validação)
+}
+function lerNum(v){if(v==null||v==='')return null;if(typeof v==='number')return v;const s=String(v).trim();if(!s)return null;const n=Number(s.includes(',')?s.replace(/\./g,'').replace(',','.'):s);return isNaN(n)?null:n}
+async function lerArquivo(buf,nome){
+  const wb=XLSX.read(buf,{type:'array',cellDates:false,raw:/\.csv$/i.test(nome)?false:true});
+  const abas=wb.SheetNames.map(n=>{const ws=wb.Sheets[n];const rg=ws['!ref']?XLSX.utils.decode_range(ws['!ref']):{e:{r:0,c:0}};return {nome:n,linhas:rg.e.r,colunas:rg.e.c+1}});
+  return {wb,abas,principal:abas.slice().sort((a,b)=>b.linhas*b.colunas-a.linhas*a.colunas)[0].nome};
+}
+function linhasDaAba(wb,aba){const rows=XLSX.utils.sheet_to_json(wb.Sheets[aba],{defval:'',raw:true});const cab=rows.length?Object.keys(rows[0]):[];return {rows,cab}}
+function autoMapa(base,cab){
+  const nc=cab.map(c=>[c,norm(c)]);const m={};
+  for(const [k,,,sin] of CAMPOS[base]){const alvo=sin.map(norm);const hit=nc.find(([c,n])=>alvo.includes(n))||nc.find(([c,n])=>alvo.some(a=>n.startsWith(a)&&a.length>4));m[k]=hit?hit[0]:''}
+  return m;
+}
+// eventos dos relatórios de SLA: colunas depois de "SINTESE" que têm data
+function colunasEvento(cab,rows){const i=cab.findIndex(c=>norm(c)==='sintese');if(i<0)return [];return cab.slice(i+1).filter(c=>rows.some(r=>{const d=lerData(r[c],true);return d&&d[0]!=='#'}))}
+const nomeEvento=c=>clean(String(c).replace(/\(Data-Hora-Minuto\)/i,'').replace(/_/g,' ').replace(/^SINTESE\s+/i,''));
+
+function montaLinhas(base,rows,mapa,cab){
+  const out=[],prob={semChave:0,dup:[],datas:{},vazias:{}};const vistos=new Map();
+  const evCols=base==='movfin'?[]:colunasEvento(cab,rows);
+  rows.forEach((r,i)=>{
+    const d={};
+    for(const [k,,tp] of CAMPOS[base]){const col=mapa[k];if(!col)continue;let v=r[col];
+      if(tp==='dt'||tp==='dth'){v=lerData(v,tp==='dth');if(v&&v[0]==='#'){prob.datas[k]=(prob.datas[k]||0)+1;v=''}}
+      else if(tp==='num')v=lerNum(v);
+      else{v=clean(v);if(k==='obs'&&v.length>400)v=v.slice(0,400)+'…'}
+      if(v!==''&&v!=null)d[k]=v;}
+    if(evCols.length){const ev={};for(const c of evCols){const t=lerData(r[c],true);if(t&&t[0]!=='#')ev[nomeEvento(c)]=t}d.ev=ev}
+    if(!d.k){prob.semChave++;return}
+    if(vistos.has(d.k)){prob.dup.push(d.k);out[vistos.get(d.k)]=d}else{vistos.set(d.k,out.length);out.push(d)}
+  });
+  if(base==='movfin')for(const k of ['fase','sint','dst'])prob.vazias[k]=out.filter(d=>!d[k]).length;
+  return {linhas:out,prob,evCols};
+}
+
+/* =====================================================================
+   MODELO: registros + configuração → métricas em todos os níveis
+   Operação → Etapa (grupo de fases) → Fase → Grupo (de sínteses) → Síntese → Registro
+   ===================================================================== */
+function cfgE(){return S.cfg.estrutura}
+function garanteConfig(){
+  const fases=new Set(S.raw.movfin.map(d=>clean(d.fase)).filter(Boolean));
+  if(!S.cfg.estrutura)S.cfg.estrutura=estruturaPadrao(fases);
+  const E=S.cfg.estrutura;
+  E.novas=[...fases].filter(f=>!E.ordem.includes(f));   // fases que chegaram numa importação nova
+  for(const f of E.novas)E.ordem.push(f);
+  for(const k of ['situacao','apelidoF','apelidoS','metaF','inicio'])E[k]=E[k]||{};
+  E.etapas=E.etapas||[];E.grupos=E.grupos||[];
+  if(!S.cfg.regras)S.cfg.regras=regrasPadrao();
+  const R=S.cfg.regras;for(const r of REGRAS){if(R.ativas[r.id]==null)R.ativas[r.id]=true;if(r.fases&&!R.fases[r.id])R.fases[r.id]=r.fases}
+  if(!S.cfg.equipe){const lim=NOW-180*DIA;const c={};for(const d of S.raw.movfin){if(d.amont&&ms(d.dst)>lim)c[d.amont]=(c[d.amont]||0)+1}S.cfg.equipe={v:1,membros:Object.keys(c).sort(),marco:'concl'}}
+}
+const nomeF=f=>cfgE().apelidoF[f]||f;
+const nomeS=s=>cfgE().apelidoS[s]||s;
+const sitF=f=>cfgE().situacao[f]||'andamento';
+
+function modelo(){
+  garanteConfig();
+  const E=cfgE(),RG=S.cfg.regras;
+  const etapaDe={};for(const e of E.etapas)for(const f of e.fases)etapaDe[f]=e;
+  const grupoDe={};for(const g of E.grupos)for(const s of g.sints)grupoDe[g.fase+'||'+s]=g;
+  const gNorm={};for(const g of E.grupos)gNorm[g.id]=new Set(g.sints.map(norm));
+  // linhas do tempo dos relatórios de SLA
+  const TL={};
+  for(const [b,tipo] of [['slaf','f'],['slas','s']])for(const d of S.raw[b]){const ev=Object.entries(d.ev||{}).map(([n,t])=>[n,ms(t)]).filter(x=>x[1]).sort((a,b)=>b[1]-a[1]);const o=TL[d.k]=TL[d.k]||{};o[tipo]=ev;if(d.amont)o.amontU=d.amont}
+  const temTL=Object.keys(TL).length>0;
+  const ativ={};for(const r of REGRAS)ativ[r.id]=RG.ativas[r.id]!==false;
+  const fasesR={};for(const r of REGRAS)if(r.fases)fasesR[r.id]=new Set(RG.fases[r.id]||[]);
+  const amanha=NOW+2*DIA;
+  const R=S.raw.movfin.map((d,i)=>{
+    const fase=clean(d.fase)||'(sem fase)',sint=clean(d.sint)||'(sem síntese)';
+    const r={i,d,k:d.k,fase,sint,par:fase+'||'+sint,sit:d.fase?sitF(fase):'andamento'};
+    r.et=etapaDe[fase]||null;r.gr=grupoDe[r.par]||null;
+    r.tMov=ms(d.dst);r.diasMov=diasDesde(r.tMov);
+    // início da contagem na fase: campo escolhido > relatório de SLA > data status
+    const tl=TL[d.k];let tF=null,src='mov';
+    const cIni=E.inicio[fase];if(cIni&&d[cIni]){tF=ms(d[cIni]);src='campo'}
+    else if(tl&&tl.f&&tl.f.length){tF=tl.f[0][1];src='rel'}
+    else tF=r.tMov;
+    // síntese atual na linha do tempo (o relatório pode estar mais novo que o movfin: procura a síntese do movfin)
+    let tP=tF,hi=-1;if(tl&&tl.s&&tl.s.length){const ns=norm(sint);hi=tl.s.findIndex(x=>norm(x[0])===ns);if(hi>=0)tP=Math.max(tF||0,tl.s[hi][1])}
+    let tG=tP;
+    if(r.gr&&hi>=0){const G=gNorm[r.gr.id];let st=tl.s[hi][1];for(let j=hi+1;j<tl.s.length;j++){const [n,t]=tl.s[j];if(G.has(norm(n))&&t>=(tF||0))st=t;else break}tG=Math.max(tF||0,st)}
+    r.src=src;r.tl=tl||null;
+    r.dF=diasDesde(tF);r.dP=diasDesde(tP);r.dG=diasDesde(tG);
+    // meta: grupo > fase > etapa
+    let meta=null,ref=r.dF,niv='';
+    if(r.gr&&r.gr.meta!=null){meta=r.gr.meta;ref=r.dG;niv='grupo'}
+    else if(E.metaF[fase]!=null){meta=E.metaF[fase];ref=r.dF;niv='fase'}
+    else if(r.et&&r.et.meta!=null){meta=r.et.meta;ref=r.dF;niv='etapa'}
+    r.meta=meta;r.ref=ref;r.nivMeta=niv;
+    r.sla=r.sit!=='andamento'?'na':meta==null?'sem':ref>meta?'atr':ref>=meta*0.8?'ate':'ok';
+    r.parado=r.sit==='andamento'&&r.diasMov!=null&&r.diasMov>RG.parado;
+    // pendências
+    const P=[];
+    for(const rg of REGRAS){if(!ativ[rg.id])continue;
+      if(rg.campo){if(fasesR[rg.id].has(fase)&&!d[rg.campo])P.push(rg.id);continue}
+      if(rg.id==='fs'&&(!d.fase||!d.sint))P.push('fs');
+      if(rg.id==='ord'){const a=ms(d.dass),why=[];if(a&&d.dret&&ms(d.dret)<a)why.push('retirada antes da assinatura');if(a&&d.dent&&ms(d.dent)<a)why.push('entrada antes da assinatura');if(DATAS.some(c=>d[c]&&ms(d[c])>amanha))why.push('data no futuro');if(why.length){P.push('ord');r.ordWhy=why.join(', ')}}
+      if(rg.id==='upd'&&r.sit==='andamento'&&d.dret&&!/REGISTRADO|FINALIZADO/.test(fase))P.push('upd');
+      if(rg.id==='par'&&r.parado)P.push('par');
+      if(rg.id==='atr'&&r.sla==='atr')P.push('atr');
+    }
+    r.pend=P;
+    r.busca=norm([d.k,d.nome,d.emp,d.unid,d.contrato,d.protocolo,d.amont].join(' '));
+    return r;
+  });
+  S.R=R;S.temTL=temTL;S.M=null;
+}
+// agrega um conjunto de registros num nó; nivel define qual "dias" usar
+function agrega(rs,nivel){
+  const a=rs.filter(r=>r.sit==='andamento');const dk=nivel==='grupo'?'dG':nivel==='sint'?'dP':'dF';
+  const ds=a.map(r=>r[dk]).filter(x=>x!=null);
+  const comMeta=a.filter(r=>r.meta!=null);
+  return {n:rs.length,na:a.length,media:avg(ds),mediana:med(ds),max:ds.length?Math.max(...ds):null,
+    atr:a.filter(r=>r.sla==='atr').length,ate:a.filter(r=>r.sla==='ate').length,comMeta:comMeta.length,
+    noPrazo:comMeta.filter(r=>r.sla==='ok'||r.sla==='ate').length,parados:a.filter(r=>r.parado).length};
+}
+// árvore completa (respeita ordem e agrupamentos)
+function arvore(){
+  if(S.M)return S.M;const E=cfgE();
+  const porF={};for(const r of S.R)(porF[r.fase]=porF[r.fase]||[]).push(r);
+  const ordem=[...E.ordem.filter(f=>porF[f]||E.etapas.some(e=>e.fases.includes(f))),...Object.keys(porF).filter(f=>!E.ordem.includes(f))];
+  const noFase=f=>{const rs=porF[f]||[];const porS={};for(const r of rs)(porS[r.sint]=porS[r.sint]||[]).push(r);
+    const gs=E.grupos.filter(g=>g.fase===f).map(g=>{const rr=g.sints.flatMap(s=>porS[s]||[]);return {tipo:'grupo',id:g.id,g,nome:g.nome,rs:rr,ag:agrega(rr,'grupo'),filhos:g.sints.map(s=>({tipo:'sint',fase:f,sint:s,nome:nomeS(s),rs:porS[s]||[],ag:agrega(porS[s]||[],'sint')}))}});
+    const emG=new Set(E.grupos.filter(g=>g.fase===f).flatMap(g=>g.sints));
+    const soltas=Object.keys(porS).filter(s=>!emG.has(s)).sort((a,b)=>porS[b].length-porS[a].length).map(s=>({tipo:'sint',fase:f,sint:s,nome:nomeS(s),rs:porS[s],ag:agrega(porS[s],'sint')}));
+    return {tipo:'fase',fase:f,nome:nomeF(f),rs,ag:agrega(rs,'fase'),filhos:[...gs,...soltas]}};
+  const top=[];const usado=new Set();
+  for(const f of ordem){if(usado.has(f))continue;const e=E.etapas.find(x=>x.fases.includes(f));
+    if(e){const fs=e.fases.filter(x=>ordem.includes(x));fs.forEach(x=>usado.add(x));const filhos=fs.map(noFase).filter(n=>n.rs.length||true);const rr=filhos.flatMap(n=>n.rs);top.push({tipo:'etapa',id:e.id,e,nome:e.nome,rs:rr,ag:agrega(rr,'fase'),filhos})}
+    else{usado.add(f);top.push(noFase(f))}}
+  return S.M=top;
+}
+const ativos=()=>S.R.filter(r=>r.sit==='andamento');
+// rótulo da etapa macro de um registro
+const macroNome=r=>r.et?r.et.nome:nomeF(r.fase);
+
+/* ---------------- filtros e navegação ---------------- */
+const FILTROS={etapa:'Etapa',fase:'Fase',grupo:'Grupo',sint:'Síntese',amont:'Analista',sit:'Situação',sla:'Prazo',pend:'Pendência',parado:'Parados',q:'Busca',per:'Período'};
+const SLA_TXT={ok:['No prazo','ok'],ate:['Perto da meta','wa'],atr:['Fora do prazo','cr'],sem:['Sem meta','ne'],na:['—','ne']};
+function aplicaF(F,base){
+  let rs=base||S.R;
+  if(F.sit)rs=rs.filter(r=>r.sit===F.sit);
+  if(F.etapa)rs=rs.filter(r=>r.et&&r.et.id===F.etapa);
+  if(F.fase)rs=rs.filter(r=>r.fase===F.fase);
+  if(F.grupo)rs=rs.filter(r=>r.gr&&r.gr.id===F.grupo);
+  if(F.sint)rs=rs.filter(r=>r.sint===F.sint);
+  if(F.amont!=null&&F.amont!=='')rs=rs.filter(r=>F.amont==='__sem'?!r.d.amont:r.d.amont===F.amont);
+  if(F.sla)rs=rs.filter(r=>F.sla==='atr'?r.sla==='atr':r.sla===F.sla);
+  if(F.parado)rs=rs.filter(r=>r.parado);
+  if(F.pend)rs=rs.filter(r=>F.pend==='__any'?r.pend.length:r.pend.includes(F.pend));
+  if(F.per){const lim=NOW-F.per*DIA;rs=rs.filter(r=>r.sit==='andamento'||(r.tMov&&r.tMov>=lim))}
+  if(F.concl){const lim=NOW-F.concl*DIA;rs=rs.filter(r=>r.sit==='concluido'&&r.tMov>=lim)}
+  if(F.marco){const [c,dias]=F.marco;const lim=NOW-dias*DIA;rs=rs.filter(r=>r.d[c]&&ms(r.d[c])>=lim)}
+  if(F.q){const q=norm(F.q);rs=rs.filter(r=>r.busca.includes(q))}
+  return rs;
+}
+function rotuloF(k,v){
+  if(k==='etapa'){const e=cfgE().etapas.find(x=>x.id===v);return e?e.nome:v}
+  if(k==='fase')return nomeF(v);if(k==='grupo'){const g=cfgE().grupos.find(x=>x.id===v);return g?g.nome:v}
+  if(k==='sint')return nomeS(v);if(k==='amont')return v==='__sem'?'Sem analista':v;if(k==='sit')return SIT[v]?SIT[v][0]:v;
+  if(k==='sla')return SLA_TXT[v]?SLA_TXT[v][0]:v;if(k==='pend'){if(v==='__any')return 'Com pendência';const r=REGRAS.find(x=>x.id===v);return r?r.nome:v}
+  if(k==='parado')return 'Sem movimentação há +'+S.cfg.regras.parado+' dias';if(k==='per')return 'ativos + encerrados em '+v+' dias';
+  if(k==='concl')return 'Concluídos nos últimos '+v+' dias';if(k==='marco')return rot(v[0])+' nos últimos '+v[1]+' dias';return v}
+function abrir(F,titulo){S.hist.push({view:S.view,F:S.F,titulo:S.titulo});S.F=F||{};S.titulo=titulo||'';S.pag=0;S.sort=null;go('registros',true)}
+function go(v,keep){if(!keep){S.hist=[];S.F={};S.titulo=''}S.view=v;S.pag=0;fechaDr();render();window.scrollTo(0,0)}
+function voltar(){const h=S.hist.pop();if(!h){go('painel');return}S.view=h.view;S.F=h.F;S.titulo=h.titulo;render()}
+
+/* =====================================================================
+   SHELL
+   ===================================================================== */
+const NAV=[['painel','home','Meu painel'],['estrutura','layers','Fases e sínteses'],['registros','list','Processos'],['equipe','users','Equipe'],['pendencias','alert','Pendências'],['sep'],['bases','db','Bases'],['config','cog','Configurações']];
+const TIT={painel:'Meu painel',estrutura:'Fases e sínteses',registros:'Processos',equipe:'Equipe de montagem',pendencias:'Pendências',bases:'Bases',config:'Configurações'};
+function shell(){
+  const np=S.R.filter(r=>r.pend.length&&r.sit==='andamento').length;
+  $('#root').innerHTML=`<div class="app">
+   <aside class="side"><div class="brand"><div class="lg">CM</div><div><b>Central da Montagem</b><small>Operações · movfin e SLA</small></div></div>
+    <nav class="nav">${NAV.map(n=>n[0]==='sep'?'<div class="sep"></div>':`<button data-v="${n[0]}" class="${S.view===n[0]?'on':''}">${ic(n[1])}${n[2]}${n[0]==='pendencias'&&np?`<span class="ct">${n0(np)}</span>`:''}</button>`).join('')}</nav>
+    <div class="me">${ic('user','s')}<div><b>${esc(S.eu.email)}</b>${esc({admin:'Administrador',gestor:'Gestora',analista:'Analista',leitor:'Leitura'}[S.eu.papel]||S.eu.papel)}${LOCAL?' · modo local':''}</div>${LOCAL?'':`<button title="Sair" id="sair">${ic('out','s')}</button>`}</div>
+   </aside>
+   <div class="main">
+    <header class="top"><div class="crumbs" id="crumbs"></div>
+     <div class="gsearch">${ic('search','s')}<input id="gq" placeholder="Buscar cliente, contrato, unidade…" autocomplete="off"><div class="gres hid" id="gres"></div></div>
+     <div class="upd" title="Última importação do movfin">${S.info.bases.movfin?'Base de '+esc(S.info.bases.movfin.em):'Sem base'}</div></header>
+    <main class="content" id="pg"></main>
+   </div></div>
+   <nav class="bnav">${[['painel','home','Painel'],['estrutura','layers','Fases'],['registros','list','Processos'],['equipe','users','Equipe'],['pendencias','alert','Pendências'],['bases','db','Bases']].map(n=>`<button data-v="${n[0]}" class="${S.view===n[0]?'on':''}">${ic(n[1])}${n[2]}</button>`).join('')}</nav>`;
+  $$('[data-v]').forEach(b=>b.onclick=()=>go(b.dataset.v));
+  const s=$('#sair');if(s)s.onclick=()=>{guardaSes(null);location.reload()};
+  busca();
+}
+function crumbs(extra){
+  const c=[['painel','Central']];let h=`<button data-cv="painel">Central</button>`;
+  if(S.view!=='painel'){if(S.hist.length&&S.view==='registros'){const p=S.hist[S.hist.length-1];h+=` ${ic('chev','s')} <button id="cbk">${esc(TIT[p.view]||p.view)}</button>`}h+=` ${ic('chev','s')} <b>${esc(TIT[S.view])}${extra?' · '+esc(extra):''}</b>`}
+  else h=`<b>Central da Montagem</b>`;
+  $('#crumbs').innerHTML=h;const b=$('[data-cv]',$('#crumbs'));if(b)b.onclick=()=>go('painel');const k=$('#cbk');if(k)k.onclick=voltar;
+}
+function busca(){
+  const inp=$('#gq'),box=$('#gres');let sel=0,res=[];
+  const draw=()=>{if(!res.length){box.innerHTML=inp.value.trim().length>1?'<div class="muted small" style="padding:12px">Nada encontrado.</div>':'';box.classList.toggle('hid',inp.value.trim().length<2);return}
+    box.innerHTML=res.map((r,j)=>`<button class="${j===sel?'on':''}" data-i="${r.i}"><b>${esc(r.d.nome||r.k)}</b><small>${esc(r.k)} · ${esc(r.d.emp||'')} ${esc(r.d.unid||'')} · ${esc(nomeF(r.fase))}</small></button>`).join('')+(res.length>=8?`<button data-all="1"><small>Ver todos os resultados para “${esc(inp.value)}”</small></button>`:'');box.classList.remove('hid');
+    $$('button',box).forEach(b=>b.onmousedown=e=>{e.preventDefault();if(b.dataset.all){abrir({q:inp.value},'Busca');}else ficha(+b.dataset.i);box.classList.add('hid')})};
+  inp.oninput=debounce(()=>{const q=norm(inp.value);sel=0;res=q.length<2?[]:S.R.filter(r=>r.busca.includes(q)).slice(0,8);draw()},120);
+  inp.onkeydown=e=>{if(e.key==='ArrowDown'){sel=Math.min(sel+1,res.length-1);draw();e.preventDefault()}else if(e.key==='ArrowUp'){sel=Math.max(sel-1,0);draw();e.preventDefault()}else if(e.key==='Enter'){if(res[sel]&&res.length<8)ficha(res[sel].i);else if(inp.value.trim())abrir({q:inp.value},'Busca');box.classList.add('hid')}else if(e.key==='Escape'){box.classList.add('hid');inp.blur()}};
+  inp.onblur=()=>setTimeout(()=>box.classList.add('hid'),150);
+  document.onkeydown=e=>{if(e.key==='/'&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)){e.preventDefault();inp.focus()}if(e.key==='Escape'){fechaDr();fechaMenu()}};
+}
+function render(){
+  shell();const pg=$('#pg');
+  if(!S.R.length&&!['bases','config'].includes(S.view)){crumbs();pg.innerHTML=semBase();const b=$('#irb');if(b)b.onclick=()=>go('bases');return}
+  ({painel:vPainel,estrutura:vEstrutura,registros:vRegistros,equipe:vEquipe,pendencias:vPend,bases:vBases,config:vConfig})[S.view](pg);
+}
+function semBase(){return `<div class="card" style="max-width:620px;margin:40px auto"><div class="empty"><div class="ei" style="background:var(--inb);color:var(--in)">${ic('db')}</div><b>Nenhuma base carregada ainda</b>${pode()?'Importe o movfin para começar. Os relatórios de SLA de fases e sínteses são opcionais e deixam o tempo em cada etapa mais preciso.<div class="mt"><button class="btn pri" id="irb">'+ic('up','s')+'Importar bases</button></div>':'Assim que a gestora importar o movfin, a operação aparece aqui.'}</div></div>`}
+
+/* =====================================================================
+   COMPONENTES DO PAINEL (widgets)
+   ===================================================================== */
+const WIDGETS={
+ atencao:{nome:'O que precisa da sua atenção',ds:'Os pontos mais urgentes da operação agora, com acesso direto aos processos.',ic:'alert',size:'l'},
+ k_andamento:{nome:'Em andamento',ds:'Processos ativos na operação.',ic:'flow',size:'s'},
+ k_atrasados:{nome:'Fora do prazo',ds:'Acima da meta de dias, com onde se concentram.',ic:'clock',size:'s'},
+ k_dias:{nome:'Tempo médio na etapa',ds:'Média de dias na etapa atual dos processos ativos.',ic:'target',size:'s'},
+ k_parados:{nome:'Parados',ds:'Sem movimentação há mais dias que o limite.',ic:'pause',size:'s'},
+ k_pend:{nome:'Com pendência',ds:'Processos ativos com pelo menos uma informação faltando.',ic:'alert',size:'s'},
+ k_ret:{nome:'Sem Data Retirada',ds:'Registrados sem a Data Retirada.',ic:'cal',size:'s'},
+ k_ana:{nome:'Sem analista',ds:'Nas fases da montagem sem analista responsável.',ic:'user',size:'s'},
+ k_concl:{nome:'Concluídos (30 dias)',ds:'Processos que chegaram a uma fase concluída.',ic:'check',size:'s'},
+ k_total:{nome:'Registros no movfin',ds:'Tudo o que está na base importada.',ic:'db',size:'s'},
+ sla_etapas:{nome:'Tempo por etapa',ds:'Dias médios e processos fora do prazo em cada etapa.',ic:'chart',size:'m'},
+ sla_grupos:{nome:'Grupos de trabalho',ds:'Os grupos que você criou, com o SLA de cada um.',ic:'folder',size:'m'},
+ distrib:{nome:'Onde estão os processos',ds:'Quantos processos ativos há em cada etapa.',ic:'layers',size:'m'},
+ equipe:{nome:'Equipe de montagem',ds:'Carteira, atrasos e produção de cada analista.',ic:'users',size:'m'},
+ evolucao:{nome:'Evolução semanal',ds:'Assinaturas, entregas ao registro e retiradas por semana.',ic:'chart',size:'m'},
+ pend_top:{nome:'Pendências',ds:'As pendências com mais ocorrências.',ic:'alert',size:'m'},
+ grupo:{nome:'Acompanhar um grupo',ds:'Indicadores de um grupo de sínteses.',ic:'folder',size:'s',param:'grupo'},
+ etapa:{nome:'Acompanhar uma etapa',ds:'Indicadores de uma etapa ou fase.',ic:'layers',size:'s',param:'etapa'},
+ analista:{nome:'Acompanhar um analista',ds:'Carteira e atrasos de uma pessoa da equipe.',ic:'user',size:'s',param:'analista'},
+};
+const VISOES_PADRAO=()=>({ativa:'geral',visoes:[
+ {id:'geral',nome:'Visão geral',itens:[{w:'atencao',size:'l'},{w:'k_andamento'},{w:'k_atrasados'},{w:'k_pend'},{w:'k_ret'},{w:'distrib',size:'m'},{w:'sla_etapas',size:'m'},{w:'equipe',size:'m'},{w:'evolucao',size:'m'}]},
+ {id:'sla',nome:'Prazos',itens:[{w:'k_atrasados'},{w:'k_dias'},{w:'k_parados'},{w:'k_andamento'},{w:'sla_etapas',size:'m'},{w:'sla_grupos',size:'m'}]},
+ {id:'equipe',nome:'Equipe',itens:[{w:'equipe',size:'l'},{w:'k_ana'},{w:'k_andamento'},{w:'k_concl'},{w:'k_atrasados'},{w:'evolucao',size:'l'}]},
+ {id:'pend',nome:'Pendências',itens:[{w:'k_pend'},{w:'k_ret'},{w:'k_ana'},{w:'k_parados'},{w:'pend_top',size:'l'}]},
+]});
+function painelCfg(){if(!S.painel||!S.painel.visoes)S.painel=VISOES_PADRAO();return S.painel}
+const salvaPainel=debounce(async()=>{try{if(LOCAL)await IDB.set('painel',S.painel);else await rpc('mon_painel_salvar',{p_valor:S.painel})}catch(e){toast('Não foi possível salvar o painel: '+esc(msgErro(e)),'cr')}},600);
+
+function kpi(cls,ico,lb,v,cx,go,extra){return `<div class="card kpi ${cls}" data-go='${esc(JSON.stringify(go||null))}'><div class="lb">${ic(ico,'s')}${esc(lb)}</div><div class="v">${v}</div><div class="cx">${cx||''}</div>${extra||''}</div>`}
+function concentracao(rs,n=3){
+  const m=new Map();for(const r of rs){const key=r.gr?'g:'+r.gr.id:'f:'+r.fase;const o=m.get(key)||{nome:r.gr?r.gr.nome:nomeF(r.fase),n:0,F:r.gr?{grupo:r.gr.id}:{fase:r.fase}};o.n++;m.set(key,o)}
+  return [...m.values()].sort((a,b)=>b.n-a.n).slice(0,n);
+}
+function wHTML(it){
+  const A=ativos(),RG=S.cfg.regras,W=WIDGETS[it.w];if(!W)return '';
+  switch(it.w){
+  case 'k_andamento':{const nf=new Set(A.map(r=>r.fase)).size;return kpi('','flow','Em andamento',n0(A.length),`em ${plural(nf,'fase')} · ${pct(A.length,S.R.length)} da base`,{sit:'andamento'})}
+  case 'k_total':return kpi('','db','Registros no movfin',n0(S.R.length),S.info.bases.movfin?'base de '+esc(S.info.bases.movfin.em):'',{});
+  case 'k_concl':{const c=S.R.filter(r=>r.sit==='concluido'&&r.tMov>=NOW-30*DIA);return kpi('ok','check','Concluídos (30 dias)',n0(c.length),'chegaram a uma fase concluída',{concl:30})}
+  case 'k_atrasados':{const at=A.filter(r=>r.sla==='atr');const cm=A.filter(r=>r.meta!=null).length;
+    if(!cm)return kpi('','clock','Fora do prazo','—','Nenhuma meta de prazo definida ainda.',{view:'estrutura'},'<div class="cta">Definir metas em Fases e sínteses →</div>');
+    const c=concentracao(at);return kpi(at.length?'cr':'ok','clock','Fora do prazo',n0(at.length),at.length?`${pct(at.length,cm)} dos ${n0(cm)} com meta`:'Todos dentro da meta',{sla:'atr'},at.length?`<ul>${c.map(x=>`<li><span>${esc(x.nome)}</span><span>${n0(x.n)}</span></li>`).join('')}</ul><div class="cx" style="margin-top:6px">Principal concentração: <b>${esc(c[0].nome)}</b></div>`:'')}
+  case 'k_dias':{const g=agrega(A,'fase');return kpi('','target','Tempo médio na etapa',n1(g.media)+'<small>dias</small>',`mediana ${n1(g.mediana)} · mais antigo ${n0(g.max)} dias`,{sit:'andamento'})}
+  case 'k_parados':{const p=A.filter(r=>r.parado);const c=concentracao(p,2);return kpi(p.length?'wa':'ok','pause','Parados',n0(p.length),`sem movimentação há +${RG.parado} dias`,{parado:1,sit:'andamento'},p.length?`<ul>${c.map(x=>`<li><span>${esc(x.nome)}</span><span>${n0(x.n)}</span></li>`).join('')}</ul>`:'')}
+  case 'k_pend':{const p=A.filter(r=>r.pend.length);const m={};for(const r of p)for(const x of r.pend)m[x]=(m[x]||0)+1;const top=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,3);
+    return kpi(p.length?'wa':'ok','alert','Com pendência',n0(p.length),`${pct(p.length,A.length)} dos processos ativos`,{pend:'__any',sit:'andamento'},top.length?`<ul>${top.map(([k,n])=>`<li><span>${esc(REGRAS.find(x=>x.id===k).nome)}</span><span>${n0(n)}</span></li>`).join('')}</ul>`:'')}
+  case 'k_ret':{const p=aplicaF({pend:'ret',per:RG.periodo});const ag=p.filter(r=>r.sit==='andamento').length;return kpi(p.length?'cr':'ok','cal','Sem Data Retirada',n0(p.length),`${n0(ag)} registrados ainda ativos · ${n0(p.length-ag)} finalizados nos últimos ${RG.periodo} dias`,{pend:'ret',per:RG.periodo})}
+  case 'k_ana':{const p=A.filter(r=>r.pend.includes('ana'));const c=concentracao(p,2);return kpi(p.length?'cr':'ok','user','Sem analista de montagem',n0(p.length),'nas fases da montagem',{pend:'ana',sit:'andamento'},p.length?`<ul>${c.map(x=>`<li><span>${esc(x.nome)}</span><span>${n0(x.n)}</span></li>`).join('')}</ul>`:'')}
+  case 'atencao':return wAtencao();
+  case 'sla_etapas':return wSlaEtapas();
+  case 'sla_grupos':return wGrupos();
+  case 'distrib':return wDistrib();
+  case 'equipe':return wEquipe();
+  case 'evolucao':return wEvolucao();
+  case 'pend_top':return wPendTop();
+  case 'grupo':{const g=cfgE().grupos.find(x=>x.id===it.p);if(!g)return kpi('','folder','Grupo removido','—','escolha outro grupo no modo edição',null);const rs=S.R.filter(r=>r.gr&&r.gr.id===g.id),ag=agrega(rs,'grupo');
+    return kpi(ag.atr?'cr':'','folder',g.nome,n0(ag.na),`${n1(ag.media)} dias em média no grupo${g.meta!=null?' · meta '+g.meta:''}`,{grupo:g.id,sit:'andamento'},`<ul><li><span>Fora do prazo</span><span>${g.meta!=null?n0(ag.atr):'—'}</span></li><li><span>Mais antigo</span><span>${n0(ag.max)} dias</span></li><li><span>Fase</span><span>${esc(nomeF(g.fase))}</span></li></ul>`)}
+  case 'etapa':{const E=cfgE();const e=E.etapas.find(x=>x.id===it.p);const rs=e?S.R.filter(r=>r.et&&r.et.id===e.id):S.R.filter(r=>r.fase===it.p);const nm=e?e.nome:nomeF(it.p);const ag=agrega(rs,'fase');
+    return kpi(ag.atr?'cr':'','layers',nm||'Etapa',n0(ag.na),`${n1(ag.media)} dias em média`,e?{etapa:e.id,sit:'andamento'}:{fase:it.p,sit:'andamento'},`<ul><li><span>Fora do prazo</span><span>${ag.comMeta?n0(ag.atr):'—'}</span></li><li><span>Parados</span><span>${n0(ag.parados)}</span></li><li><span>Mais antigo</span><span>${n0(ag.max)} dias</span></li></ul>`)}
+  case 'analista':{const rs=A.filter(r=>r.d.amont===it.p),ag=agrega(rs,'fase');return kpi(ag.atr?'cr':'','user',it.p||'Analista',n0(rs.length),'processos ativos na carteira',{amont:it.p,sit:'andamento'},`<ul><li><span>Fora do prazo</span><span>${ag.comMeta?n0(ag.atr):'—'}</span></li><li><span>Com pendência</span><span>${n0(rs.filter(r=>r.pend.length).length)}</span></li><li><span>Dias médios</span><span>${n1(ag.media)}</span></li></ul>`)}
+  }
+  return '';
+}
+function card(t,sub,body,act){return `<div class="card"><div class="hd"><h3>${t}</h3>${sub?`<span class="sub">${sub}</span>`:''}${act?`<div class="r">${act}</div>`:''}</div><div class="bd">${body}</div></div>`}
+function wAtencao(){
+  const A=ativos(),RG=S.cfg.regras,it=[];
+  const at=A.filter(r=>r.sla==='atr');if(at.length){const c=concentracao(at,1)[0];it.push({s:'cr',ic:'clock',t:`${plural(at.length,'processo')} fora do prazo`,sub:`Principal concentração: ${c.nome} (${n0(c.n)})`,F:{sla:'atr'},tt:'Fora do prazo'})}
+  const ana=A.filter(r=>r.pend.includes('ana'));if(ana.length){const c=concentracao(ana,1)[0];it.push({s:'cr',ic:'user',t:`${plural(ana.length,'processo')} sem analista de montagem`,sub:`A maior parte em ${c.nome} (${n0(c.n)})`,F:{pend:'ana',sit:'andamento'},tt:'Sem analista'})}
+  const ret=aplicaF({pend:'ret',per:RG.periodo});if(ret.length)it.push({s:'wa',ic:'cal',t:`${plural(ret.length,'processo')} sem Data Retirada`,sub:`Registrados ativos e finalizados nos últimos ${RG.periodo} dias`,F:{pend:'ret',per:RG.periodo},tt:'Sem Data Retirada'});
+  const par=A.filter(r=>r.parado);if(par.length){const c=concentracao(par,1)[0];it.push({s:'wa',ic:'pause',t:`${plural(par.length,'processo')} sem movimentação há +${RG.parado} dias`,sub:`Mais parados em ${c.nome} (${n0(c.n)})`,F:{parado:1,sit:'andamento'},tt:'Parados'})}
+  const eq=S.cfg.equipe.membros;const cart=eq.map(n=>[n,A.filter(r=>r.d.amont===n)]).filter(x=>x[1].length);
+  if(cart.length>1){const mv=avg(cart.map(x=>x[1].length));const top=cart.sort((a,b)=>b[1].length-a[1].length)[0];if(top[1].length>=mv*1.4)it.push({s:'in',ic:'users',t:`${top[0]} está com ${plural(top[1].length,'processo')}`,sub:`${n1(top[1].length/mv)}× a média da equipe (${n1(mv)})`,F:{amont:top[0],sit:'andamento'},tt:top[0]})}
+  if(!A.some(r=>r.meta!=null))it.push({s:'in',ic:'target',t:'Defina as metas de prazo',sub:'Com metas por fase ou grupo, o sistema passa a apontar o que está fora do prazo.',view:'estrutura'});
+  const body=it.length?`<div class="att">${it.slice(0,5).map((x,j)=>`<button data-att="${j}"><span class="ic ${x.s}">${ic(x.ic)}</span><span><b>${esc(x.t)}</b><small>${esc(x.sub)}</small></span><span class="go">Ver ${ic('chev','s')}</span></button>`).join('')}</div>`:`<div class="empty"><div class="ei">${ic('check')}</div><b>Tudo em ordem</b>Nenhum ponto crítico na operação agora.</div>`;
+  S._att=it;return card('O que precisa da sua atenção',`${n0(A.length)} processos ativos`,body);
+}
+function barras(linhas,opts={}){
+  const mx=Math.max(1,...linhas.map(l=>l.v));
+  return `<div class="bl">${linhas.map(l=>`<div class="row" data-go='${esc(JSON.stringify(l.F))}' title="${esc(l.tt||'')}"><div class="nm">${esc(l.nome)}${l.sub?`<small>${esc(l.sub)}</small>`:''}</div><div class="tr"><div class="br" style="width:${Math.max(1.5,l.v/mx*100)}%"></div>${l.late?`<div class="br late" style="width:${Math.max(1,l.late/mx*100)}%"></div>`:''}</div><div class="num">${l.lbl??n0(l.v)}${l.sm?`<small>${l.sm}</small>`:''}</div></div>`).join('')}</div>`;
+}
+function wDistrib(){
+  const top=arvore().map(n=>({nome:n.nome,v:n.ag.na,late:n.ag.atr,F:n.tipo==='etapa'?{etapa:n.id,sit:'andamento'}:{fase:n.fase,sit:'andamento'},sm:n.ag.atr?n0(n.ag.atr)+' fora':''})).filter(x=>x.v);
+  return card('Onde estão os processos','ativos por etapa',barras(top)+`<div class="legend"><span><i class="sw"></i>processos ativos</span><span><i class="sw late"></i>fora do prazo</span></div>`);
+}
+function wSlaEtapas(){
+  const top=arvore().filter(n=>n.ag.na).map(n=>({nome:n.nome,v:n.ag.media||0,lbl:n1(n.ag.media)+' d',sm:n.ag.comMeta?pct(n.ag.noPrazo,n.ag.comMeta)+' no prazo':'sem meta',late:0,F:n.tipo==='etapa'?{etapa:n.id,sit:'andamento'}:{fase:n.fase,sit:'andamento'},tt:`mediana ${n1(n.ag.mediana)} · mais antigo ${n0(n.ag.max)} dias`}));
+  return card('Tempo por etapa','dias médios na etapa atual',barras(top));
+}
+function wGrupos(){
+  const gs=cfgE().grupos;if(!gs.length)return card('Grupos de trabalho','',`<div class="empty"><b>Nenhum grupo criado</b>Em Fases e sínteses, marque as sínteses de uma fase e clique em “Criar grupo”.${pode()?'<div class="mt"><button class="btn sm" data-go=\'{"view":"estrutura"}\'>Organizar fases e sínteses</button></div>':''}</div>`);
+  const L=gs.map(g=>{const rs=S.R.filter(r=>r.gr&&r.gr.id===g.id),ag=agrega(rs,'grupo');return {nome:g.nome,sub:nomeF(g.fase),v:ag.media||0,lbl:n1(ag.media)+' d',sm:g.meta!=null?`${n0(ag.atr)} fora · meta ${g.meta}`:`${n0(ag.na)} ativos`,late:0,F:{grupo:g.id,sit:'andamento'}}});
+  return card('Grupos de trabalho','dias médios dentro do grupo',barras(L));
+}
+function equipeStats(dias){
+  const EQ=S.cfg.equipe,A=ativos();const marco=EQ.marco||'concl';const lim=NOW-(dias||30)*DIA;
+  const prod=r=>marco==='concl'?(r.sit==='concluido'&&r.tMov>=lim):(r.d[marco]&&ms(r.d[marco])>=lim);
+  const L=EQ.membros.map(n=>{const rs=S.R.filter(r=>r.d.amont===n);const a=rs.filter(r=>r.sit==='andamento');const ag=agrega(a,'fase');return {n,cart:a.length,atr:ag.atr,comMeta:ag.comMeta,media:ag.media,pend:a.filter(r=>r.pend.length).length,par:ag.parados,prod:rs.filter(prod).length,rs,a}});
+  return L;
+}
+const MARCOS={concl:'Concluídos',dret:'Retiradas',dreg:'Entregues ao registro',dent:'Entradas no cartório',dass:'Assinaturas'};
+function wEquipe(){
+  const L0=equipeStats(30).sort((a,b)=>b.cart-a.cart||b.prod-a.prod);const L=L0.filter(x=>x.cart||x.prod).slice(0,8);const mx=Math.max(1,...L.map(x=>x.cart));const mv=avg(L.filter(x=>x.cart).map(x=>x.cart))||0;
+  if(!L.length)return card('Equipe de montagem','',`<div class="empty">Nenhum analista na equipe. Escolha quem faz parte em Configurações.</div>`);
+  return card('Equipe de montagem',`carteira ativa · ${MARCOS[S.cfg.equipe.marco||'concl'].toLowerCase()} em 30 dias`,`<div class="bl">${L.map(x=>`<div class="row" data-go='${esc(JSON.stringify({amont:x.n,sit:'andamento'}))}'><div class="nm" title="${esc(x.n)}">${esc(pessoa(x.n,1))}${x.cart>=mv*1.4&&L.length>1?' <span class="b wa">acima da média</span>':''}</div><div class="tr"><div class="br" style="width:${Math.max(1.5,x.cart/mx*100)}%"></div>${x.atr?`<div class="br late" style="width:${x.atr/mx*100}%"></div>`:''}</div><div class="num">${n0(x.cart)}<small>${x.atr?n0(x.atr)+' fora · ':''}${n0(x.prod)} prod.</small></div></div>`).join('')}</div><div class="legend"><span><i class="sw"></i>carteira ativa</span><span><i class="sw late"></i>fora do prazo</span><span>prod. = ${MARCOS[S.cfg.equipe.marco||'concl'].toLowerCase()} em 30 dias</span></div>`,`<button class="btn sm ghost" data-go='{"view":"equipe"}'>Ver equipe</button>`);
+}
+function semanas(n){const out=[];const d=new Date();d.setHours(0,0,0,0);const dow=(d.getDay()+6)%7;d.setDate(d.getDate()-dow);for(let i=n;i>=1;i--){const a=new Date(d);a.setDate(a.getDate()-7*i);out.push(a.getTime())}return out}
+function serieSemanal(campo,ws,filtro){const c=ws.map(()=>0);const ini=ws[0],fim=ws[ws.length-1]+7*DIA;for(const r of S.R){if(filtro&&!filtro(r))continue;const t=campo==='concl'?(r.sit==='concluido'?r.tMov:null):ms(r.d[campo]);if(!t||t<ini||t>=fim)continue;c[Math.min(ws.length-1,Math.floor((t-ini)/(7*DIA)))]++}return c}
+function linhas(series,ws,h=190){
+  const W=560,H=h,pl=30,pr=132,pt=12,pb=26;const mx=Math.max(1,...series.flatMap(s=>s.v));const x=i=>pl+i*(W-pl-pr)/(ws.length-1),y=v=>pt+(H-pt-pb)*(1-v/mx);
+  const tk=[0,Math.round(mx/2),mx];
+  let g=tk.map(v=>`<line x1="${pl}" x2="${W-pr}" y1="${y(v)}" y2="${y(v)}" stroke="#eef0f3"/><text x="${pl-6}" y="${y(v)+4}" text-anchor="end" font-size="10.5" fill="#8a91a0">${v}</text>`).join('');
+  g+=ws.map((w,i)=>i%2&&ws.length>8?'':`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="#8a91a0">${fD(new Date(w).toISOString()).slice(0,5)}</text>`).join('');
+  // rótulos no fim das linhas sem sobreposição
+  const ends=series.map((s,j)=>({j,y:y(s.v[s.v.length-1])})).sort((a,b)=>a.y-b.y);for(let k=1;k<ends.length;k++)if(ends[k].y-ends[k-1].y<14)ends[k].y=ends[k-1].y+14;
+  series.forEach((s,j)=>{const pts=s.v.map((v,i)=>`${x(i)},${y(v)}`).join(' ');g+=`<polyline points="${pts}" fill="none" stroke="${s.c}" stroke-width="${s.cheia?2.2:1.4}" ${s.cheia?'':'stroke-dasharray="2 3"'} stroke-linecap="round"/>`;g+=s.v.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="${s.cheia?2.6:1.8}" fill="${s.c}"><title>${s.nome}: ${v} (semana de ${fD(new Date(ws[i]).toISOString())})</title></circle>`).join('');const e=ends.find(z=>z.j===j);g+=`<text x="${W-pr+8}" y="${e.y+4}" font-size="11" fill="${s.c}" font-weight="${s.cheia?600:500}">${s.nome} · ${s.v[s.v.length-1]}</text>`});
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" width="100%" role="img">${g}</svg>`;
+}
+function wEvolucao(){
+  const ws=semanas(12);const S1=[{nome:'Assinaturas',c:'#6b7280',v:serieSemanal('dass',ws)},{nome:'Entregues ao registro',c:'#2d64a8',v:serieSemanal('dreg',ws)},{nome:'Retiradas',c:'#7a1f2b',cheia:1,v:serieSemanal('dret',ws)}];
+  return card('Evolução semanal','12 semanas fechadas · datas do movfin',linhas(S1,ws));
+}
+function contaPend(per){const RG=S.cfg.regras;const lim=per?NOW-per*DIA:0;const m={};for(const r of S.R){if(!r.pend.length)continue;if(per&&r.sit!=='andamento'&&!(r.tMov>=lim))continue;for(const x of r.pend)m[x]=(m[x]||0)+1}return m}
+function wPendTop(){
+  const RG=S.cfg.regras,m=contaPend(RG.periodo);const L=REGRAS.filter(r=>RG.ativas[r.id]!==false).map(r=>({nome:r.nome,v:m[r.id]||0,F:{pend:r.id,per:RG.periodo}})).filter(x=>x.v).sort((a,b)=>b.v-a.v);
+  if(!L.length)return card('Pendências','',`<div class="empty"><div class="ei">${ic('check')}</div><b>Nenhuma pendência</b>Todas as informações obrigatórias estão preenchidas.</div>`);
+  return card('Pendências',`ativos + encerrados em ${RG.periodo} dias`,barras(L),`<button class="btn sm ghost" data-go='{"view":"pendencias"}'>Ver todas</button>`);
+}
+function ligaGo(root){
+  $$('[data-go]',root).forEach(el=>{el.addEventListener('click',e=>{if(S.editPainel&&el.closest('.wd'))return;const F=JSON.parse(el.dataset.go||'null');if(!F)return;e.stopPropagation();if(F.view){go(F.view);return}const t=el.querySelector('.lb,.nm,b');abrir(F,t?t.textContent.trim():'')})});
+  $$('[data-att]',root).forEach(b=>b.onclick=()=>{const x=S._att[+b.dataset.att];if(x.view)go(x.view);else abrir(x.F,x.tt)});
+}
+
+/* ---------------- Meu painel ---------------- */
+function vPainel(pg){
+  crumbs();const P=painelCfg();const V=P.visoes.find(v=>v.id===P.ativa)||P.visoes[0];P.ativa=V.id;
+  const h=new Date().getHours();const ola=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';const nm=(S.eu.email.split('@')[0].split('.')[0]||'');
+  pg.innerHTML=`<div class="ph"><div><h1>${ola}${nm&&!LOCAL?', '+esc(nm[0].toUpperCase()+nm.slice(1)):''}</h1><p>${resumoDia()}</p></div>
+   <div class="act">${S.editPainel?'':`<button class="btn" id="edp">${ic('layout','s')}Personalizar</button>`}</div></div>
+   <div class="vtabs">${P.visoes.map(v=>`<button class="vt ${v.id===V.id?'on':''}" data-vt="${v.id}">${esc(v.nome)}</button>`).join('')}${S.editPainel?`<button class="btn sm ghost" id="nvis">${ic('plus','s')}Nova visão</button>`:''}</div>
+   ${S.editPainel?`<div class="editbar">${ic('layout','s')}<span>Arraste os blocos para reorganizar. Use os botões de cada bloco para mudar o tamanho ou remover.</span><div class="r"><button class="btn sm" id="addw">${ic('plus','s')}Adicionar bloco</button><button class="btn sm" id="renv">Renomear visão</button>${P.visoes.length>1?'<button class="btn sm dan" id="delv">Excluir visão</button>':''}<button class="btn sm" id="rstp">Restaurar padrão</button><button class="btn sm pri" id="okp">${ic('check','s')}Concluir</button></div></div>`:''}
+   <div class="grid ${S.editPainel?'editing':''}" id="wgrid">${V.itens.map((it,j)=>`<div class="wd w-${it.size||WIDGETS[it.w]?.size||'s'}" draggable="${S.editPainel}" data-j="${j}">${S.editPainel?`<div class="wtools"><button data-sz="s" title="Pequeno">P</button><button data-sz="m" title="Médio">M</button><button data-sz="l" title="Largo">G</button><button data-rm="1" title="Remover">${ic('x','s')}</button></div>`:''}${wHTML(it)}</div>`).join('')||`<div class="card w-l"><div class="empty"><b>Visão vazia</b>Clique em “Adicionar bloco” para montar esta visão.</div></div>`}</div>`;
+  $$('[data-vt]').forEach(b=>b.onclick=()=>{P.ativa=b.dataset.vt;salvaPainel();vPainel(pg)});
+  ligaGo(pg);
+  const ed=$('#edp');if(ed)ed.onclick=()=>{S.editPainel=true;vPainel(pg)};
+  if(!S.editPainel)return;
+  $('#okp').onclick=()=>{S.editPainel=false;salvaPainel();toast('Painel salvo');vPainel(pg)};
+  $('#rstp').onclick=()=>confirma('Restaurar o painel padrão?','Suas visões e blocos personalizados serão substituídos pelo layout original.','Restaurar',()=>{S.painel=VISOES_PADRAO();salvaPainel();toast('Painel restaurado');vPainel(pg)});
+  $('#addw').onclick=()=>catalogo(V,()=>vPainel(pg));
+  $('#nvis').onclick=()=>pergunta('Nova visão','Nome da visão','Minha visão',nome=>{const v={id:'v'+uid(),nome,itens:[]};P.visoes.push(v);P.ativa=v.id;salvaPainel();vPainel(pg)});
+  $('#renv').onclick=()=>pergunta('Renomear visão','Nome da visão',V.nome,nome=>{V.nome=nome;salvaPainel();vPainel(pg)});
+  const dv=$('#delv');if(dv)dv.onclick=()=>confirma('Excluir a visão “'+V.nome+'”?','Os blocos desta visão serão removidos.','Excluir',()=>{P.visoes=P.visoes.filter(v=>v!==V);P.ativa=P.visoes[0].id;salvaPainel();vPainel(pg)});
+  $$('.wd').forEach(w=>{const j=+w.dataset.j;
+    $$('[data-sz]',w).forEach(b=>b.onclick=e=>{e.stopPropagation();V.itens[j].size=b.dataset.sz;salvaPainel();vPainel(pg)});
+    const rm=$('[data-rm]',w);if(rm)rm.onclick=e=>{e.stopPropagation();V.itens.splice(j,1);salvaPainel();vPainel(pg)};
+    w.ondragstart=e=>{w.classList.add('drag');e.dataTransfer.setData('text/plain',j)};
+    w.ondragend=()=>w.classList.remove('drag');
+    w.ondragover=e=>{e.preventDefault();w.classList.add('over')};
+    w.ondragleave=()=>w.classList.remove('over');
+    w.ondrop=e=>{e.preventDefault();const de=+e.dataTransfer.getData('text/plain');if(de===j)return;const [it]=V.itens.splice(de,1);V.itens.splice(j,0,it);salvaPainel();vPainel(pg)};
+  });
+}
+function resumoDia(){
+  const A=ativos();const at=A.filter(r=>r.sla==='atr').length;const ana=A.filter(r=>r.pend.includes('ana')).length;const par=A.filter(r=>r.parado).length;
+  const p=[`${n0(A.length)} processos ativos`];if(at)p.push(`${n0(at)} fora do prazo`);if(par)p.push(`${n0(par)} parados há +${S.cfg.regras.parado} dias`);if(ana)p.push(`${n0(ana)} sem analista`);
+  return esc(p.join(' · '))+'.';
+}
+function catalogo(V,done){
+  const E=cfgE();const ops=(tipo)=>tipo==='grupo'?E.grupos.map(g=>[g.id,g.nome+' · '+nomeF(g.fase)]):tipo==='etapa'?[...E.etapas.map(e=>[e.id,e.nome+' (etapa)']),...E.ordem.filter(f=>!E.etapas.some(e=>e.fases.includes(f))&&S.R.some(r=>r.fase===f)).map(f=>[f,nomeF(f)])]:S.cfg.equipe.membros.map(n=>[n,n]);
+  modal(`<div class="mh"><div><h2>Adicionar bloco</h2><p>Escolha o que você quer acompanhar nesta visão.</p></div></div><div class="mb"><div class="catalog">${Object.entries(WIDGETS).map(([k,w])=>`<button data-w="${k}">${ic(w.ic)}<span><b>${esc(w.nome)}</b><small>${esc(w.ds)}</small></span></button>`).join('')}</div><div id="wpar" class="mt"></div></div><div class="mf"><button class="btn" data-x>Fechar</button></div>`,'lg',m=>{
+    $$('[data-w]',m).forEach(b=>b.onclick=()=>{const k=b.dataset.w,w=WIDGETS[k];
+      if(!w.param){V.itens.push({w:k,size:w.size});salvaPainel();fechaModal();toast('Bloco adicionado');done();return}
+      const o=ops(w.param);$('#wpar',m).innerHTML=o.length?`<div class="fl"><label>${esc(w.nome)}</label><div class="hstack"><select class="sel" id="wp">${o.map(([v,l])=>`<option value="${esc(v)}">${esc(l)}</option>`).join('')}</select><button class="btn pri" id="wpk">Adicionar</button></div></div>`:`<div class="note">${ic('info','s')}Nada para escolher ainda${w.param==='grupo'?': crie um grupo em Fases e sínteses':''}.</div>`;
+      const ok=$('#wpk',m);if(ok)ok.onclick=()=>{V.itens.push({w:k,size:'s',p:$('#wp',m).value});salvaPainel();fechaModal();toast('Bloco adicionado');done()}});
+  });
+}
+
+/* ---------------- Estrutura: fases e sínteses ---------------- */
+let OPEN=new Set(),SELF=new Set(),SELS=new Set(),ESTV='ativos',ESTQ='';
+function vEstrutura(pg){
+  crumbs();const E=cfgE();const T=arvore();const ed=pode();
+  const fil=n=>{if(ESTV==='ativos'&&!n.ag.na)return false;if(!ESTQ)return true;const q=norm(ESTQ);const hit=x=>norm(x.nome+' '+(x.fase||'')+' '+(x.sint||'')).includes(q)||(x.filhos||[]).some(hit);return hit(n)};
+  const semMeta=!E.grupos.some(g=>g.meta!=null)&&!Object.keys(E.metaF).length&&!E.etapas.some(e=>e.meta!=null);
+  pg.innerHTML=`<div class="ph"><div><h1>Fases e sínteses</h1><p>A estrutura da operação como está no movfin. Agrupe fases em etapas e sínteses em grupos de trabalho, renomeie do jeito da casa e defina metas de prazo. O SLA de cada grupo considera só as sínteses dele.</p></div>
+    <div class="act"><div class="seg"><button data-ev="ativos" class="${ESTV==='ativos'?'on':''}">Em andamento</button><button data-ev="todos" class="${ESTV==='todos'?'on':''}">Todas</button></div><button class="btn" id="exp">${OPEN.size?'Recolher tudo':'Abrir tudo'}</button></div></div>
+   ${E.novas&&E.novas.length&&ed?`<div class="note wa" style="margin-bottom:12px">${ic('info','s')}<span>${plural(E.novas.length,'fase nova chegou','fases novas chegaram')} na última base: <b>${E.novas.map(esc).join(', ')}</b>. Elas aparecem no fim da lista. Agrupe ou ajuste a situação se precisar.</span></div>`:''}
+   ${semMeta&&ed?`<div class="note" style="margin-bottom:12px">${ic('target','s')}<span>Nenhuma meta de prazo definida. Clique na coluna <b>Meta (dias)</b> de uma fase ou grupo e digite o prazo. Os processos acima da meta passam a aparecer como fora do prazo.</span></div>`:''}
+   <div class="filters"><input class="inp" id="estq" placeholder="Filtrar fase ou síntese…" value="${esc(ESTQ)}" style="width:260px"><span class="muted small">${ed?'Marque fases para criar uma etapa, ou sínteses de uma mesma fase para criar um grupo.':''}</span></div>
+   <div class="card tree"><div class="th"><div>Nome</div><div class="c-n">Ativos</div><div>Dias médios</div><div class="c-med">Mediana</div><div>Mais antigo</div><div class="c-m">Meta (dias)</div><div>Fora do prazo</div><div></div></div><div id="tb"></div></div>
+   <p class="muted small mt">Dias médios: no nível da fase contam desde a entrada na fase; no grupo, desde a entrada no grupo; na síntese, desde a entrada naquela síntese. Fonte da data de entrada: relatório de SLA quando o processo está nele, a data escolhida em “Início da contagem” da fase, ou a Data Status (última movimentação).</p>
+   <div id="selbar"></div>`;
+  const row=(n,lv,extra)=>{
+    const a=n.ag,key=n.tipo+':'+(n.id||n.fase||'')+(n.tipo==='sint'?'|'+n.sint:''),temF=n.filhos&&n.filhos.length,op=OPEN.has(key);
+    const meta=n.tipo==='etapa'?n.e.meta:n.tipo==='grupo'?n.g.meta:n.tipo==='fase'?E.metaF[n.fase]:null;
+    const chk=ed&&(n.tipo==='fase'||n.tipo==='sint')?`<input type="checkbox" data-sel="${esc(n.tipo==='fase'?'f|'+n.fase:'s|'+n.fase+'||'+n.sint)}" ${(n.tipo==='fase'?SELF.has(n.fase):SELS.has(n.fase+'||'+n.sint))?'checked':''}>`:'';
+    const kind=n.tipo==='etapa'?'<span class="kind e">etapa</span>':n.tipo==='grupo'?'<span class="kind g">grupo</span>':'';
+    const orig=n.tipo==='fase'&&nomeF(n.fase)!==n.fase?n.fase:n.tipo==='sint'&&nomeS(n.sint)!==n.sint?n.sint:'';
+    const sub=n.tipo==='fase'?`${SIT[sitF(n.fase)][0]}${E.inicio[n.fase]?' · contagem desde '+rot(E.inicio[n.fase]):''}${orig?' · original: '+orig:''}`:n.tipo==='etapa'?plural(n.filhos.length,'fase'):n.tipo==='grupo'?plural(n.g.sints.length,'síntese'):orig?'original: '+orig:'';
+    const F=n.tipo==='etapa'?{etapa:n.id}:n.tipo==='grupo'?{grupo:n.id}:n.tipo==='fase'?{fase:n.fase}:{fase:n.fase,sint:n.sint};
+    const metaCell=ed&&n.tipo!=='sint'?`<input class="metai" type="number" min="0" placeholder="—" value="${meta??''}" data-meta="${esc(n.tipo+'|'+(n.id||n.fase))}" title="Meta de dias">`:(meta??'<span class="muted">—</span>');
+    const atr=a.comMeta?(a.atr?`<span class="b cr">${n0(a.atr)} · ${pct(a.atr,a.comMeta)}</span>`:'<span class="b ok">0</span>'):'<span class="muted">—</span>';
+    return `<div class="tr ${lv===0?'lv0':''}" data-key="${esc(key)}"><div class="nmc ind${lv}"><button class="tg ${temF?'':'no'} ${op?'op':''}" data-tg="${esc(key)}">${ic('chev','s')}</button>${chk}${kind}<div class="lbl"><b>${esc(n.nome)}</b>${sub?`<small>${esc(sub)}</small>`:''}</div></div>
+      <div class="n c-n"><a href="#" data-open='${esc(JSON.stringify({...F,sit:'andamento'}))}'>${n0(a.na)}</a>${ESTV==='todos'&&a.n!==a.na?`<small class="muted" style="display:block">${n0(a.n)} total</small>`:''}</div><div class="n c-d">${n1(a.media)}</div><div class="n c-med">${n1(a.mediana)}</div><div class="n">${a.max==null?'—':n0(a.max)}</div><div class="n c-m">${metaCell}</div><div class="n">${atr}</div>
+      <div class="c-k">${ed?`<button class="mbtn" data-mn="${esc(key)}">${ic('dots','s')}</button>`:''}</div></div>`+(op&&temF?n.filhos.filter(fil).map(c=>row(c,lv+1)).join(''):'');
+  };
+  const draw=()=>{const L=T.filter(fil);$('#tb').innerHTML=L.length?L.map(n=>row(n,0)).join(''):`<div class="empty">Nada encontrado com esse filtro.</div>`;wire();selbar()};
+  const idx={};const walk=n=>{const key=n.tipo+':'+(n.id||n.fase||'')+(n.tipo==='sint'?'|'+n.sint:'');idx[key]=n;(n.filhos||[]).forEach(walk)};T.forEach(walk);
+  const wire=()=>{
+    $$('[data-tg]').forEach(b=>b.onclick=()=>{const k=b.dataset.tg;OPEN.has(k)?OPEN.delete(k):OPEN.add(k);draw()});
+    $$('[data-open]').forEach(a=>a.onclick=e=>{e.preventDefault();const F=JSON.parse(a.dataset.open);const n=a.closest('.tr').querySelector('.lbl b').textContent;abrir(F,n)});
+    $$('[data-sel]').forEach(c=>c.onchange=()=>{const [t,v]=[c.dataset.sel.slice(0,1),c.dataset.sel.slice(2)];const set=t==='f'?SELF:SELS;c.checked?set.add(v):set.delete(v);selbar()});
+    $$('[data-meta]').forEach(inp=>inp.onchange=()=>{const [t,id]=[inp.dataset.meta.split('|')[0],inp.dataset.meta.slice(inp.dataset.meta.indexOf('|')+1)];const v=inp.value===''?null:Math.max(0,Math.round(+inp.value));
+      if(t==='etapa')E.etapas.find(e=>e.id===id).meta=v;else if(t==='grupo')E.grupos.find(g=>g.id===id).meta=v;else{if(v==null)delete E.metaF[id];else E.metaF[id]=v}
+      salvaCfg('estrutura','Meta salva');modelo();vEstrutura(pg)});
+    $$('[data-mn]').forEach(b=>b.onclick=e=>{e.stopPropagation();menuNo(idx[b.dataset.mn],b,()=>{modelo();vEstrutura(pg)})});
+  };
+  $$('[data-ev]').forEach(b=>b.onclick=()=>{ESTV=b.dataset.ev;vEstrutura(pg)});
+  $('#exp').onclick=()=>{if(OPEN.size)OPEN.clear();else Object.keys(idx).forEach(k=>{if(idx[k].filhos&&idx[k].filhos.length)OPEN.add(k)});draw();$('#exp').textContent=OPEN.size?'Recolher tudo':'Abrir tudo'};
+  $('#estq').oninput=debounce(e=>{ESTQ=$('#estq').value;if(ESTQ)Object.keys(idx).forEach(k=>{if(idx[k].filhos&&idx[k].filhos.length)OPEN.add(k)});draw()},200);
+  const selbar=()=>{const el=$('#selbar');const nf=SELF.size,ns=SELS.size;if(!nf&&!ns){el.innerHTML='';return}
+    const fasesS=new Set([...SELS].map(x=>x.split('||')[0]));
+    el.innerHTML=`<div class="selbar"><span>${[nf?plural(nf,'fase'):'',ns?plural(ns,'síntese'):''].filter(Boolean).join(' e ')} ${nf+ns===1?'selecionada':'selecionadas'}</span>
+      ${nf?`<button class="btn sm pri" id="mkE">${ic('layers','s')}Criar etapa com as fases</button>`:''}
+      ${ns?(fasesS.size===1?`<button class="btn sm pri" id="mkG">${ic('folder','s')}Criar grupo com as sínteses</button>`:`<span class="small" style="color:#f3c27a">Grupos juntam sínteses de uma mesma fase</span>`):''}
+      <button class="btn sm ghost" id="clS">Limpar</button></div>`;
+    $('#clS').onclick=()=>{SELF.clear();SELS.clear();draw()};
+    const mE=$('#mkE');if(mE)mE.onclick=()=>editaEtapa(null,[...SELF],()=>{SELF.clear();modelo();vEstrutura(pg)});
+    const mG=$('#mkG');if(mG)mG.onclick=()=>editaGrupo(null,[...fasesS][0],[...SELS].map(x=>x.split('||')[1]),()=>{SELS.clear();modelo();vEstrutura(pg)});
+  };
+  draw();
+}
+function menuNo(n,anchor,done){
+  const E=cfgE();const it=[];
+  if(n.tipo==='etapa'){it.push(['edit','Renomear e editar fases',()=>editaEtapa(n.e,null,done)]);it.push(['undo','Desfazer etapa',()=>confirma('Desfazer a etapa “'+n.e.nome+'”?','As fases voltam a aparecer soltas. Nenhum dado do movfin é alterado.','Desfazer',()=>{E.etapas=E.etapas.filter(x=>x!==n.e);salvaCfg('estrutura','Etapa desfeita');done()}),'dan']);it.push(['arrowup','Mover para cima',()=>move(n.e.fases[0],-1,done)]);it.push(['arrowdn','Mover para baixo',()=>move(n.e.fases[n.e.fases.length-1],1,done)])}
+  if(n.tipo==='grupo'){it.push(['edit','Renomear e editar sínteses',()=>editaGrupo(n.g,n.g.fase,null,done)]);it.push(['undo','Desfazer grupo',()=>confirma('Desfazer o grupo “'+n.g.nome+'”?','As sínteses voltam a aparecer soltas dentro da fase. Nenhum dado do movfin é alterado.','Desfazer',()=>{E.grupos=E.grupos.filter(x=>x!==n.g);salvaCfg('estrutura','Grupo desfeito');done()}),'dan'])}
+  if(n.tipo==='fase'){it.push(['edit','Renomear fase',()=>renomeia('F',n.fase,done)]);it.push(['flow','Situação e início da contagem',()=>editaFase(n.fase,done)]);it.push(['folder','Criar grupo de sínteses nesta fase',()=>editaGrupo(null,n.fase,[],done)]);it.push(['arrowup','Mover para cima',()=>move(n.fase,-1,done)]);it.push(['arrowdn','Mover para baixo',()=>move(n.fase,1,done)])}
+  if(n.tipo==='sint'){it.push(['edit','Renomear síntese',()=>renomeia('S',n.sint,done)])}
+  it.push(null);it.push(['list','Ver processos',()=>abrir(n.tipo==='etapa'?{etapa:n.id,sit:'andamento'}:n.tipo==='grupo'?{grupo:n.id,sit:'andamento'}:n.tipo==='fase'?{fase:n.fase,sit:'andamento'}:{fase:n.fase,sint:n.sint,sit:'andamento'},n.nome)]);
+  menu(anchor,it);
+}
+function move(f,dir,done){const E=cfgE();const i=E.ordem.indexOf(f);const e=E.etapas.find(x=>x.fases.includes(f));
+  // move o bloco (etapa inteira ou fase solta) para antes/depois do vizinho
+  const bloco=e?e.fases:[f];const ini=Math.min(...bloco.map(x=>E.ordem.indexOf(x))),fim=Math.max(...bloco.map(x=>E.ordem.indexOf(x)));
+  const vis=E.ordem.filter(x=>S.R.some(r=>r.fase===x));
+  let viz=dir<0?vis.filter(x=>E.ordem.indexOf(x)<ini).pop():vis.find(x=>E.ordem.indexOf(x)>fim);if(!viz)return;
+  const eV=E.etapas.find(x=>x.fases.includes(viz));const bV=eV?eV.fases:[viz];
+  const sem=E.ordem.filter(x=>!bloco.includes(x));let pos=dir<0?Math.min(...bV.map(x=>sem.indexOf(x))):Math.max(...bV.map(x=>sem.indexOf(x)))+1;
+  sem.splice(pos,0,...E.ordem.filter(x=>bloco.includes(x)));E.ordem=sem;salvaCfg('estrutura','Ordem salva');done();}
+function editaEtapa(e,fasesSel,done){
+  const E=cfgE();const novo=!e;const usadas=new Set(E.etapas.filter(x=>x!==e).flatMap(x=>x.fases));
+  const sel=new Set(e?e.fases:fasesSel);const conflito=[...sel].filter(f=>usadas.has(f));
+  const fases=E.ordem.filter(f=>S.R.some(r=>r.fase===f)||sel.has(f));
+  modal(`<div class="mh"><div><h2>${novo?'Nova etapa':'Editar etapa'}</h2><p>Uma etapa junta várias fases do movfin num bloco só da operação. As fases originais continuam visíveis dentro dela.</p></div></div>
+   <div class="mb"><div class="fl"><label>Nome da etapa</label><input class="inp" id="en" value="${esc(e?e.nome:'')}" placeholder="Ex.: Montagem, Cartório, Conformidade"></div>
+   <div class="fl"><label>Meta de prazo (dias) · opcional</label><input class="inp" id="em" type="number" min="0" style="width:140px" value="${e&&e.meta!=null?e.meta:''}"><span class="hint">Vale para as fases desta etapa que não têm meta própria.</span></div>
+   <div class="fl"><label>Fases desta etapa</label><div class="ck">${fases.map(f=>`<label><input type="checkbox" value="${esc(f)}" ${sel.has(f)?'checked':''} ${usadas.has(f)?'disabled':''}>${esc(nomeF(f))}${usadas.has(f)?' <span class="muted">(em outra etapa)</span>':''}</label>`).join('')}</div>${conflito.length?`<span class="hint" style="color:var(--wa)">${conflito.map(esc).join(', ')} já ${conflito.length>1?'estão':'está'} em outra etapa. Tire de lá primeiro.</span>`:''}</div></div>
+   <div class="mf">${novo?'':'<button class="btn dan l" id="edel">Desfazer etapa</button>'}<button class="btn" data-x>Cancelar</button><button class="btn pri" id="eok">${novo?'Criar etapa':'Salvar'}</button></div>`,'',m=>{
+    $('#en',m).focus();
+    const del=$('#edel',m);if(del)del.onclick=()=>{fechaModal();confirma('Desfazer a etapa “'+e.nome+'”?','As fases voltam a aparecer soltas.','Desfazer',()=>{E.etapas=E.etapas.filter(x=>x!==e);salvaCfg('estrutura','Etapa desfeita');done()})};
+    $('#eok',m).onclick=()=>{const nome=clean($('#en',m).value);const fs=$$('.ck input:checked',m).map(c=>c.value);
+      if(!nome){toast('Dê um nome para a etapa','wa');return}if(!fs.length){toast('Escolha pelo menos uma fase','wa');return}
+      const meta=$('#em',m).value===''?null:Math.max(0,Math.round(+$('#em',m).value));
+      const ord=E.ordem.filter(f=>fs.includes(f));
+      if(novo)E.etapas.push({id:'e'+uid(),nome,fases:ord,meta});else Object.assign(e,{nome,fases:ord,meta});
+      // mantém as fases da etapa juntas na ordem
+      const pos=Math.min(...ord.map(f=>E.ordem.indexOf(f)));const resto=E.ordem.filter(f=>!ord.includes(f));const ins=resto.filter(f=>E.ordem.indexOf(f)<pos).length;resto.splice(ins,0,...ord);E.ordem=resto;
+      fechaModal();salvaCfg('estrutura',novo?'Etapa “'+esc(nome)+'” criada':'Etapa salva');done()};
+  });
+}
+function editaGrupo(g,fase,sintsSel,done){
+  const E=cfgE();const novo=!g;const usadas=new Set(E.grupos.filter(x=>x!==g&&x.fase===fase).flatMap(x=>x.sints));
+  const sel=new Set(g?g.sints:sintsSel);const sints=[...new Set(S.R.filter(r=>r.fase===fase).map(r=>r.sint).concat([...sel]))];
+  const cnt=s=>S.R.filter(r=>r.fase===fase&&r.sint===s&&r.sit==='andamento').length;sints.sort((a,b)=>cnt(b)-cnt(a));
+  modal(`<div class="mh"><div><h2>${novo?'Novo grupo de trabalho':'Editar grupo'}</h2><p>Dentro da fase <b>${esc(nomeF(fase))}</b>. O SLA do grupo conta só os processos destas sínteses, desde a entrada no grupo.</p></div></div>
+   <div class="mb"><div class="fl"><label>Nome do grupo</label><input class="inp" id="gn" value="${esc(g?g.nome:'')}" placeholder="Ex.: Documentação, Conferência, Custas"></div>
+   <div class="fl"><label>Meta de prazo (dias) · opcional</label><input class="inp" id="gm" type="number" min="0" style="width:140px" value="${g&&g.meta!=null?g.meta:''}"><span class="hint">Processos que passarem desse número de dias no grupo ficam fora do prazo.</span></div>
+   <div class="fl"><label>Sínteses do grupo</label><div class="ck">${sints.map(s=>`<label><input type="checkbox" value="${esc(s)}" ${sel.has(s)?'checked':''} ${usadas.has(s)?'disabled':''}>${esc(nomeS(s))} <span class="muted">· ${n0(cnt(s))}</span>${usadas.has(s)?' <span class="muted">(em outro grupo)</span>':''}</label>`).join('')||'<span class="muted">Esta fase não tem sínteses na base.</span>'}</div></div></div>
+   <div class="mf">${novo?'':'<button class="btn dan l" id="gdel">Desfazer grupo</button>'}<button class="btn" data-x>Cancelar</button><button class="btn pri" id="gok">${novo?'Criar grupo':'Salvar'}</button></div>`,'',m=>{
+    $('#gn',m).focus();
+    const del=$('#gdel',m);if(del)del.onclick=()=>{fechaModal();confirma('Desfazer o grupo “'+g.nome+'”?','As sínteses voltam a aparecer soltas na fase.','Desfazer',()=>{E.grupos=E.grupos.filter(x=>x!==g);salvaCfg('estrutura','Grupo desfeito');done()})};
+    $('#gok',m).onclick=()=>{const nome=clean($('#gn',m).value);const ss=$$('.ck input:checked',m).map(c=>c.value);
+      if(!nome){toast('Dê um nome para o grupo','wa');return}if(!ss.length){toast('Escolha pelo menos uma síntese','wa');return}
+      const meta=$('#gm',m).value===''?null:Math.max(0,Math.round(+$('#gm',m).value));
+      if(novo)E.grupos.push({id:'g'+uid(),nome,fase,sints:ss,meta});else Object.assign(g,{nome,sints:ss,meta});
+      fechaModal();salvaCfg('estrutura',novo?'Grupo “'+esc(nome)+'” criado':'Grupo salvo');done()};
+  });
+}
+function renomeia(t,orig,done){const E=cfgE();const map=t==='F'?E.apelidoF:E.apelidoS;
+  modal(`<div class="mh"><div><h2>Renomear ${t==='F'?'fase':'síntese'}</h2><p>O nome novo aparece em toda a Central. O nome original do movfin fica guardado e visível.</p></div></div><div class="mb"><div class="fl"><label>Nome original (movfin)</label><div><b>${esc(orig)}</b></div></div><div class="fl"><label>Nome na operação</label><input class="inp" id="rn" value="${esc(map[orig]||'')}" placeholder="${esc(orig)}"><span class="hint">Deixe em branco para voltar ao nome original.${t==='S'?' A síntese é renomeada em todas as fases.':''}</span></div></div><div class="mf"><button class="btn" data-x>Cancelar</button><button class="btn pri" id="rok">Salvar</button></div>`,'',m=>{
+    $('#rn',m).focus();$('#rok',m).onclick=()=>{const v=clean($('#rn',m).value);if(v&&v!==orig)map[orig]=v;else delete map[orig];fechaModal();salvaCfg('estrutura','Nome salvo');done()}})}
+function editaFase(f,done){const E=cfgE();
+  modal(`<div class="mh"><div><h2>${esc(nomeF(f))}</h2><p>Como esta fase entra nos indicadores.</p></div></div><div class="mb">
+   <div class="fl"><label>Situação</label><select class="sel" id="fs">${Object.entries(SIT).map(([k,v])=>`<option value="${k}" ${sitF(f)===k?'selected':''}>${v[0]}</option>`).join('')}</select><span class="hint">Só os processos “Em andamento” contam para SLA, carteira e atrasos. “Concluído” conta como produção.</span></div>
+   <div class="fl"><label>Início da contagem de dias</label><select class="sel" id="fi"><option value="">Automático (relatório de SLA, senão Data Status)</option>${DATAS.filter(c=>c!=='dst').map(c=>`<option value="${c}" ${E.inicio[f]===c?'selected':''}>${esc(rot(c))}</option>`).join('')}</select><span class="hint">Use quando o movfin tem a data real de entrada nesta fase. Ex.: no cartório, a Data Entrada.</span></div></div>
+   <div class="mf"><button class="btn" data-x>Cancelar</button><button class="btn pri" id="fok">Salvar</button></div>`,'',m=>{
+    $('#fok',m).onclick=()=>{const s=$('#fs',m).value,i=$('#fi',m).value;if(s==='andamento')delete E.situacao[f];else E.situacao[f]=s;if(i)E.inicio[f]=i;else delete E.inicio[f];if(SIT_PADRAO[f]&&s==='andamento')E.situacao[f]='andamento';fechaModal();salvaCfg('estrutura','Fase salva');done()}})}
+
+async function salvaCfg(chave,msg){
+  const v=clone(S.cfg[chave]);if(v)delete v.novas;
+  try{if(LOCAL)await IDB.set('cfg_'+chave,v);else await rpc('mon_config_salvar',{p_chave:chave,p_valor:v});if(msg)toast(msg)}
+  catch(e){toast('Não foi possível salvar: '+esc(msgErro(e)),'cr',5000)}
+}
+
+/* ---------------- Processos (tabela) ---------------- */
+const COLS={
+ cli:['Cliente',r=>`<b>${esc(r.d.nome||'—')}</b><small>${esc(r.k)}</small>`,r=>r.d.nome||''],
+ unid:['Empreendimento',r=>`${esc((r.d.emp||'').replace(/\s*-\s*VENDAS.*$/i,''))}<small>${esc(r.d.unid||'')}</small>`,r=>(r.d.emp||'')+(r.d.unid||'')],
+ etapa:['Etapa',r=>esc(macroNome(r)),r=>macroNome(r)],
+ fase:['Fase · síntese',r=>`${esc(nomeF(r.fase))}<small>${esc(nomeS(r.sint))}</small>`,r=>r.fase+r.sint],
+ grupo:['Grupo',r=>r.gr?esc(r.gr.nome):'<span class="muted">—</span>',r=>r.gr?r.gr.nome:''],
+ amont:['Analista montagem',r=>r.d.amont?esc(pessoa(r.d.amont,1)):'<span class="muted">sem analista</span>',r=>r.d.amont||'~'],
+ dias:['Dias na etapa',r=>r.sit!=='andamento'?'<span class="muted">—</span>':`<b>${r.ref==null?'—':n0(r.ref)}</b>${r.meta!=null?`<small>meta ${r.meta}</small>`:''}`,r=>r.sit==='andamento'?(r.ref??-1):-2,1],
+ prazo:['Prazo',r=>{const t=SLA_TXT[r.sla];return r.sla==='na'?'<span class="muted">—</span>':`<span class="b ${t[1]}">${t[0]}</span>`},r=>({atr:0,ate:1,ok:2,sem:3,na:4}[r.sla])],
+ mov:['Última movimentação',r=>r.tMov?`${fD(r.d.dst)}<small>há ${plural(r.diasMov,'dia')}</small>`:'—',r=>r.tMov||0,1],
+ pend:['Pendências',r=>r.pend.length?r.pend.map(p=>`<span class="b ${REGRAS.find(x=>x.id===p).sev}" style="margin:1px 2px 1px 0">${esc(REGRAS.find(x=>x.id===p).nome.replace(/^Sem /,'sem ').replace(/^Fora do prazo.*/,'fora do prazo'))}</span>`).join(''):'<span class="muted">—</span>',r=>r.pend.length,1],
+ sit:['Situação',r=>`<span class="b ${SIT[r.sit][1]}">${SIT[r.sit][0]}</span>`,r=>r.sit],
+ dass:['Data Assinatura',r=>fD(r.d.dass)||'—',r=>r.d.dass||'',1],
+ dreg:['Data Entregue Registro',r=>fD(r.d.dreg)||'—',r=>r.d.dreg||'',1],
+ dent:['Data Entrada',r=>fD(r.d.dent)||'—',r=>r.d.dent||'',1],
+ dret:['Data Retirada',r=>fD(r.d.dret)||'—',r=>r.d.dret||'',1],
+ dmin:['Data Minuta',r=>fD(r.d.dmin)||'—',r=>r.d.dmin||'',1],
+ aten:['Analista atendimento',r=>esc(r.d.aten||'—'),r=>r.d.aten||''],
+ banco:['Banco',r=>esc(r.d.banco||'—'),r=>r.d.banco||''],
+};
+const COLS_PADRAO=['cli','unid','fase','grupo','amont','dias','prazo','mov','pend'];
+function vRegistros(pg){
+  const F=S.F||{};S.lastF=F;let cols=LS.get('mon_cols',COLS_PADRAO).filter(c=>COLS[c]);if(!cols.length)cols=COLS_PADRAO;
+  const rs0=aplicaF(F);const sort=S.sort||{c:F.sit==='andamento'||F.sla||F.parado?'dias':'mov',d:-1};
+  const rs=rs0.slice().sort((a,b)=>{const x=COLS[sort.c][2](a),y=COLS[sort.c][2](b);return (x<y?-1:x>y?1:0)*sort.d});
+  const pp=50,np=Math.max(1,Math.ceil(rs.length/pp));S.pag=Math.min(S.pag||0,np-1);const pag=rs.slice(S.pag*pp,S.pag*pp+pp);
+  crumbs(S.titulo);
+  const chips=Object.entries(F).filter(([k,v])=>v!=null&&v!==''&&FILTROS[k]!==undefined||k==='concl'||k==='marco').map(([k,v])=>`<span class="chip">${esc(FILTROS[k]?FILTROS[k]+': ':'')}${esc(rotuloF(k,v))}<button data-rmf="${k}" title="Remover filtro">${ic('x','s')}</button></span>`).join('');
+  const E=cfgE();const A=S.R;
+  const opt=(lst,v)=>lst.map(([k,l])=>`<option value="${esc(k)}" ${String(v??'')===String(k)?'selected':''}>${esc(l)}</option>`).join('');
+  const fasesOp=E.ordem.filter(f=>A.some(r=>r.fase===f)).map(f=>[f,nomeF(f)]);
+  pg.innerHTML=`<div class="ph"><div>${S.hist.length?`<button class="btn ghost sm" id="bk" style="margin-bottom:6px">${ic('back','s')}Voltar</button>`:''}<h1>${esc(S.titulo||'Processos')}</h1><p>${n0(rs.length)} ${rs.length===1?'processo':'processos'}${rs0.length!==S.R.length?' de '+n0(S.R.length)+' na base':''}. Clique em um processo para ver tudo sobre ele.</p></div>
+   <div class="act"><button class="btn" id="colb">${ic('eye','s')}Colunas</button><button class="btn" id="xpf">${ic('down','s')}Exportar esta lista</button></div></div>
+   <div class="filters">
+    <input class="inp" id="fq" placeholder="Buscar nesta lista…" value="${esc(F.q||'')}" style="width:220px">
+    <select class="sel" data-f="sit"><option value="">Todas as situações</option>${opt(Object.entries(SIT).map(([k,v])=>[k,v[0]]),F.sit)}</select>
+    <select class="sel" data-f="etapa"><option value="">Todas as etapas</option>${opt(E.etapas.map(e=>[e.id,e.nome]),F.etapa)}</select>
+    <select class="sel" data-f="fase" style="max-width:220px"><option value="">Todas as fases</option>${opt(fasesOp,F.fase)}</select>
+    ${E.grupos.length?`<select class="sel" data-f="grupo"><option value="">Todos os grupos</option>${opt(E.grupos.map(g=>[g.id,g.nome]),F.grupo)}</select>`:''}
+    <select class="sel" data-f="amont" style="max-width:200px"><option value="">Todos os analistas</option><option value="__sem" ${F.amont==='__sem'?'selected':''}>Sem analista</option>${opt(S.cfg.equipe.membros.map(n=>[n,n]),F.amont)}</select>
+    <select class="sel" data-f="sla"><option value="">Qualquer prazo</option>${opt([['atr','Fora do prazo'],['ate','Perto da meta'],['ok','No prazo'],['sem','Sem meta']],F.sla)}</select>
+    <select class="sel" data-f="pend"><option value="">Qualquer pendência</option><option value="__any" ${F.pend==='__any'?'selected':''}>Com alguma pendência</option>${opt(REGRAS.map(r=>[r.id,r.nome]),F.pend)}</select>
+   </div>
+   ${chips?`<div class="filters">${chips}<button class="btn sm ghost" id="clf">Limpar filtros</button></div>`:''}
+   <div class="card">${rs.length?`<div class="tw"><table class="t cards"><thead><tr>${cols.map(c=>`<th data-s="${c}" class="${COLS[c][3]?'n':''}">${COLS[c][0]}${sort.c===c?`<span class="ar">${sort.d>0?'↑':'↓'}</span>`:''}</th>`).join('')}</tr></thead><tbody>${pag.map(r=>`<tr data-i="${r.i}">${cols.map(c=>`<td data-l="${COLS[c][0]}" class="${COLS[c][3]?'n':''} ${c==='cli'||c==='unid'?'cl':['fase','grupo','amont','etapa','aten'].includes(c)?'c1':'nw'}" title="${c==='fase'?esc(r.fase+' · '+r.sint):c==='amont'?esc(r.d.amont||''):''}">${COLS[c][1](r)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <div class="pager"><span>${n0(S.pag*pp+1)}–${n0(Math.min(rs.length,S.pag*pp+pp))} de ${n0(rs.length)}</span><div class="r"><button class="btn sm" id="pv" ${S.pag?'':'disabled'}>${ic('back','s')}Anterior</button><button class="btn sm" id="pn" ${S.pag<np-1?'':'disabled'}>Próxima${ic('chev','s')}</button></div></div>`
+    :`<div class="empty"><div class="ei">${ic('check')}</div><b>Nenhum processo nesta lista</b>${Object.keys(F).length?'Nada se encaixa nestes filtros. Isso costuma ser uma boa notícia.':'A base está vazia.'}</div>`}</div>`;
+  const bk=$('#bk');if(bk)bk.onclick=voltar;
+  $$('[data-f]').forEach(s=>s.onchange=()=>{const k=s.dataset.f;if(s.value)S.F={...F,[k]:s.value};else{S.F={...F};delete S.F[k]}S.pag=0;vRegistros(pg)});
+  $('#fq').oninput=debounce(()=>{const v=$('#fq').value;S.F={...F};if(v)S.F.q=v;else delete S.F.q;S.pag=0;vRegistros(pg);const i=$('#fq');i.focus();i.setSelectionRange(i.value.length,i.value.length)},300);
+  $$('[data-rmf]').forEach(b=>b.onclick=()=>{S.F={...F};delete S.F[b.dataset.rmf];S.pag=0;vRegistros(pg)});
+  const cl=$('#clf');if(cl)cl.onclick=()=>{S.F={};S.titulo='';S.pag=0;vRegistros(pg)};
+  $$('[data-s]').forEach(th=>th.onclick=()=>{const c=th.dataset.s;S.sort={c,d:sort.c===c?-sort.d:(COLS[c][3]?-1:1)};vRegistros(pg)});
+  $$('tbody tr[data-i]').forEach(tr=>tr.onclick=()=>ficha(+tr.dataset.i));
+  const pv=$('#pv'),pn=$('#pn');if(pv)pv.onclick=()=>{S.pag--;vRegistros(pg);window.scrollTo(0,0)};if(pn)pn.onclick=()=>{S.pag++;vRegistros(pg);window.scrollTo(0,0)};
+  $('#xpf').onclick=()=>exportaLista(rs,S.titulo||'Processos');
+  $('#colb').onclick=()=>modal(`<div class="mh"><div><h2>Colunas da tabela</h2><p>Escolha o que aparece na lista. O resto continua disponível ao abrir o processo.</p></div></div><div class="mb"><div class="ck">${Object.entries(COLS).map(([k,c])=>`<label><input type="checkbox" value="${k}" ${cols.includes(k)?'checked':''}>${c[0]}</label>`).join('')}</div></div><div class="mf"><button class="btn l" id="cpad">Padrão</button><button class="btn" data-x>Cancelar</button><button class="btn pri" id="cok">Aplicar</button></div>`,'',m=>{
+    $('#cpad',m).onclick=()=>{LS.set('mon_cols',COLS_PADRAO);fechaModal();vRegistros(pg)};
+    $('#cok',m).onclick=()=>{const v=Object.keys(COLS).filter(k=>$(`input[value="${k}"]`,m).checked);LS.set('mon_cols',v.length?v:COLS_PADRAO);fechaModal();vRegistros(pg)}});
+}
+
+/* ---------------- ficha do processo ---------------- */
+function ficha(i){
+  const r=S.R[i];if(!r)return;const d=r.d;const E=cfgE();
+  const sl=SLA_TXT[r.sla];const fonte={campo:'desde a '+rot(E.inicio[r.fase]||''),rel:'pelo relatório de SLA',mov:'desde a última movimentação (Data Status)'}[r.src];
+  const tl=r.tl;const ev=tl?[...(tl.f||[]).map(x=>['Fase',x[0],x[1]]),...(tl.s||[]).map(x=>['Síntese',x[0],x[1]])].sort((a,b)=>b[2]-a[2]):[];
+  const kv=(l,v)=>v?`<dt>${esc(l)}</dt><dd>${v}</dd>`:'';
+  fechaDr();const el=document.createElement('div');el.innerHTML=`<div class="ov" id="drov" style="background:rgba(17,20,27,.25);place-items:stretch"></div><aside class="dr" role="dialog">
+   <div class="dh"><div style="flex:1;min-width:0"><h2>${esc(d.nome||r.k)}</h2><p>${esc(r.k)} · ${esc((d.emp||'').replace(/\s*-\s*VENDAS.*$/i,''))} ${esc(d.unid||'')}</p><div class="hstack" style="margin-top:8px"><span class="b ${SIT[r.sit][1]}">${SIT[r.sit][0]}</span>${r.sla!=='na'?`<span class="b ${sl[1]}">${sl[0]}</span>`:''}${r.parado?`<span class="b wa">Parado há ${n0(r.diasMov)} dias</span>`:''}</div></div><button class="mbtn" id="drx" title="Fechar">${ic('x')}</button></div>
+   <div class="db">
+    <div class="dsec"><h4>Onde está</h4><div class="path">${r.et?`<span>${esc(r.et.nome)}</span>${ic('chev','s')}`:''}<span>${esc(nomeF(r.fase))}</span>${r.gr?`${ic('chev','s')}<span>${esc(r.gr.nome)}</span>`:''}${ic('chev','s')}<span>${esc(nomeS(r.sint))}</span></div>${nomeF(r.fase)!==r.fase||nomeS(r.sint)!==r.sint?`<p class="muted small" style="margin:6px 0 0">No movfin: ${esc(r.fase)} · ${esc(r.sint)}</p>`:''}</div>
+    ${r.sit==='andamento'?`<div class="dsec"><h4>Tempo</h4><div class="slab"><div><b>${r.dF??'—'}</b><small>dias na fase</small></div><div><b>${r.gr?(r.dG??'—'):'—'}</b><small>dias no grupo</small></div><div><b>${r.dP??'—'}</b><small>dias na síntese</small></div></div><p class="muted small" style="margin:8px 0 0">Contagem ${esc(fonte)}. ${r.meta!=null?`Meta de ${r.meta} dias (${r.nivMeta}).`:'Sem meta definida para esta etapa.'} Última movimentação há ${plural(r.diasMov||0,'dia')}.</p></div>`:''}
+    ${r.pend.length?`<div class="dsec"><h4>Pendências</h4><div class="issues">${r.pend.map(p=>{const g=REGRAS.find(x=>x.id===p);return `<div><span class="dot ${g.sev}" style="margin-top:6px"></span><span><b>${esc(g.nome)}</b> · <span class="muted">${esc(p==='ord'?r.ordWhy:g.ds)}</span></span></div>`}).join('')}</div></div>`:''}
+    <div class="dsec"><h4>Responsáveis</h4><dl class="kv">${kv('Analista de montagem',d.amont?esc(d.amont):'<span class="b cr">sem analista</span>')}${kv('Analista de atendimento',esc(d.aten||''))}${kv('Último usuário',esc(d.uhist||''))}${kv('Consultoria',esc(d.cca||''))}${kv('Banco',esc(d.banco||''))}</dl></div>
+    <div class="dsec"><h4>Datas do movfin</h4><dl class="kv">${DATAS.map(c=>kv(rot(c),c==='dst'?fDH(d[c]):fD(d[c]))).join('')}</dl></div>
+    ${ev.length?`<div class="dsec"><h4>Jornada · relatórios de SLA</h4><ul class="tl">${ev.slice(0,30).map((x,j)=>`<li class="${j===0?'cur':''}"><b>${esc(x[1])}</b><small>${x[0]} · ${fDH(new Date(x[2]-new Date().getTimezoneOffset()*6e4).toISOString())}</small></li>`).join('')}</ul></div>`:''}
+    <div class="dsec"><h4>Contrato</h4><dl class="kv">${kv('Contrato de financiamento',esc(d.contrato||''))}${kv('Protocolo',esc(d.protocolo||''))}${kv('Modalidade',esc(d.modal||''))}${kv('Valor compra e venda',d.vcv!=null?'R$ '+n0(d.vcv):'')}${kv('Valor financiamento',d.vfin!=null?'R$ '+n0(d.vfin):'')}</dl></div>
+    ${d.obs?`<div class="dsec"><h4>Observações</h4><p class="small" style="margin:0;color:var(--tx2);overflow-wrap:anywhere">${esc(d.obs)}</p></div>`:''}
+   </div></aside>`;
+  el.id='drw';document.body.appendChild(el);$('#drx').onclick=fechaDr;$('#drov').onclick=fechaDr;
+}
+function fechaDr(){const d=$('#drw');if(d)d.remove()}
+
+/* ---------------- Equipe ---------------- */
+let EQD=30;
+function vEquipe(pg){
+  crumbs();const EQ=S.cfg.equipe;const L=equipeStats(EQD).sort((a,b)=>b.cart-a.cart);const A=ativos();
+  const mv=avg(L.filter(x=>x.cart).map(x=>x.cart))||0;const sem=A.filter(r=>!r.d.amont);const semM=A.filter(r=>r.pend.includes('ana'));
+  const mx=Math.max(1,...L.map(x=>x.cart));const mxp=Math.max(1,...L.map(x=>x.prod));
+  pg.innerHTML=`<div class="ph"><div><h1>Equipe de montagem</h1><p>Carteira ativa, atrasos, pendências e produção de cada analista. Quem está na equipe se escolhe em Configurações.</p></div>
+   <div class="act"><label class="small muted">Produção conta</label><select class="sel" id="mq">${Object.entries(MARCOS).map(([k,v])=>`<option value="${k}" ${EQ.marco===k?'selected':''}>${v}</option>`).join('')}</select><div class="seg">${[7,30,90].map(d=>`<button data-eqd="${d}" class="${EQD===d?'on':''}">${d} dias</button>`).join('')}</div><button class="btn" id="xeq">${ic('down','s')}Exportar</button></div></div>
+   <div class="grid" style="margin-bottom:14px">
+    ${kpi('','users','Analistas na equipe',n0(L.length),`${n0(L.filter(x=>x.cart).length)} com carteira ativa`,{view:'config'})}
+    ${kpi('','flow','Carteira média',n1(mv),'processos ativos por analista',{sit:'andamento'})}
+    ${kpi(semM.length?'cr':'ok','user','Sem analista de montagem',n0(semM.length),`nas fases da montagem · ${n0(sem.length)} ativos sem analista no total`,{pend:'ana',sit:'andamento'})}
+    ${kpi('ok','check',MARCOS[EQ.marco||'concl'],n0(L.reduce((s,x)=>s+x.prod,0)),`da equipe nos últimos ${EQD} dias`,null)}
+   </div>
+   <div class="card"><div class="hd"><h3>Comparativo da equipe</h3><span class="sub">clique em uma linha para ver a carteira</span></div><div class="bd" style="padding:0;margin-top:10px"><div class="tw" style="max-height:none"><table class="t team cards"><thead><tr><th>Analista</th><th class="n">Carteira ativa</th><th style="width:16%"></th><th class="n">Fora do prazo</th><th class="n">Dias médios</th><th class="n">Com pendência</th><th class="n">Parados</th><th class="n">${esc(MARCOS[EQ.marco||'concl'])} (${EQD}d)</th><th style="width:10%"></th></tr></thead>
+   <tbody>${L.map(x=>`<tr data-an="${esc(x.n)}"><td data-l="Analista" class="nw" title="${esc(x.n)}"><b>${esc(pessoa(x.n))}</b>${x.cart>=mv*1.4&&L.length>1?' <span class="b wa">acima da média</span>':''}</td><td class="n" data-l="Carteira">${n0(x.cart)}</td><td><span class="bar" style="width:${x.cart/mx*100}%"></span></td><td class="n" data-l="Fora do prazo">${x.comMeta?(x.atr?`<span class="b cr">${n0(x.atr)}</span>`:'<span class="b ok">0</span>'):'<span class="muted">—</span>'}</td><td class="n" data-l="Dias médios">${n1(x.media)}</td><td class="n" data-l="Com pendência">${x.pend?`<span class="b wa">${n0(x.pend)}</span>`:'0'}</td><td class="n" data-l="Parados">${n0(x.par)}</td><td class="n" data-l="Produção"><b>${n0(x.prod)}</b></td><td><span class="bar" style="width:${x.prod/mxp*100}%;background:#e7f4ed;border-color:#9fcfb6"></span></td></tr>`).join('')}
+   <tr data-an="__sem"><td><b>Sem analista</b><small>processos ativos sem analista de montagem</small></td><td class="n">${n0(sem.length)}</td><td></td><td class="n"></td><td class="n"></td><td class="n"></td><td class="n"></td><td class="n"></td><td></td></tr></tbody></table></div></div></div>
+   <div class="row2 mt">${wEvolucaoEquipe()}${card('Onde está a carteira da equipe','processos ativos por etapa',barras(arvore().map(n=>{const rs=n.rs.filter(r=>r.sit==='andamento'&&EQ.membros.includes(r.d.amont));return {nome:n.nome,v:rs.length,late:rs.filter(r=>r.sla==='atr').length,F:n.tipo==='etapa'?{etapa:n.id,sit:'andamento'}:{fase:n.fase,sit:'andamento'}}}).filter(x=>x.v)))}</div>`;
+  $$('[data-eqd]').forEach(b=>b.onclick=()=>{EQD=+b.dataset.eqd;vEquipe(pg)});
+  $('#mq').onchange=()=>{EQ.marco=$('#mq').value;if(pode())salvaCfg('equipe');vEquipe(pg)};
+  $$('tr[data-an]').forEach(tr=>tr.onclick=()=>tr.dataset.an==='__sem'?abrir({amont:'__sem',sit:'andamento'},'Sem analista'):analista(tr.dataset.an));
+  $('#xeq').onclick=()=>exportaEquipe();ligaGo(pg);
+}
+function wEvolucaoEquipe(){
+  const ws=semanas(12);const EQ=S.cfg.equipe;const marco=EQ.marco||'concl';const L=equipeStats(84).sort((a,b)=>b.prod-a.prod).slice(0,4);
+  const cores=['#7a1f2b','#2d64a8','#1d7a52','#a86a12'];
+  const ser=L.map((x,j)=>({nome:pessoa(x.n,1),c:cores[j],cheia:j===0,v:serieSemanal(marco,ws,r=>r.d.amont===x.n)}));
+  return card(`${MARCOS[marco]} por semana`,'os 4 analistas com mais produção em 12 semanas',ser.length?linhas(ser,ws,200):'<div class="empty">Sem produção no período.</div>');
+}
+function analista(n){
+  const rs=S.R.filter(r=>r.d.amont===n),A=rs.filter(r=>r.sit==='andamento');const T=arvore();
+  const linhasF=T.map(t=>{const x=A.filter(r=>t.tipo==='etapa'?(r.et&&r.et.id===t.id):r.fase===t.fase);return [t,x]}).filter(x=>x[1].length);
+  const gs=cfgE().grupos.map(g=>[g,A.filter(r=>r.gr&&r.gr.id===g.id)]).filter(x=>x[1].length);
+  const ws=semanas(12);const marco=S.cfg.equipe.marco||'concl';const sp=serieSemanal(marco,ws,r=>r.d.amont===n);const mx=Math.max(1,...sp);
+  modal(`<div class="mh"><div><h2>${esc(pessoa(n))}</h2><p>${plural(A.length,'processo')} ativo${A.length===1?'':'s'} · ${n0(A.filter(r=>r.sla==='atr').length)} fora do prazo · ${n0(A.filter(r=>r.pend.length).length)} com pendência</p></div></div>
+   <div class="mb"><div class="fl"><label>${esc(MARCOS[marco])} por semana (12 semanas)</label><svg viewBox="0 0 480 70" width="100%">${sp.map((v,i)=>`<rect x="${i*40+6}" y="${60-v/mx*52}" width="28" height="${Math.max(1,v/mx*52)}" rx="3" fill="#f7ecee" stroke="#c98f98"><title>${v}</title></rect><text x="${i*40+20}" y="${56-v/mx*52}" font-size="10" text-anchor="middle" fill="#4b5363">${v||''}</text>`).join('')}</svg></div>
+   <table class="t"><thead><tr><th>Etapa / fase</th><th class="n">Ativos</th><th class="n">Dias médios</th><th class="n">Fora do prazo</th></tr></thead><tbody>${linhasF.map(([t,x])=>{const a=agrega(x,'fase');return `<tr data-af='${esc(JSON.stringify(t.tipo==='etapa'?{etapa:t.id}:{fase:t.fase}))}'><td>${esc(t.nome)}</td><td class="n">${n0(a.na)}</td><td class="n">${n1(a.media)}</td><td class="n">${a.comMeta?n0(a.atr):'—'}</td></tr>`}).join('')||'<tr><td colspan="4" class="muted">Sem processos ativos.</td></tr>'}</tbody></table>
+   ${gs.length?`<table class="t mt"><thead><tr><th>Grupo</th><th class="n">Ativos</th><th class="n">Dias no grupo</th><th class="n">Fora do prazo</th></tr></thead><tbody>${gs.map(([g,x])=>{const a=agrega(x,'grupo');return `<tr data-af='${esc(JSON.stringify({grupo:g.id}))}'><td>${esc(g.nome)}<small>${esc(nomeF(g.fase))}</small></td><td class="n">${n0(a.na)}</td><td class="n">${n1(a.media)}</td><td class="n">${g.meta!=null?n0(a.atr):'—'}</td></tr>`}).join('')}</tbody></table>`:''}</div>
+   <div class="mf"><button class="btn" data-x>Fechar</button><button class="btn pri" id="anl">Ver carteira completa</button></div>`,'lg',m=>{
+    $('#anl',m).onclick=()=>{fechaModal();abrir({amont:n,sit:'andamento'},n)};
+    $$('[data-af]',m).forEach(tr=>tr.onclick=()=>{fechaModal();abrir({...JSON.parse(tr.dataset.af),amont:n,sit:'andamento'},n)});
+  });
+}
+
+/* ---------------- Pendências ---------------- */
+let PDF={};
+function vPend(pg){
+  crumbs();const RG=S.cfg.regras;const E=cfgE();
+  if(PDF.per==null)PDF.per=RG.periodo;
+  const base=aplicaF({etapa:PDF.etapa,fase:PDF.fase,grupo:PDF.grupo,amont:PDF.amont,per:PDF.per||null});
+  const m={},conc={};for(const r of base)for(const p of r.pend){m[p]=(m[p]||0)+1;(conc[p]=conc[p]||[]).push(r)}
+  const tot=base.filter(r=>r.pend.length).length;
+  const opt=(lst,v)=>lst.map(([k,l])=>`<option value="${esc(k)}" ${String(v??'')===String(k)?'selected':''}>${esc(l)}</option>`).join('');
+  pg.innerHTML=`<div class="ph"><div><h1>Pendências</h1><p>Informações que faltam ou não batem no movfin. Cada cartão abre a lista dos processos para cobrar a atualização.</p></div><div class="act"><button class="btn" id="xpd">${ic('down','s')}Exportar pendências</button>${pode()?`<button class="btn" data-go='{"view":"config"}'>${ic('cog','s')}Ajustar regras</button>`:''}</div></div>
+   <div class="filters">
+    <select class="sel" id="pper">${opt([[0,'Ativos + todo o histórico'],[30,'Ativos + encerrados em 30 dias'],[90,'Ativos + encerrados em 90 dias'],[180,'Ativos + encerrados em 180 dias'],[365,'Ativos + encerrados em 1 ano']],PDF.per)}</select>
+    <select class="sel" data-pf="etapa"><option value="">Todas as etapas</option>${opt(E.etapas.map(e=>[e.id,e.nome]),PDF.etapa)}</select>
+    <select class="sel" data-pf="fase" style="max-width:220px"><option value="">Todas as fases</option>${opt(E.ordem.filter(f=>S.R.some(r=>r.fase===f)).map(f=>[f,nomeF(f)]),PDF.fase)}</select>
+    ${E.grupos.length?`<select class="sel" data-pf="grupo"><option value="">Todos os grupos</option>${opt(E.grupos.map(g=>[g.id,g.nome]),PDF.grupo)}</select>`:''}
+    <select class="sel" data-pf="amont" style="max-width:200px"><option value="">Todos os analistas</option><option value="__sem" ${PDF.amont==='__sem'?'selected':''}>Sem analista</option>${opt(S.cfg.equipe.membros.map(n=>[n,n]),PDF.amont)}</select>
+    <span class="muted small">${n0(tot)} ${tot===1?'processo com pendência':'processos com pendência'} de ${n0(base.length)}</span>
+   </div>
+   <div class="pend-grid">${REGRAS.map(r=>{const on=RG.ativas[r.id]!==false;const n=m[r.id]||0;const c=n?concentracao(conc[r.id],1)[0]:null;
+     const onde=r.fases?(RG.fases[r.id]||[]).map(nomeF).join(', '):r.id==='par'?`Limite: ${RG.parado} dias sem movimentação`:'';
+     return `<div class="card pcard ${n?'':'zero'} ${on?'':'hid'}" data-pd="${r.id}"><div class="top2"><span class="dot ${n?r.sev:'ok'}"></span><b style="font-size:13.5px">${esc(r.nome)}</b></div><div class="v" style="${n?`color:var(--${r.sev==='cr'?'cr':'wa'})`:''}">${n?n0(n):'0'}</div><p>${esc(r.ds)}</p>${n&&c?`<span class="cc">Mais em ${esc(c.nome)} (${n0(c.n)})</span>`:`<span class="cc" style="color:var(--ok)">Nenhuma ocorrência ${ic('check','s')}</span>`}${onde?`<span class="cc" title="${esc(onde)}" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Vale para: ${esc(onde)}</span>`:''}</div>`}).join('')}</div>`;
+  $('#pper').onchange=()=>{PDF.per=+$('#pper').value;vPend(pg)};
+  $$('[data-pf]').forEach(s=>s.onchange=()=>{PDF[s.dataset.pf]=s.value||undefined;vPend(pg)});
+  $$('[data-pd]').forEach(c=>c.onclick=()=>{const id=c.dataset.pd;if(!m[id])return;const F={pend:id};for(const k of ['etapa','fase','grupo','amont'])if(PDF[k])F[k]=PDF[k];if(PDF.per)F.per=PDF.per;abrir(F,REGRAS.find(x=>x.id===id).nome)});
+  $('#xpd').onclick=()=>exportaPend(base);ligaGo(pg);
+}
+
+/* ---------------- Bases: importar e exportar ---------------- */
+function vBases(pg){
+  crumbs();const ed=pode();
+  pg.innerHTML=`<div class="ph"><div><h1>Bases</h1><p>Importe o movfin e os relatórios de SLA, e exporte relatórios em Excel. Atualizar uma base não mexe nas suas fases, grupos, metas nem no painel.</p></div></div>
+   <div class="grid g3">${Object.entries(BASES).map(([b,o])=>{const inf=S.info.bases[b];return `<div class="card basecard"><div class="hstack">${ic(o.ic)}<h3>${o.nome}</h3>${inf?'<span class="b ok" style="margin-left:auto">carregada</span>':'<span class="b ne" style="margin-left:auto">vazia</span>'}</div><p class="small muted" style="margin:0">${o.ds}</p>
+     <div class="small">${inf?`<b>${n0(inf.linhas)}</b> registros · ${esc(inf.em)}${inf.por?' · '+esc(inf.por):''}${inf.origem?`<br><span class="muted">${esc(inf.origem)}</span>`:''}`:'<span class="muted">Ainda não importada.</span>'}</div>
+     ${ed?`<button class="btn ${b==='movfin'?'pri':''}" data-imp="${b}">${ic('up','s')}Importar ${o.nome}</button>`:''}</div>`}).join('')}</div>
+   <div class="card mt"><div class="hd"><h3>Exportar relatórios</h3><span class="sub">Excel (.xlsx)</span></div><div class="bd"><div class="catalog">
+    ${[['base','Base completa do movfin','Todos os registros com fase, síntese, grupo, etapa, SLA e pendências.','db'],['ativos','Processos em andamento','Só os ativos, com dias na etapa e situação do prazo.','flow'],['analista','Relatório por analista','Comparativo da equipe e a carteira de cada analista.','users'],['fase','Relatório por fase','Fases e sínteses com volumes e tempos.','layers'],['grupo','Relatório por grupo','Grupos de trabalho com as sínteses e o SLA.','folder'],['sla','Análise de SLA','Todos os níveis: operação, etapa, fase, grupo e síntese.','clock'],['pend','Relatório de pendências','Resumo por regra e a lista de cada uma.','alert'],['filtro','Lista filtrada','A última lista que você abriu em Processos, com os filtros dela.','list']].map(([k,t,d,i])=>`<button data-xp="${k}">${ic(i)}<span><b>${t}</b><small>${d}</small></span></button>`).join('')}
+   </div></div></div>
+   <div class="card mt"><div class="hd"><h3>Histórico de importações</h3></div><div class="bd">${S.info.envios&&S.info.envios.length?`<table class="t cards"><thead><tr><th>Quando</th><th>Base</th><th>Modo</th><th class="n">Linhas</th><th>Arquivo</th><th>Por</th></tr></thead><tbody>${S.info.envios.map(e=>`<tr style="cursor:default"><td>${esc(e.em)}</td><td>${esc((BASES[e.base]||{}).nome||e.base)}</td><td>${e.modo==='substituir'?'Substituiu a base':'Atualizou'}</td><td class="n">${n0(e.linhas)}</td><td class="cl">${esc(e.origem||'')}</td><td>${esc(e.por||'')}</td></tr>`).join('')}</tbody></table>`:'<p class="muted small" style="margin:0">Nenhuma importação ainda.</p>'}</div></div>`;
+  $$('[data-imp]').forEach(b=>b.onclick=()=>importar(b.dataset.imp));
+  $$('[data-xp]').forEach(b=>b.onclick=()=>exporta(b.dataset.xp));
+}
+function importar(base,arquivo){
+  const o=BASES[base];
+  modal(`<div class="mh"><div><h2>Importar ${o.nome}</h2><p>Passo 1 de 3 · escolha o arquivo (.xlsx, .xls ou .csv).</p></div></div><div class="mb"><label class="drop" id="dz">${ic('up')}<div style="margin-top:6px"><b>Arraste o arquivo aqui</b> ou clique para escolher</div><div class="small muted">O arquivo é lido no seu computador; só vai para o banco depois que você confirmar.</div><input type="file" id="fi" accept=".xlsx,.xls,.csv" hidden></label><div id="st" class="mt"></div></div><div class="mf"><button class="btn" data-x>Cancelar</button></div>`,'lg',m=>{
+    const dz=$('#dz',m),fi=$('#fi',m);
+    const vai=async f=>{$('#st',m).innerHTML=`<div class="small muted">Lendo ${esc(f.name)}…</div><div class="prog mt"><div style="width:40%"></div></div>`;try{const buf=await f.arrayBuffer();await passo2(base,buf,f.name,m)}catch(e){$('#st',m).innerHTML=`<div class="note wa">${ic('alert','s')}Não consegui ler o arquivo: ${esc(e.message)}</div>`}};
+    fi.onchange=()=>fi.files[0]&&vai(fi.files[0]);
+    dz.ondragover=e=>{e.preventDefault();dz.classList.add('ov2')};dz.ondragleave=()=>dz.classList.remove('ov2');dz.ondrop=e=>{e.preventDefault();dz.classList.remove('ov2');const f=e.dataTransfer.files[0];if(f)vai(f)};
+    if(arquivo)passo2(base,arquivo.buf,arquivo.nome,m);
+  });
+}
+async function passo2(base,buf,nome,m){
+  await new Promise(r=>setTimeout(r,30));
+  const L=await lerArquivo(buf,nome);let aba=L.principal;
+  const mostra=()=>{
+    const {rows,cab}=linhasDaAba(L.wb,aba);const mapa=autoMapa(base,cab);
+    const opts=c=>`<option value="">— não usar —</option>`+cab.map(h=>`<option value="${esc(h)}" ${h===c?'selected':''}>${esc(h)}</option>`).join('');
+    const ex=c=>{if(!c)return '';const v=rows.find(r=>String(r[c]??'').trim()!=='');return v?esc(String(v[c]).slice(0,40)):''};
+    $('.mh p',m).textContent='Passo 2 de 3 · confira as colunas. Ajuste se algum nome estiver diferente.';
+    $('.mb',m).innerHTML=`${L.abas.length>1?`<div class="fl"><label>Aba da planilha</label><select class="sel" id="ab">${L.abas.map(a=>`<option ${a.nome===aba?'selected':''}>${esc(a.nome)}</option>`).join('')}</select><span class="hint">Escolhi a aba com mais dados (${n0(L.abas.find(a=>a.nome===aba).linhas)} linhas).</span></div>`:''}
+      <p class="small muted" style="margin:0 0 8px">${n0(rows.length)} linhas e ${n0(cab.length)} colunas em <b>${esc(nome)}</b>. Campos com * são obrigatórios.</p>
+      <table class="mapt"><thead><tr><th>Campo na Central</th><th>Coluna do arquivo</th><th>Exemplo</th></tr></thead><tbody>${CAMPOS[base].map(([k,l,,,ob])=>`<tr><td>${esc(l)}${ob?' *':''}</td><td><select class="sel" data-mp="${k}">${opts(mapa[k])}</select></td><td class="muted" data-ex="${k}">${ex(mapa[k])}</td></tr>`).join('')}</tbody></table>
+      ${base!=='movfin'?`<p class="small muted">As colunas depois de “SINTESE” com data e hora entram como a linha do tempo de cada processo (${colunasEvento(cab,rows).length} encontradas).</p>`:''}`;
+    $('.mf',m).innerHTML=`<button class="btn l" id="bk2">${ic('back','s')}Outro arquivo</button><button class="btn" data-x>Cancelar</button><button class="btn pri" id="vl">Validar dados</button>`;
+    $('[data-x]',m).onclick=fechaModal;$('#bk2',m).onclick=()=>{fechaModal();importar(base)};
+    const ab=$('#ab',m);if(ab)ab.onchange=()=>{aba=ab.value;mostra()};
+    $$('[data-mp]',m).forEach(s=>s.onchange=()=>{$(`[data-ex="${s.dataset.mp}"]`,m).innerHTML=ex(s.value)});
+    $('#vl',m).onclick=()=>{const mp={};$$('[data-mp]',m).forEach(s=>mp[s.dataset.mp]=s.value);const falta=CAMPOS[base].filter(c=>c[4]&&!mp[c[0]]);if(falta.length){toast('Escolha a coluna de: '+falta.map(c=>c[1]).join(', '),'wa',4500);return}passo3(base,rows,mp,cab,nome,m)};
+  };
+  mostra();
+}
+function passo3(base,rows,mapa,cab,nome,m){
+  const {linhas,prob,evCols}=montaLinhas(base,rows,mapa,cab);
+  const atual=new Set(S.raw[base].map(d=>d.k));const novos=linhas.filter(d=>!atual.has(d.k)).length;const sairao=atual.size?[...atual].filter(k=>!linhas.some(d=>d.k===k)).length:0;
+  let fasesNovas=[],sintNovas=[];if(base==='movfin'){const fa=new Set(S.raw.movfin.map(d=>clean(d.fase))),sa=new Set(S.raw.movfin.map(d=>clean(d.sint)));if(fa.size){fasesNovas=[...new Set(linhas.map(d=>clean(d.fase)).filter(f=>f&&!fa.has(f)))];sintNovas=[...new Set(linhas.map(d=>clean(d.sint)).filter(f=>f&&!sa.has(f)))]}}
+  const iss=[];
+  if(prob.dup.length)iss.push(['wa',`${plural(prob.dup.length,'contrato repetido')} no arquivo (${prob.dup.slice(0,4).map(esc).join(', ')}${prob.dup.length>4?'…':''}). Fica a última linha de cada um.`]);
+  if(prob.semChave)iss.push(['wa',`${plural(prob.semChave,'linha')} sem número de contrato foram ignoradas.`]);
+  for(const [k,n] of Object.entries(prob.datas))iss.push(['wa',`${plural(n,'data inválida')} em “${rot(k)}” (ficam em branco).`]);
+  for(const [k,n] of Object.entries(prob.vazias||{}))if(n)iss.push(['wa',`${plural(n,'registro')} sem ${rot(k)}.`]);
+  if(fasesNovas.length)iss.push(['in',`Fases novas: ${fasesNovas.map(esc).join(', ')}. Elas entram na estrutura sem mexer nos seus grupos.`]);
+  if(sintNovas.length)iss.push(['in',`Sínteses novas: ${sintNovas.map(esc).join(', ')}.`]);
+  if(base!=='movfin'){const km=new Set(S.raw.movfin.map(d=>d.k));const fora=linhas.filter(d=>!km.has(d.k)).length;if(km.size&&fora)iss.push(['in',`${plural(fora,'processo')} do relatório não ${fora===1?'está':'estão'} no movfin atual.`]);iss.push(['in',`${evCols.length} etapas com data e hora na linha do tempo.`])}
+  $('.mh p',m).textContent='Passo 3 de 3 · confira e confirme a importação.';
+  $('.mb',m).innerHTML=`<div class="vsum"><div><b>${n0(linhas.length)}</b><small>registros válidos</small></div><div><b>${n0(novos)}</b><small>novos em relação à base atual</small></div><div><b>${n0(sairao)}</b><small>saem se substituir</small></div><div><b>${n0(prob.dup.length)}</b><small>duplicados no arquivo</small></div></div>
+   ${iss.length?`<div class="issues">${iss.map(([t,x])=>`<div><span class="dot ${t}" style="margin-top:6px"></span><span>${x}</span></div>`).join('')}</div>`:`<div class="note">${ic('check','s')}Nenhum problema encontrado.</div>`}
+   <div class="fl mt"><label>Como atualizar</label><div class="seg" id="modo"><button data-m="substituir" class="on">Substituir a base inteira</button><button data-m="atualizar">Atualizar e acrescentar</button></div><span class="hint" id="mh">Recomendado para o movfin completo: a base fica igual ao arquivo.</span></div>
+   <div class="note" style="margin-top:4px">${ic('info','s')}Suas fases, grupos, nomes, metas e painéis ficam como estão.</div><div id="pr" class="mt"></div>`;
+  let modo='substituir';$$('#modo button',m).forEach(b=>b.onclick=()=>{modo=b.dataset.m;$$('#modo button',m).forEach(x=>x.classList.toggle('on',x===b));$('#mh',m).textContent=modo==='substituir'?'Recomendado para o movfin completo: a base fica igual ao arquivo.':'Atualiza os contratos do arquivo e mantém os que não vieram nele.'});
+  $('.mf',m).innerHTML=`<button class="btn l" id="bk3">${ic('back','s')}Voltar</button><button class="btn" data-x>Cancelar</button><button class="btn pri" id="go">${ic('up','s')}Importar ${n0(linhas.length)} registros</button>`;
+  $('[data-x]',m).onclick=fechaModal;$('#bk3',m).onclick=()=>{fechaModal();importar(base)};
+  $('#go',m).onclick=()=>{const conf=()=>grava(base,linhas,modo,nome,mapa,{validos:linhas.length,novos,sairao,dup:prob.dup.length,fasesNovas,sintNovas},m);
+    if(modo==='substituir'&&sairao>0)confirma('Substituir a base?',`${plural(sairao,'registro')} da base atual não ${sairao===1?'está':'estão'} no arquivo e ${sairao===1?'sairá':'sairão'} da Central.`,'Substituir',conf,true);else conf()};
+}
+async function grava(base,linhas,modo,nome,mapa,resumo,m){
+  const pr=$('#pr',m);const bar=p=>pr.innerHTML=`<div class="small muted">Gravando… ${p}%</div><div class="prog mt"><div style="width:${p}%"></div></div>`;
+  $$('.mf button',m).forEach(b=>b.disabled=true);bar(0);
+  try{
+    if(LOCAL){let dados=linhas;if(modo==='atualizar'){const mp=new Map(S.raw[base].map(d=>[d.k,d]));for(const d of linhas)mp.set(d.k,d);dados=[...mp.values()]}
+      await IDB.set('base_'+base,dados);S.raw[base]=dados;S.info.bases[base]={linhas:dados.length,origem:nome,em:new Date().toLocaleString('pt-BR').slice(0,17).replace(',',''),por:'modo local'};S.info.envios.unshift({base,modo,linhas:linhas.length,origem:nome,em:S.info.bases[base].em,por:'modo local'});await IDB.set('info',S.info);bar(100)}
+    else{const lote=await rpc('mon_import_iniciar');const T=1500;
+      for(let i=0;i<linhas.length;i+=T){await rpc('mon_import_parte',{p_lote:lote,p_linhas:linhas.slice(i,i+T).map(d=>({k:d.k,d}))});bar(Math.round(Math.min(95,(i+T)/linhas.length*95)))}
+      await rpc('mon_import_concluir',{p_lote:lote,p_base:base,p_modo:modo,p_origem:nome,p_colunas:mapa,p_resumo:resumo});bar(100);
+      await carregaInfo();await carregaBase(base)}
+    fechaModal();modelo();toast(`<b>${BASES[base].nome} importada</b><br>${n0(linhas.length)} registros${resumo.dup?' · '+plural(resumo.dup,'duplicado')+' resolvido'+(resumo.dup>1?'s':''):''}`,'ok',4500);render();
+  }catch(e){pr.innerHTML=`<div class="note wa">${ic('alert','s')}A importação não foi concluída: ${esc(msgErro(e))}. Nada foi alterado na base.</div>`;$$('.mf button',m).forEach(b=>b.disabled=false)}
+}
+
+/* ---------------- exportações (Excel) ---------------- */
+function xlsx(nome,abas){const wb=XLSX.utils.book_new();for(const [t,aoa] of abas){const ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=(aoa[0]||[]).map((h,j)=>({wch:Math.min(48,Math.max(10,...aoa.slice(0,200).map(r=>String(r[j]??'').length+2)))}));XLSX.utils.book_append_sheet(wb,ws,t.slice(0,31))}
+  XLSX.writeFile(wb,nome.replace(/[\\/:*?"<>|]/g,'-')+' '+new Date().toISOString().slice(0,10)+'.xlsx');toast('Arquivo Excel gerado')}
+const CAB_REG=['Contrato CRM','Cliente','Empreendimento','Unidade','Situação','Etapa','Fase','Fase (movfin)','Grupo','Síntese','Síntese (movfin)','Analista de montagem','Dias na fase','Dias no grupo','Dias na síntese','Meta (dias)','Prazo','Contagem desde','Última movimentação','Dias sem movimentação','Pendências',...DATAS.filter(c=>c!=='dst').map(rot),'Analista de atendimento','Banco','Contrato de financiamento','Protocolo','Observações'];
+const linhaReg=r=>{const d=r.d;return [r.k,d.nome||'',d.emp||'',d.unid||'',SIT[r.sit][0],r.et?r.et.nome:'',nomeF(r.fase),r.fase,r.gr?r.gr.nome:'',nomeS(r.sint),r.sint,d.amont||'',r.sit==='andamento'?r.dF:'',r.sit==='andamento'&&r.gr?r.dG:'',r.sit==='andamento'?r.dP:'',r.meta??'',r.sla==='na'?'':SLA_TXT[r.sla][0],{campo:rot(cfgE().inicio[r.fase]||''),rel:'Relatório de SLA',mov:'Data Status'}[r.src],fDH(d.dst),r.diasMov??'',r.pend.map(p=>REGRAS.find(x=>x.id===p).nome).join('; '),...DATAS.filter(c=>c!=='dst').map(c=>fD(d[c])),d.aten||'',d.banco||'',d.contrato||'',d.protocolo||'',d.obs||'']};
+function filtroTxt(F){return Object.entries(F||{}).filter(([k,v])=>v!=null&&v!=='').map(([k,v])=>(FILTROS[k]||k)+': '+rotuloF(k,v)).join(' · ')||'sem filtros'}
+function exportaLista(rs,titulo){xlsx('Central Montagem - '+titulo,[['Processos',[CAB_REG,...rs.map(linhaReg)]],['Sobre',[['Lista',titulo],['Filtros',filtroTxt(S.F)],['Gerado em',new Date().toLocaleString('pt-BR')],['Registros',rs.length]]]])}
+function linhasSLA(){const out=[['Nível','Etapa','Fase','Grupo','Síntese','Ativos','Total na base','Dias médios','Mediana','Mais antigo','Meta (dias)','Com meta','Fora do prazo','% no prazo','Parados']];
+  const add=(niv,e,f,g,s,ag,meta)=>out.push([niv,e,f,g,s,ag.na,ag.n,ag.media==null?'':Math.round(ag.media*10)/10,ag.mediana??'',ag.max??'',meta??'',ag.comMeta,ag.atr,ag.comMeta?Math.round(ag.noPrazo/ag.comMeta*100)+'%':'',ag.parados]);
+  add('Operação','','','','',agrega(S.R,'fase'));const E=cfgE();
+  for(const n of arvore()){const fases=n.tipo==='etapa'?n.filhos:[n];if(n.tipo==='etapa')add('Etapa',n.nome,'','','',n.ag,n.e.meta);
+    for(const f of fases){add('Fase',n.tipo==='etapa'?n.nome:'',f.nome,'','',f.ag,E.metaF[f.fase]);for(const c of f.filhos){if(c.tipo==='grupo'){add('Grupo',n.tipo==='etapa'?n.nome:'',f.nome,c.nome,'',c.ag,c.g.meta);for(const s of c.filhos)add('Síntese',n.tipo==='etapa'?n.nome:'',f.nome,c.nome,s.nome,s.ag)}else add('Síntese',n.tipo==='etapa'?n.nome:'',f.nome,'',c.nome,c.ag)}}}
+  return out}
+function exportaEquipe(){const L=equipeStats(EQD);const mk=MARCOS[S.cfg.equipe.marco||'concl'];
+  const ab=[['Equipe',[['Analista','Carteira ativa','Fora do prazo','Dias médios','Com pendência','Parados',`${mk} (${EQD} dias)`],...L.map(x=>[x.n,x.cart,x.atr,x.media==null?'':Math.round(x.media*10)/10,x.pend,x.par,x.prod])]]];
+  const usados=new Set();for(const x of L.filter(x=>x.cart)){let t=pessoa(x.n,1).slice(0,28);while(usados.has(t))t+='+';usados.add(t);ab.push([t,[CAB_REG,...x.a.map(linhaReg)]])}
+  const sem=ativos().filter(r=>!r.d.amont);ab.push(['Sem analista',[CAB_REG,...sem.map(linhaReg)]]);xlsx('Central Montagem - Equipe',ab)}
+function exportaPend(base){const RG=S.cfg.regras;const rs=base||S.R;const ab=[['Resumo',[['Pendência','Ocorrências','O que é','Vale para'],...REGRAS.filter(r=>RG.ativas[r.id]!==false).map(r=>[r.nome,rs.filter(x=>x.pend.includes(r.id)).length,r.ds,r.fases?(RG.fases[r.id]||[]).join(', '):''])]]];
+  for(const r of REGRAS){const l=rs.filter(x=>x.pend.includes(r.id));if(l.length)ab.push([r.nome.slice(0,31),[CAB_REG,...l.map(linhaReg)]])}xlsx('Central Montagem - Pendencias',ab)}
+function exporta(k){
+  if(!S.R.length){toast('Importe o movfin primeiro','wa');return}
+  if(k==='base')return xlsx('Central Montagem - Base movfin',[['Base',[CAB_REG,...S.R.map(linhaReg)]]]);
+  if(k==='ativos')return xlsx('Central Montagem - Em andamento',[['Em andamento',[CAB_REG,...ativos().map(linhaReg)]]]);
+  if(k==='analista')return exportaEquipe();
+  if(k==='pend')return exportaPend(aplicaF({per:S.cfg.regras.periodo}));
+  if(k==='sla')return xlsx('Central Montagem - Analise de SLA',[['SLA por nível',linhasSLA()]]);
+  if(k==='fase'){const out=[['Fase','Fase (movfin)','Síntese','Síntese (movfin)','Grupo','Situação','Ativos','Total','Dias médios','Fora do prazo']];for(const f of S.cfgFases||cfgE().ordem){const rs=S.R.filter(r=>r.fase===f);if(!rs.length)continue;const ss=[...new Set(rs.map(r=>r.sint))];for(const s of ss){const x=rs.filter(r=>r.sint===s);const ag=agrega(x,'sint');out.push([nomeF(f),f,nomeS(s),s,x[0].gr?x[0].gr.nome:'',SIT[sitF(f)][0],ag.na,ag.n,ag.media==null?'':Math.round(ag.media*10)/10,ag.atr])}}return xlsx('Central Montagem - Por fase',[['Fases e sinteses',out]])}
+  if(k==='grupo'){const E=cfgE();if(!E.grupos.length){toast('Nenhum grupo criado ainda','wa');return}const out=[['Grupo','Fase','Sínteses','Meta (dias)','Ativos','Dias médios no grupo','Mediana','Mais antigo','Fora do prazo','% no prazo']];const ab=[];for(const g of E.grupos){const rs=S.R.filter(r=>r.gr&&r.gr.id===g.id);const ag=agrega(rs,'grupo');out.push([g.nome,nomeF(g.fase),g.sints.map(nomeS).join('; '),g.meta??'',ag.na,ag.media==null?'':Math.round(ag.media*10)/10,ag.mediana??'',ag.max??'',ag.atr,ag.comMeta?Math.round(ag.noPrazo/ag.comMeta*100)+'%':''])
+    ;ab.push([g.nome.slice(0,31),[CAB_REG,...rs.filter(r=>r.sit==='andamento').map(linhaReg)]])}return xlsx('Central Montagem - Por grupo',[['Grupos',out],...ab])}
+  if(k==='filtro'){const F=S.lastF||S.F||{};return exportaLista(aplicaF(F),S.titulo||'Lista')}
+}
+
+/* ---------------- Configurações ---------------- */
+function vConfig(pg){
+  crumbs();const RG=S.cfg.regras,EQ=S.cfg.equipe,ed=pode();const E=S.R.length?cfgE():null;
+  const todos=[...new Set(S.raw.movfin.map(d=>d.amont).filter(Boolean))].sort();
+  const lim=NOW-365*DIA;const recentes=new Set(S.raw.movfin.filter(d=>d.amont&&ms(d.dst)>lim).map(d=>d.amont));
+  pg.innerHTML=`<div class="ph"><div><h1>Configurações</h1><p>Regras de pendência, quem faz parte da equipe e acessos. As alterações valem para todo mundo que usa a Central.</p></div></div>
+   ${!ed?`<div class="note" style="margin-bottom:14px">${ic('info','s')}Seu acesso é de leitura. Só a gestora e o administrador alteram as configurações.</div>`:''}
+   <div class="row2">
+   <div class="card"><div class="hd"><h3>Regras de pendência</h3></div><div class="bd">
+    <div class="fl"><label>Parado depois de quantos dias sem movimentação?</label><input class="inp" type="number" min="1" id="rpar" value="${RG.parado}" style="width:120px" ${ed?'':'disabled'}></div>
+    <div class="fl"><label>Histórico de encerrados nas pendências (dias)</label><input class="inp" type="number" min="0" id="rper" value="${RG.periodo}" style="width:120px" ${ed?'':'disabled'}><span class="hint">Os processos ativos sempre entram. Dos encerrados (finalizados, distratos), entram só os movimentados neste período. Evita cobrar histórico antigo.</span></div>
+    <table class="t"><thead><tr><th>Regra</th><th>Vale para</th><th class="n">Ativa</th></tr></thead><tbody>${REGRAS.map(r=>`<tr style="cursor:default"><td><b>${esc(r.nome)}</b><small>${esc(r.ds)}</small></td><td class="small">${r.fases?`<button class="btn sm" data-rf="${r.id}" ${ed&&E?'':'disabled'}>${plural((RG.fases[r.id]||[]).length,'fase')}</button>`:'<span class="muted">regra fixa</span>'}</td><td class="n"><input type="checkbox" data-ra="${r.id}" ${RG.ativas[r.id]!==false?'checked':''} ${ed?'':'disabled'} style="accent-color:var(--br);width:16px;height:16px"></td></tr>`).join('')}</tbody></table>
+   </div></div>
+   <div>
+   <div class="card"><div class="hd"><h3>Equipe de montagem</h3><span class="sub">${n0(EQ.membros.length)} pessoas</span></div><div class="bd"><p class="small muted" style="margin:0 0 8px">Nomes do campo “ID_USUARIO_ANALISTA_MONTAGEM” do movfin. Marque quem faz parte do time. Em negrito, quem teve movimentação no último ano.</p><div class="ck" style="max-height:340px">${todos.map(n=>`<label><input type="checkbox" value="${esc(n)}" data-eq ${EQ.membros.includes(n)?'checked':''} ${ed?'':'disabled'}>${recentes.has(n)?'<b>'+esc(n)+'</b>':esc(n)}</label>`).join('')||'<span class="muted">Importe o movfin para ver os analistas.</span>'}</div></div></div>
+   ${S.eu.papel==='admin'&&!LOCAL?`<div class="card mt"><div class="hd"><h3>Acessos</h3></div><div class="bd" id="acs"><span class="muted small">Carregando…</span></div></div>`:''}
+   <div class="card mt"><div class="hd"><h3>Como os números são calculados</h3></div><div class="bd small" style="color:var(--tx2)">
+    <p style="margin-top:0"><b>Em andamento</b>: processos em fases com situação “Em andamento”. Você muda a situação de cada fase em Fases e sínteses.</p>
+    <p><b>Dias na etapa</b>: conta desde a entrada na fase, no grupo ou na síntese. A entrada vem do relatório de SLA quando o processo está nele; senão, da data escolhida em “Início da contagem” da fase; senão, da Data Status (última movimentação).</p>
+    <p><b>Grupo</b>: o SLA do grupo usa só os processos das sínteses dele e conta desde que o processo entrou no grupo. Não mistura com o resto da fase.</p>
+    <p><b>Fora do prazo</b>: dias acima da meta. Vale a meta do grupo; sem ela, a da fase; sem ela, a da etapa. “Perto da meta” é a partir de 80% do prazo.</p>
+    <p style="margin-bottom:0"><b>Parado</b>: em andamento e sem movimentação no movfin há mais dias que o limite.</p></div></div>
+   </div></div>`;
+  if(!ed)return;
+  const sv=debounce(()=>salvaCfg('regras','Regras salvas'),500);
+  $('#rpar').onchange=()=>{RG.parado=Math.max(1,+$('#rpar').value||30);modelo();sv()};
+  $('#rper').onchange=()=>{RG.periodo=Math.max(0,+$('#rper').value||0);sv()};
+  $$('[data-ra]').forEach(c=>c.onchange=()=>{RG.ativas[c.dataset.ra]=c.checked;modelo();sv()});
+  $$('[data-rf]').forEach(b=>b.onclick=()=>{const r=REGRAS.find(x=>x.id===b.dataset.rf);const sel=new Set(RG.fases[r.id]||[]);
+    modal(`<div class="mh"><div><h2>${esc(r.nome)}</h2><p>Em quais fases essa informação é obrigatória?</p></div></div><div class="mb"><div class="ck">${E.ordem.map(f=>`<label><input type="checkbox" value="${esc(f)}" ${sel.has(f)?'checked':''}>${esc(nomeF(f))}</label>`).join('')}</div></div><div class="mf"><button class="btn l" id="rpd">Padrão</button><button class="btn" data-x>Cancelar</button><button class="btn pri" id="rok">Salvar</button></div>`,'lg',m=>{
+      $('#rpd',m).onclick=()=>{RG.fases[r.id]=r.fases;fechaModal();modelo();salvaCfg('regras','Regra restaurada');vConfig(pg)};
+      $('#rok',m).onclick=()=>{RG.fases[r.id]=$$('.ck input:checked',m).map(c=>c.value);fechaModal();modelo();salvaCfg('regras','Regra salva');vConfig(pg)}})});
+  $$('[data-eq]').forEach(c=>c.onchange=()=>{EQ.membros=$$('[data-eq]:checked').map(x=>x.value);salvaCfg('equipe','Equipe salva')});
+  if($('#acs'))acessos();
+}
+async function acessos(){
+  const el=$('#acs');try{const L=await rpc('mon_usuarios');const P={admin:'Administrador',gestor:'Gestora · configura e importa',analista:'Analista · consulta',leitor:'Leitura'};
+    el.innerHTML=`<table class="t"><tbody>${L.map(u=>`<tr style="cursor:default"><td>${esc(u.email)}${u.ativo?'':' <span class="b ne">inativo</span>'}</td><td class="small">${esc(P[u.papel]||u.papel)}</td></tr>`).join('')}</tbody></table>
+    <div class="hstack mt"><input class="inp" id="aem" placeholder="e-mail @metrocasa.com.br" style="flex:1;min-width:180px"><select class="sel" id="apa">${Object.entries(P).map(([k,v])=>`<option value="${k}" ${k==='analista'?'selected':''}>${v}</option>`).join('')}</select><button class="btn pri" id="aok">Liberar</button></div><p class="small muted">A pessoa precisa ter login no Supabase (Authentication → Users). Para tirar o acesso, libere de novo com outro papel ou peça ao administrador.</p>`;
+    $('#aok').onclick=async()=>{try{await rpc('mon_usuario_salvar',{p_email:$('#aem').value,p_papel:$('#apa').value,p_ativo:true});toast('Acesso liberado');acessos()}catch(e){toast(esc(msgErro(e)),'cr',5000)}};
+  }catch(e){el.innerHTML=`<span class="small" style="color:var(--cr)">${esc(msgErro(e))}</span>`}
+}
+
+/* ---------------- modais, menus, confirmações ---------------- */
+function modal(html,cls,init){fechaModal();const ov=document.createElement('div');ov.className='ov';ov.id='mov';ov.innerHTML=`<div class="modal ${cls||''}" role="dialog">${html}</div>`;document.body.appendChild(ov);ov.onclick=e=>{if(e.target===ov)fechaModal()};$$('[data-x]',ov).forEach(b=>b.onclick=fechaModal);if(init)init($('.modal',ov))}
+function fechaModal(){const m=$('#mov');if(m)m.remove()}
+function confirma(t,txt,ok,fn,dan){const prev=$('#mov');const ov=document.createElement('div');ov.className='ov';ov.style.zIndex=80;ov.innerHTML=`<div class="modal" style="width:min(440px,100%)"><div class="mh"><div><h2>${esc(t)}</h2><p>${esc(txt)}</p></div></div><div class="mf"><button class="btn" id="cn">Cancelar</button><button class="btn pri" id="cy">${esc(ok)}</button></div></div>`;document.body.appendChild(ov);$('#cn',ov).onclick=()=>ov.remove();$('#cy',ov).onclick=()=>{ov.remove();fn()};ov.onclick=e=>{if(e.target===ov)ov.remove()}}
+function pergunta(t,l,v,fn){modal(`<div class="mh"><div><h2>${esc(t)}</h2></div></div><div class="mb"><div class="fl"><label>${esc(l)}</label><input class="inp" id="pq" value="${esc(v||'')}"></div></div><div class="mf"><button class="btn" data-x>Cancelar</button><button class="btn pri" id="pok">Salvar</button></div>`,'',m=>{const i=$('#pq',m);i.focus();i.select();const ok=()=>{const x=clean(i.value);if(!x)return;fechaModal();fn(x)};$('#pok',m).onclick=ok;i.onkeydown=e=>{if(e.key==='Enter')ok()}})}
+function menu(anchor,itens){fechaMenu();const el=document.createElement('div');el.className='menu';el.id='mnu';el.innerHTML=itens.map((x,j)=>x?`<button data-mi="${j}" class="${x[3]||''}">${ic(x[0],'s')}${esc(x[1])}</button>`:'<hr>').join('');document.body.appendChild(el);
+  const r=anchor.getBoundingClientRect();const h=el.offsetHeight,w=el.offsetWidth;el.style.top=(r.bottom+h+8>innerHeight?r.top-h-4:r.bottom+4)+'px';el.style.left=Math.max(8,Math.min(innerWidth-w-8,r.right-w))+'px';
+  $$('[data-mi]',el).forEach(b=>b.onclick=()=>{fechaMenu();itens[+b.dataset.mi][2]()});setTimeout(()=>document.addEventListener('click',fechaMenu,{once:true}),0)}
+function fechaMenu(){const m=$('#mnu');if(m)m.remove()}
+
+/* =====================================================================
+   CARGA
+   ===================================================================== */
+async function carregaInfo(){const i=await rpc('mon_info');S.eu=i.eu;S.info={bases:i.bases||{},envios:i.envios||[]};const c=i.config||{};S.cfg={estrutura:c.estrutura||null,regras:c.regras||null,equipe:c.equipe||null};S.painel=i.painel||null}
+async function carregaBase(b,prog){const tot=(S.info.bases[b]||{}).linhas||0;const out=[];const T=5000;for(let de=0;de<tot;de+=T){const p=await rpc('mon_registros',{p_base:b,p_de:de,p_qtd:T});out.push(...p);if(prog)prog(b,out.length,tot)}S.raw[b]=out}
+function telaCarga(msg,p){$('#root').innerHTML=`<div class="loading"><div class="card"><div class="hstack"><div class="lg" style="width:30px;height:30px;border-radius:8px;background:var(--br);display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px">CM</div><b>Central da Montagem</b></div><p class="small muted" style="margin:14px 0 8px">${msg}</p><div class="prog"><div style="width:${p||5}%"></div></div></div></div>`}
+function telaLogin(err){
+  $('#root').innerHTML=`<div class="login"><form class="card" id="lf"><div class="lg" style="width:38px;height:38px;border-radius:10px;background:var(--br);display:grid;place-items:center;color:#fff;font-weight:700">CM</div><h1>Central da Montagem</h1><p>Operação do movfin, SLA, fases e sínteses. Entre com o seu login da Metrocasa.</p><input class="inp" id="le" type="email" placeholder="seu.email@metrocasa.com.br" autocomplete="username" required><input class="inp" id="ls" type="password" placeholder="Senha" autocomplete="current-password" required><div class="err" id="lerr">${esc(err||'')}</div><button class="btn pri" type="submit">Entrar</button></form></div>`;
+  $('#le').focus();
+  $('#lf').onsubmit=async e=>{e.preventDefault();const b=$('#lf button');b.disabled=true;b.textContent='Entrando…';try{await entrar($('#le').value.trim(),$('#ls').value);await inicia()}catch(er){$('#lerr').textContent=msgErro(er);b.disabled=false;b.textContent='Entrar'}};
+}
+async function inicia(){
+  if(LOCAL){S.eu={email:'teste local',papel:'admin'};S.info=(await IDB.get('info'))||{bases:{},envios:[]};for(const b of Object.keys(BASES))S.raw[b]=(await IDB.get('base_'+b))||[];S.cfg={estrutura:await IDB.get('cfg_estrutura')||null,regras:await IDB.get('cfg_regras')||null,equipe:await IDB.get('cfg_equipe')||null};S.painel=await IDB.get('painel')||null}
+  else{
+    telaCarga('Conferindo seu acesso…',8);
+    try{await carregaInfo()}catch(e){if(/sem_permissao/.test(e.message)){guardaSes(null);telaLogin(MSG.sem_permissao);return}if(e.status===401){guardaSes(null);telaLogin('Sua sessão expirou. Entre de novo.');return}telaLogin(msgErro(e));return}
+    const tot=Object.keys(BASES).reduce((s,b)=>s+((S.info.bases[b]||{}).linhas||0),0);let feito=0;
+    for(const b of Object.keys(BASES)){const ini=feito;await carregaBase(b,(bb,n)=>{telaCarga(`Carregando ${BASES[bb].nome}… ${n0(n)} de ${n0((S.info.bases[bb]||{}).linhas)}`,10+Math.round((ini+n)/Math.max(1,tot)*85))});feito+=(S.info.bases[b]||{}).linhas||0}
+  }
+  modelo();if(S.raw.movfin.length&&!S.cfg.estrutura)garanteConfig();
+  S.view=S.R.length?'painel':'bases';render();
+}
+// teste local: importa um arquivo servido pelo próprio servidor (?local)
+window.__importaUrl=async(base,url)=>{const buf=await (await fetch(url)).arrayBuffer();importar(base,{buf,nome:url.split('/').pop()})};
+(async()=>{
+  if(LOCAL){await inicia();return}
+  const s=LS.get('mon_sb',null);
+  if(s&&s.refresh_token){SES=s;if(s.exp-Date.now()<120000&&!(await renova())){telaLogin();return}await inicia();return}
+  telaLogin();
+})();
+</script>
+</body>
+</html>
