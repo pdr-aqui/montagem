@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Central da Montagem</title>
+<title>Central de Registros</title>
 <link rel="icon" href="assets/logos/casinha.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
@@ -461,14 +461,14 @@ table.t{width:100%;border-collapse:separate;border-spacing:0;font-size:13.5px}
 <script>
 'use strict';
 /* =====================================================================
-   Central da Montagem · operação MOVFIN, SLA, fases e sínteses
+   Central de Registros · operação MOVFIN, SLA, fases e sínteses
    - Base original (movfin + relatórios de SLA) separada da configuração.
    - Configuração (estrutura, regras, equipe) e painel pessoal no Supabase (schema montagem).
    - ?local = modo de teste sem login (dados no navegador).
    ===================================================================== */
 const SB='https://jspfqktrbimrarimpzgh.supabase.co', SBK='sb_publishable_v5q-FJsZbsufq31dqi3zlA_ddzJQ_f-';
 const LOCAL=/[?&]local\b/.test(location.search)||location.protocol==='file:';
-const VERSAO='2.0';
+const VERSAO='2.0.1';
 const DIA=864e5;
 let HOJE=new Date();HOJE.setHours(23,59,59,0);
 const NOW=Date.now();
@@ -839,7 +839,7 @@ function shell(){
   const np=(S.V||[]).filter(r=>r.pend.length&&r.sit==='andamento').length;
   const papel={admin:'Administrador',gestor:'Gestora',analista:'Analista',leitor:'Leitura'}[S.eu.papel]||S.eu.papel;
   $('#root').innerHTML=`<header class="banda ${BANDA[S.view]||'t-vinho'}"><div class="facetas"><i></i><i></i><i></i></div>
-   <div class="topo"><img class="marca" src="assets/logos/horizontal-branco.png" alt="Metrocasa"><span class="produto">Central da Montagem</span>
+   <div class="topo"><img class="marca" src="assets/logos/horizontal-branco.png" alt="Metrocasa"><span class="produto">Central de Registros</span>
     <nav class="abas" aria-label="Seções">${NAV.map(n=>`<button data-v="${n[0]}" class="${S.view===n[0]?'on':''} ${['bases','config'].includes(n[0])?'sec':''}" title="${n[2]}">${ic(n[1],'s')}<span>${n[2]}</span>${n[0]==='pendencias'&&np?`<em class="ct">${n0(np)}</em>`:''}</button>`).join('')}</nav>
     <div class="gsearch">${ic('search','s')}<input id="gq" placeholder="Buscar cliente, contrato, unidade…" autocomplete="off" aria-label="Buscar processo"><div class="gres hid" id="gres"></div></div>
     <div class="eu"><span>${esc(pessoa(S.eu.email.split('@')[0].replace(/\./g,' ')))}<small>${esc(papel)}${LOCAL?' · modo local':''}</small></span>${LOCAL?'':`<button id="sair" title="Sair (${esc(S.eu.email)})">${ic('out','s')}</button>`}</div></div>
@@ -855,7 +855,7 @@ function shell(){
 function crumbs(extra){
   let h=`<button data-cv="painel">Central</button>`;
   if(S.view!=='painel'){if(S.hist.length&&S.view==='registros'){const p=S.hist[S.hist.length-1];h+=` ${ic('chev','s')} <button id="cbk">${esc(TIT[p.view]||p.view)}</button>`}h+=` ${ic('chev','s')} <b>${esc(TIT[S.view])}${extra?' · '+esc(extra):''}</b>`}
-  else h=`<b>Central da Montagem</b>${S.info.bases.movfin?` · base de ${esc(S.info.bases.movfin.em)}`:''}`;
+  else h=`<b>Central de Registros</b>${S.info.bases.movfin?` · base de ${esc(S.info.bases.movfin.em)}`:''}`;
   const c=$('#crumbs');if(!c)return;c.innerHTML=h;const b=$('[data-cv]',c);if(b)b.onclick=()=>go('painel');const k=$('#cbk');if(k)k.onclick=voltar;
 }
 function busca(){
@@ -871,7 +871,7 @@ function busca(){
 function render(){
   shell();const pg=$('#pg');
   if(S.R.length&&COM_RECORTE.includes(S.view))rRec();
-  if(!S.R.length&&!['bases','config'].includes(S.view)){crumbs();pg.innerHTML=`<div class="ph"><div><h1>Central da Montagem</h1><p>Movfin, SLA, fases e sínteses da operação num lugar só.</p></div></div>`+semBase();const b=$('#irb');if(b)b.onclick=()=>go('bases');return}
+  if(!S.R.length&&!['bases','config'].includes(S.view)){crumbs();pg.innerHTML=`<div class="ph"><div><h1>Central de Registros</h1><p>Movfin, SLA, fases e sínteses da operação num lugar só.</p></div></div>`+semBase();const b=$('#irb');if(b)b.onclick=()=>go('bases');return}
   ({painel:vPainel,analises:vAnalises,estrutura:vEstrutura,registros:vRegistros,equipe:vEquipe,pendencias:vPend,bases:vBases,config:vConfig})[S.view](pg);
 }
 function semBase(){return `<div class="card" style="max-width:640px;margin:0 auto"><div class="empty"><div class="ei" style="background:var(--inb);color:var(--azul2)">${ic('db')}</div><b>Nenhuma base carregada ainda</b>${pode()?'Importe o movfin para começar. Os relatórios de SLA de fases e sínteses são opcionais e deixam o tempo em cada etapa mais preciso.<div class="mt"><button class="btn pri" id="irb">'+ic('up','s')+'Importar bases</button></div>':'Assim que a gestora importar o movfin, a operação aparece aqui.'}</div></div>`}
@@ -1032,7 +1032,7 @@ function exportaAnalises(){if(!S.V.length){toast('Nada no recorte para exportar'
   ab.push(['Gargalos',[['Fase','Em andamento','Mediana de dias na fase','Parados','Pontuação (processos × mediana)'],...gargalos(ativos()).map(g=>[nomeF(g.fase),g.n,g.med,g.par,Math.round(g.score)])]]);
   const ks=meses(12,true);const se={};for(const c of ['dmin','dass','dreg','dret'])se[c]=serieMes(c,ks);ab.push(['Evolução mensal',[['Mês','Minutas','Assinaturas','Entregues ao registro','Retiradas'],...ks.map((k,i)=>[fmtMes(k),se.dmin[i],se.dass[i],se.dreg[i],se.dret[i]])]]);
   const inc=inconsist();ab.push(['Para investigar',[['Situação','Registros'],...inc.map(x=>[x.t,x.rs.length])]]);
-  xlsx('Central Montagem - Analises',ab)}
+  xlsx('Central Registros - Analises',ab)}
 
 /* =====================================================================
    CLASSIFICAÇÕES · camada de organização por cima do movfin (sínteses de qualquer fase em categorias)
@@ -1672,7 +1672,7 @@ function xlsx(nome,abas){const wb=XLSX.utils.book_new();for(const [t,aoa] of aba
 const CAB_REG=['Contrato CRM','Cliente','Empreendimento','Unidade','Situação','Etapa','Fase','Fase (movfin)','Grupo','Síntese','Síntese (movfin)','Analista de montagem','Dias na fase','Dias no grupo','Dias na síntese','Meta (dias)','Prazo','Contagem desde','Última movimentação','Dias sem movimentação','Pendências',...DATAS.filter(c=>c!=='dst').map(rot),'Analista de atendimento','Banco','Contrato de financiamento','Protocolo','Observações'];
 const linhaReg=r=>{const d=r.d;return [r.k,d.nome||'',d.emp||'',d.unid||'',SIT[r.sit][0],r.et?r.et.nome:'',nomeF(r.fase),r.fase,r.gr?r.gr.nome:'',nomeS(r.sint),r.sint,d.amont||'',r.sit==='andamento'?r.dF:'',r.sit==='andamento'&&r.gr?r.dG:'',r.sit==='andamento'?r.dP:'',r.meta??'',r.sla==='na'?'':SLA_TXT[r.sla][0],{campo:rot(cfgE().inicio[r.fase]||''),rel:'Relatório de SLA',mov:'Data Status'}[r.src],fDH(d.dst),r.diasMov??'',r.pend.map(p=>REGRAS.find(x=>x.id===p).nome).join('; '),...DATAS.filter(c=>c!=='dst').map(c=>fD(d[c])),d.aten||'',d.banco||'',d.contrato||'',d.protocolo||'',d.obs||'']};
 function filtroTxt(F){return Object.entries(F||{}).filter(([k,v])=>v!=null&&v!=='').map(([k,v])=>(FILTROS[k]||k)+': '+rotuloF(k,v)).join(' · ')||'sem filtros'}
-function exportaLista(rs,titulo){xlsx('Central Montagem - '+titulo,[['Processos',[CAB_REG,...rs.map(linhaReg)]],['Sobre',[['Lista',titulo],['Filtros',filtroTxt(S.F)],['Gerado em',new Date().toLocaleString('pt-BR')],['Registros',rs.length]]]])}
+function exportaLista(rs,titulo){xlsx('Central Registros - '+titulo,[['Processos',[CAB_REG,...rs.map(linhaReg)]],['Sobre',[['Lista',titulo],['Filtros',filtroTxt(S.F)],['Gerado em',new Date().toLocaleString('pt-BR')],['Registros',rs.length]]]])}
 function linhasSLA(){const out=[['Nível','Etapa','Fase','Grupo','Síntese','Ativos','Total na base','Dias médios','Mediana','Mais antigo','Meta (dias)','Com meta','Fora do prazo','% no prazo','Parados']];
   const add=(niv,e,f,g,s,ag,meta)=>out.push([niv,e,f,g,s,ag.na,ag.n,ag.media==null?'':Math.round(ag.media*10)/10,ag.mediana??'',ag.max??'',meta??'',ag.comMeta,ag.atr,ag.comMeta?Math.round(ag.noPrazo/ag.comMeta*100)+'%':'',ag.parados]);
   add('Operação','','','','',agrega(S.V,'fase'));const E=cfgE();
@@ -1682,20 +1682,20 @@ function linhasSLA(){const out=[['Nível','Etapa','Fase','Grupo','Síntese','Ati
 function exportaEquipe(){const L=equipeStats(EQD);const mk=MARCOS[S.cfg.equipe.marco||'concl'];
   const ab=[['Equipe',[['Analista','Carteira ativa','Fora do prazo','Dias médios','Com pendência','Parados',`${mk} (${EQD} dias)`],...L.map(x=>[x.n,x.cart,x.atr,x.media==null?'':Math.round(x.media*10)/10,x.pend,x.par,x.prod])]]];
   const usados=new Set();for(const x of L.filter(x=>x.cart)){let t=pessoa(x.n,1).slice(0,28);while(usados.has(t))t+='+';usados.add(t);ab.push([t,[CAB_REG,...x.a.map(linhaReg)]])}
-  const sem=ativos().filter(r=>!r.d.amont);ab.push(['Sem analista',[CAB_REG,...sem.map(linhaReg)]]);xlsx('Central Montagem - Equipe',ab)}
+  const sem=ativos().filter(r=>!r.d.amont);ab.push(['Sem analista',[CAB_REG,...sem.map(linhaReg)]]);xlsx('Central Registros - Equipe',ab)}
 function exportaPend(base){const RG=S.cfg.regras;const rs=base||S.V;const ab=[['Resumo',[['Pendência','Ocorrências','O que é','Vale para'],...REGRAS.filter(r=>RG.ativas[r.id]!==false).map(r=>[r.nome,rs.filter(x=>x.pend.includes(r.id)).length,r.ds,r.fases?(RG.fases[r.id]||[]).join(', '):''])]]];
-  for(const r of REGRAS){const l=rs.filter(x=>x.pend.includes(r.id));if(l.length)ab.push([r.nome.slice(0,31),[CAB_REG,...l.map(linhaReg)]])}xlsx('Central Montagem - Pendencias',ab)}
+  for(const r of REGRAS){const l=rs.filter(x=>x.pend.includes(r.id));if(l.length)ab.push([r.nome.slice(0,31),[CAB_REG,...l.map(linhaReg)]])}xlsx('Central Registros - Pendencias',ab)}
 function exporta(k){
   if(!S.R.length){toast('Importe o movfin primeiro','wa');return}
-  if(k==='base')return xlsx('Central Montagem - Base movfin',[['Base',[CAB_REG,...S.R.map(linhaReg)]]]);
+  if(k==='base')return xlsx('Central Registros - Base movfin',[['Base',[CAB_REG,...S.R.map(linhaReg)]]]);
   if(k==='analises')return exportaAnalises();
-  if(k==='ativos')return xlsx('Central Montagem - Em andamento',[['Em andamento',[CAB_REG,...ativos().map(linhaReg)]]]);
+  if(k==='ativos')return xlsx('Central Registros - Em andamento',[['Em andamento',[CAB_REG,...ativos().map(linhaReg)]]]);
   if(k==='analista')return exportaEquipe();
   if(k==='pend')return exportaPend(aplicaF({per:S.cfg.regras.periodo}));
-  if(k==='sla')return xlsx('Central Montagem - Analise de SLA',[['SLA por nível',linhasSLA()]]);
-  if(k==='fase'){const out=[['Fase','Fase (movfin)','Síntese','Síntese (movfin)','Grupo','Situação','Ativos','Total','Dias médios','Fora do prazo']];for(const f of S.cfgFases||cfgE().ordem){const rs=S.R.filter(r=>r.fase===f);if(!rs.length)continue;const ss=[...new Set(rs.map(r=>r.sint))];for(const s of ss){const x=rs.filter(r=>r.sint===s);const ag=agrega(x,'sint');out.push([nomeF(f),f,nomeS(s),s,x[0].gr?x[0].gr.nome:'',SIT[sitF(f)][0],ag.na,ag.n,ag.media==null?'':Math.round(ag.media*10)/10,ag.atr])}}return xlsx('Central Montagem - Por fase',[['Fases e sinteses',out]])}
+  if(k==='sla')return xlsx('Central Registros - Analise de SLA',[['SLA por nível',linhasSLA()]]);
+  if(k==='fase'){const out=[['Fase','Fase (movfin)','Síntese','Síntese (movfin)','Grupo','Situação','Ativos','Total','Dias médios','Fora do prazo']];for(const f of S.cfgFases||cfgE().ordem){const rs=S.R.filter(r=>r.fase===f);if(!rs.length)continue;const ss=[...new Set(rs.map(r=>r.sint))];for(const s of ss){const x=rs.filter(r=>r.sint===s);const ag=agrega(x,'sint');out.push([nomeF(f),f,nomeS(s),s,x[0].gr?x[0].gr.nome:'',SIT[sitF(f)][0],ag.na,ag.n,ag.media==null?'':Math.round(ag.media*10)/10,ag.atr])}}return xlsx('Central Registros - Por fase',[['Fases e sinteses',out]])}
   if(k==='grupo'){const E=cfgE();if(!E.grupos.length){toast('Nenhum grupo criado ainda','wa');return}const out=[['Grupo','Fase','Sínteses','Meta (dias)','Ativos','Dias médios no grupo','Mediana','Mais antigo','Fora do prazo','% no prazo']];const ab=[];for(const g of E.grupos){const rs=S.R.filter(r=>r.gr&&r.gr.id===g.id);const ag=agrega(rs,'grupo');out.push([g.nome,nomeF(g.fase),g.sints.map(nomeS).join('; '),g.meta??'',ag.na,ag.media==null?'':Math.round(ag.media*10)/10,ag.mediana??'',ag.max??'',ag.atr,ag.comMeta?Math.round(ag.noPrazo/ag.comMeta*100)+'%':''])
-    ;ab.push([g.nome.slice(0,31),[CAB_REG,...rs.filter(r=>r.sit==='andamento').map(linhaReg)]])}return xlsx('Central Montagem - Por grupo',[['Grupos',out],...ab])}
+    ;ab.push([g.nome.slice(0,31),[CAB_REG,...rs.filter(r=>r.sit==='andamento').map(linhaReg)]])}return xlsx('Central Registros - Por grupo',[['Grupos',out],...ab])}
   if(k==='filtro'){const F=S.lastF||S.F||{};return exportaLista(aplicaF(F),S.titulo||'Lista')}
 }
 
@@ -1757,9 +1757,9 @@ function fechaMenu(){const m=$('#mnu');if(m)m.remove()}
    ===================================================================== */
 async function carregaInfo(){const i=await rpc('mon_info');S.eu=i.eu;S.info={bases:i.bases||{},envios:i.envios||[]};const c=i.config||{};S.cfg={estrutura:c.estrutura||null,regras:c.regras||null,equipe:c.equipe||null};S.painel=i.painel||null}
 async function carregaBase(b,prog){const tot=(S.info.bases[b]||{}).linhas||0;const out=[];const T=5000;for(let de=0;de<tot;de+=T){const p=await rpc('mon_registros',{p_base:b,p_de:de,p_qtd:T});out.push(...p);if(prog)prog(b,out.length,tot)}S.raw[b]=out}
-function telaCarga(msg,p){$('#root').innerHTML=`<div class="loading"><div class="card"><div class="hstack"><img src="assets/logos/casinha.png" alt="" style="height:28px"><b style="font:700 18px var(--fg)">Central da Montagem</b></div><p class="small muted" style="margin:14px 0 8px">${msg}</p><div class="prog"><div style="width:${p||5}%"></div></div></div></div>`}
+function telaCarga(msg,p){$('#root').innerHTML=`<div class="loading"><div class="card"><div class="hstack"><img src="assets/logos/casinha.png" alt="" style="height:28px"><b style="font:700 18px var(--fg)">Central de Registros</b></div><p class="small muted" style="margin:14px 0 8px">${msg}</p><div class="prog"><div style="width:${p||5}%"></div></div></div></div>`}
 function telaLogin(err){
-  $('#root').innerHTML=`<div class="login"><div class="login-arte"><div class="facetas"><i></i><i></i><i></i></div><img class="lmarca" src="assets/logos/horizontal-branco.png" alt="Metrocasa"><div><img class="mais" src="assets/logos/mais-verde.png" alt=""><h1>Central da<br>Montagem</h1><p>Movfin, SLA, fases e sínteses da operação num lugar só.</p></div></div>
+  $('#root').innerHTML=`<div class="login"><div class="login-arte"><div class="facetas"><i></i><i></i><i></i></div><img class="lmarca" src="assets/logos/horizontal-branco.png" alt="Metrocasa"><div><img class="mais" src="assets/logos/mais-verde.png" alt=""><h1>Central de<br>Registros</h1><p>Movfin, SLA, fases e sínteses da operação num lugar só.</p></div></div>
    <form class="lform" id="lf"><h2>Entrar</h2><p class="muted">Use o seu login da Metrocasa.</p><label for="le">E-mail</label><input class="inp" id="le" type="email" placeholder="seu.email@metrocasa.com.br" autocomplete="username" required><label for="ls">Senha</label><input class="inp" id="ls" type="password" autocomplete="current-password" required><div class="err" id="lerr">${esc(err||'')}</div><button class="btn pri" type="submit">Entrar</button></form></div>`;
   $('#le').focus();
   $('#lf').onsubmit=async e=>{e.preventDefault();const b=$('#lf button');b.disabled=true;b.textContent='Entrando…';try{await entrar($('#le').value.trim(),$('#ls').value);await inicia()}catch(er){$('#lerr').textContent=msgErro(er);b.disabled=false;b.textContent='Entrar'}};
